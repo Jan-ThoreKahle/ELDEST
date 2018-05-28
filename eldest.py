@@ -13,7 +13,8 @@
 ##########################################################################
 
 import scipy.integrate as integrate
-from numpy import sqrt, sin, cos, pi, absolute
+#from numpy import sqrt, sin, cos, pi, absolute, exp
+import numpy as np
 
 
 #-------------------------------------------------------------------------
