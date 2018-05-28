@@ -48,5 +48,14 @@ timestep_s    = 10E-18        # evaluate expression every timestep_s seconds
 Omega_step_eV = 0.1           # energy difference between different evaluated Omegas
 
 
-
 print 'Hello World'
+
+# very important: The first Variable in the definition of the function marks the inner
+# integral, while the second marks the outer integral.
+# If any limit is replaced by the integration variable of the outer integral,
+# this is always specified as x, never as the actual name of the variable.
+f = lambda t2, t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV)) * np.exp(t2 * complex(Gamma_eV/2, Er_eV + E_kin_eV))
+
+I = integrate.dblquad(f, -TX_s/2, TX_s/2, lambda x: x, lambda x: TX_s/2)
+
+print I
