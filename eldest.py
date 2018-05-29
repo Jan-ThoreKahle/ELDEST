@@ -64,16 +64,20 @@ def complex_quadrature(func, a, b, **kwargs):
     return (real_integral[0] + 1j*imag_integral[0], real_integral[1:],
             imag_integral[1:])
 
-def complex_double_quadrature(outer, inner, a, b, c, d, **kwargs):
-    first_real = lambda x,y: scipy.real(outer(x)) * scipy.real(inner(y))
-    sec_real   = lambda x,y: - scipy.imag(outer(x)) * scipy.imag(inner(y))
-    first_imag = lambda x,y: scipy.imag(outer(x)) * scipy.real(inner(y))
-    sec_imag   = lambda x,y: scipy.real(outer(x)) * scipy.imag(inner(y))
+def complex_double_quadrature(outer, inner, a, b, gfun, hfun, **kwargs):
+    first_real = lambda y,x: scipy.real(outer(x)) * scipy.real(inner(y))
+    sec_real   = lambda y,x: - scipy.imag(outer(x)) * scipy.imag(inner(y))
+    first_imag = lambda y,x: scipy.imag(outer(x)) * scipy.real(inner(y))
+    sec_imag   = lambda y,x: scipy.real(outer(x)) * scipy.imag(inner(y))
+
+    def temp_ranges(*args):
+        return [gfun(args[0]) if callable(gfun) else gfun,
+                hfun(args[0]) if callable(hfun) else hfun]
     
-    first_real_integral = integrate.dblquad(first_real, a, b, c, d, **kwargs)
-    sec_real_integral   = integrate.dblquad(sec_real, a, b, c, d, **kwargs)
-    first_imag_integral = integrate.dblquad(first_imag, a, b, c, d, **kwargs)
-    sec_imag_integral   = integrate.dblquad(sec_imag, a, b, c, d, **kwargs)
+    first_real_integral = integrate.nquad(first_real, [temp_ranges, [a,b]])
+    sec_real_integral   = integrate.nquad(sec_real, [temp_ranges, [a,b]])
+    first_imag_integral = integrate.nquad(first_imag, [temp_ranges, [a,b]])
+    sec_imag_integral   = integrate.nquad(sec_imag, [temp_ranges, [a,b]])
     return (first_real_integral[0] + sec_real_integral[0]
             + 1j*first_imag_integral[0] + 1j*sec_imag_integral[0],
             first_real_integral[1:])
@@ -100,8 +104,8 @@ h = lambda y,x: f(x) * g(y)
 
 #I = complex_quadrature(f,0,1)
 
-f = lambda x: np.exp(x)
-g = lambda y: np.exp(y)
+f = lambda x: np.exp(2*x)
+g = lambda y: np.exp(1j*y)
 
 h = lambda y,x: f(x) * g(y)
 
