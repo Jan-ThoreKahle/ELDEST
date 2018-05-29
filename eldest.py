@@ -65,15 +65,6 @@ def complex_quadrature(func, a, b, **kwargs):
             imag_integral[1:])
 
 def complex_double_quadrature(outer, inner, a, b, c, d, **kwargs):
-    #def real_f1(x):
-    #    return scipy.real(func1(x))
-    #def real_f2(y):
-    #    return scipy.real(func2(y))
-    #def imag_f1(x):
-    #    return scipy.imag(func1(x))
-    #def imag_f2(y):
-    #    return scipy.imag(func2(y))
-
     first_real = lambda x,y: scipy.real(outer(x)) * scipy.real(inner(y))
     sec_real   = lambda x,y: - scipy.imag(outer(x)) * scipy.imag(inner(y))
     first_imag = lambda x,y: scipy.imag(outer(x)) * scipy.real(inner(y))
