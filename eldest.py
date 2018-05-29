@@ -64,20 +64,20 @@ def complex_quadrature(func, a, b, **kwargs):
     return (real_integral[0] + 1j*imag_integral[0], real_integral[1:],
             imag_integral[1:])
 
-def complex_double_quadrature(func1, func2, a, b, c, d, **kwargs):
-    def real_f1(x):
-        return scipy.real(func1(x))
-    def real_f2(y):
-        return scipy.real(func2(y))
-    def imag_f1(x):
-        return scipy.imag(func1(x))
-    def imag_f2(y):
-        return scipy.imag(func2(y))
+def complex_double_quadrature(outer, inner, a, b, c, d, **kwargs):
+    #def real_f1(x):
+    #    return scipy.real(func1(x))
+    #def real_f2(y):
+    #    return scipy.real(func2(y))
+    #def imag_f1(x):
+    #    return scipy.imag(func1(x))
+    #def imag_f2(y):
+    #    return scipy.imag(func2(y))
 
-    first_real = lambda y,x: scipy.real(func1(x)) * scipy.real(func2(y))
-    sec_real   = lambda y,x: - scipy.imag(func1(x)) * scipy.imag(func2(y))
-    first_imag = lambda y,x: scipy.imag(func1(x)) * scipy.real(func2(y))
-    sec_imag   = lambda y,x: scipy.real(func1(x)) * scipy.imag(func2(y))
+    first_real = lambda x,y: scipy.real(outer(x)) * scipy.real(inner(y))
+    sec_real   = lambda x,y: - scipy.imag(outer(x)) * scipy.imag(inner(y))
+    first_imag = lambda x,y: scipy.imag(outer(x)) * scipy.real(inner(y))
+    sec_imag   = lambda x,y: scipy.real(outer(x)) * scipy.imag(inner(y))
     
     first_real_integral = integrate.dblquad(first_real, a, b, c, d, **kwargs)
     sec_real_integral   = integrate.dblquad(sec_real, a, b, c, d, **kwargs)
@@ -105,28 +105,25 @@ g = lambda y: np.exp(y)
 
 h = lambda y,x: f(x) * g(y)
 
-#I = integrate.dblquad(h, -TX_s/2, TX_s/2, lambda x: x, lambda x: TX_s/2)
-I = integrate.dblquad(h, 0, 1, lambda x: x, lambda x: 1)
-#
-#x,y = symbols("x y")
-#f = x**2 * y
-# integration using sympy instead of scipy
-#I = integrate(f, (x, 0, 2), (y, 0, x)) 
-#
+#I = integrate.dblquad(h, 0, 1, lambda x: x, lambda x: 1)
 
 #I = complex_quadrature(f,0,1)
-#J = complex_quadrature(g,0,1)
+
+f = lambda x: np.exp(x)
+g = lambda y: np.exp(y)
+
+h = lambda y,x: f(x) * g(y)
+
+I = complex_double_quadrature(f,g,0,np.pi,lambda x: 0, lambda x: x)
 
 print "I"
 print I
 
-#print J
-
 fun1 = lambda t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV))
 fun2 = lambda t2: np.exp(t2 * complex(Gamma_eV/2, Er_eV + E_kin_eV))
 
-K = complex_double_quadrature(fun1,fun2, -TX_s/2, TX_s/2, lambda x: x, lambda x: TX_s/2)
+#K = complex_double_quadrature(fun1,fun2, -TX_s/2, TX_s/2, lambda x: x, lambda x: TX_s/2)
 #K = complex_double_quadrature(f,g, 0, 1, lambda x: x, lambda x: 1)
 
 print "K"
-print K
+#print K
