@@ -49,10 +49,14 @@ delta_t_s     = 1.0E-15       # time difference between the maxima of the two pu
 tmax_s        = 1.0E-10       # simulate until time tmax in seconds
 timestep_s    = 10E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.1           # energy difference between different evaluated Omegas
+#-------------------------------------------------------------------------
 
 
+#-------------------------------------------------------------------------
+# Definitions of reusable functions
 print 'Hello World'
 Omega= 13.5
+
 
 def complex_quadrature(func, a, b, **kwargs):
     def real_func(x):
@@ -82,10 +86,14 @@ def complex_double_quadrature(outer, inner, a, b, gfun, hfun, **kwargs):
             + 1j*first_imag_integral[0] + 1j*sec_imag_integral[0],
             first_real_integral[1:])
 
+#-------------------------------------------------------------------------
+# physical defintions of functions
+# XUV pulse
 f  = lambda t1: 1./4 (np.exp(2j*np.pi*t1/TX) + 2 + np.exp(-2j*np.pi*t1/TX) )
 fp = lambda t1: np.pi/(2j*TX) * (-np.exp(2j*np.pi*t1/TX) + np.exp(-2j*np.pi*t1/TX) )
 FX = lambda t1: - A0X * np.cos(Omega * t1) * fp + A0X * Omega * np.sin(Omega * t1) * f
 
+#-------------------------------------------------------------------------
 ## very important: The first Variable in the definition of the function marks the inner
 ## integral, while the second marks the outer integral.
 ## If any limit is replaced by the integration variable of the outer integral,
@@ -94,31 +102,10 @@ f = lambda t2, t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV)) * np.exp(t2 * complex(
 ##f = lambda t2, t1: np.exp(t1 * Gamma_eV/2) * np.exp(t2 * Gamma_eV/2)
 #
 
-
-f = lambda x: x
-g = lambda y: np.exp(y)
-
-h = lambda y,x: f(x) * g(y)
-
-#I = integrate.dblquad(h, 0, 1, lambda x: x, lambda x: 1)
-
-#I = complex_quadrature(f,0,1)
-
-f = lambda x: np.exp(2*x)
-g = lambda y: np.exp(1j*y)
-
-h = lambda y,x: f(x) * g(y)
-
-I = complex_double_quadrature(f,g,0,np.pi,lambda x: 0, lambda x: x)
-
-print "I"
 print I
 
 fun1 = lambda t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV))
 fun2 = lambda t2: np.exp(t2 * complex(Gamma_eV/2, Er_eV + E_kin_eV))
 
 #K = complex_double_quadrature(fun1,fun2, -TX_s/2, TX_s/2, lambda x: x, lambda x: TX_s/2)
-#K = complex_double_quadrature(f,g, 0, 1, lambda x: x, lambda x: 1)
 
-print "K"
-#print K
