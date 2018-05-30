@@ -106,25 +106,28 @@ A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2
 fun1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
 fun2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
 
-I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, TX_au/2,
-                                 lambda x: x, lambda x: TX_au/2)
+#I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, TX_au/2,
+#                                 lambda x: x, lambda x: TX_au/2)
+#
+#print I
 
-print I
+t_au = -TX_au/2
 
-t_au = TX_au/2
-Omega_au = Omega_min_au
-outlines = []
+while (t_au <= TX_au/2):
 
-while (Omega_au < Omega_max_au):
-    I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, t_au,
-                                     lambda x: x, lambda x: t_au)
-
-    string = in_out.prep_output(I, Omega_au)
-    outlines.append(string)
+    Omega_au = Omega_min_au
+    outlines = []
     
-    Omega_au = Omega_au + Omega_step_au
+    while (Omega_au < Omega_max_au):
+        I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, t_au,
+                                         lambda x: x, lambda x: t_au)
+    
+        string = in_out.prep_output(I, Omega_au)
+        outlines.append(string)
+        
+        Omega_au = Omega_au + Omega_step_au
+    
+    
+    in_out.doout(t_au,outlines)
 
-
-in_out.doout(t_au,outlines)
-
-
+    t_au = t_au + timestep_au
