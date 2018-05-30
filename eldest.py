@@ -14,11 +14,7 @@
 
 import scipy
 import scipy.integrate as integrate
-#import scipy.constants as constants
-#from numpy import sqrt, sin, cos, pi, absolute, exp
 import numpy as np
-#from sympy import *
-#from mpmath import *
 import sciconv
 
 #-------------------------------------------------------------------------
