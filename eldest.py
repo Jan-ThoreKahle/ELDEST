@@ -57,6 +57,29 @@ Omega= 13.5
 #-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
+# Convert input parameters to atomic units
+#-------------------------------------------------------------------------
+Er_au          = sciconv.ev_to_hartree(Er_eV)
+Er_kin_au      = sciconv.ev_to_hartree(E_kin_eV)
+Er_fin_au      = sciconv.ev_to_hartree(E_fin_eV)
+
+Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)
+
+# laser parameters
+Omega_min_au  = sciconv.ev_to_hartree(Omega_min_eV)
+Omega_max_au  = sciconv.ev_to_hartree(Omega_max_eV)
+TX_au         = sciconv.second_to_atu(TX_s)
+
+omega_au      = sciconv.ev_to_hartree(omega_eV)
+TL_au         = sciconv.second_to_atu(TL_s)
+delta_t_au    = sciconv.second_to_atu(delta_t_s)
+
+# parameters of the simulation
+tmax_au       = sciconv.second_to_atu(tmax_s)
+timestep_au   = sciconv.second_to_atu(timestep_s)
+Omega_step_au = sciconv.ev_to_hartree(Omega_step_eV)
+
+#-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
 f  = lambda t1: 1./4 (np.exp(2j*np.pi*t1/TX) + 2 + np.exp(-2j*np.pi*t1/TX) )
