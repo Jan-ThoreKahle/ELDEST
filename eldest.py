@@ -92,6 +92,9 @@ fp = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi*t1/TX_au)
 
 FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
 
+# IR pulse
+A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2
+
 #-------------------------------------------------------------------------
 ## very important: The first Variable in the definition of the function marks the inner
 ## integral, while the second marks the outer integral.
