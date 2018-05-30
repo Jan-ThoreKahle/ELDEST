@@ -82,9 +82,11 @@ Omega_step_au = sciconv.ev_to_hartree(Omega_step_eV)
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
-f  = lambda t1: 1./4 (np.exp(2j*np.pi*t1/TX) + 2 + np.exp(-2j*np.pi*t1/TX) )
-fp = lambda t1: np.pi/(2j*TX) * (-np.exp(2j*np.pi*t1/TX) + np.exp(-2j*np.pi*t1/TX) )
-FX = lambda t1: - A0X * np.cos(Omega * t1) * fp + A0X * Omega * np.sin(Omega * t1) * f
+f  = lambda t1: 1./4 (np.exp(2j*np.pi*t1/TX_au) + 2 + np.exp(-2j*np.pi*t1/TX_au) )
+fp = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi*t1/TX_au)
+                                     + np.exp(-2j*np.pi*t1/TX_au) )
+FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) \
+                + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
 
 #-------------------------------------------------------------------------
 ## very important: The first Variable in the definition of the function marks the inner
