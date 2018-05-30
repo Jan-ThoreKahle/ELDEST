@@ -119,11 +119,7 @@ while (Omega_au < Omega_max_au):
     I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, t_au,
                                      lambda x: x, lambda x: t_au)
 
-    square = np.absolute(I[0])**2
-    #print square
-    Omega_eV = sciconv.hartree_to_ev(Omega_au)
-    string = str(Omega_eV) + '   ' + str(square)
-    #print string
+    string = in_out.prep_output(I, Omega_au)
     outlines.append(string)
     
     Omega_au = Omega_au + Omega_step_au

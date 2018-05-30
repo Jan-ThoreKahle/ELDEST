@@ -9,9 +9,19 @@
 ##########################################################################
 
 import sciconv
+import numpy as np
 
 #-------------------------------------------------------------------------
 #   input
+
+#-------------------------------------------------------------------------
+#   output
+def prep_output(I, Omega_au):
+    square = np.absolute(I[0])**2
+    Omega_eV = sciconv.hartree_to_ev(Omega_au)
+    string = str(Omega_eV) + '   ' + str(square)
+    return string
+
 def doout(t_au, outlines):
     # output filename will give the time in ps
     t_s = sciconv.atu_to_second(t_au)
@@ -21,6 +31,3 @@ def doout(t_au, outlines):
     res_lines = '\n'.join(outlines)
     outfile.write(res_lines)
     outfile.close
-
-#-------------------------------------------------------------------------
-#   output
