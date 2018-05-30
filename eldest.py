@@ -51,6 +51,7 @@ Omega_step_eV = 0.1           # energy difference between different evaluated Om
 
 print 'Hello World'
 Omega= 13.5
+Omega_au = sciconv.ev_to_hartree(Omega)
 
 #-------------------------------------------------------------------------
 # Definitions of reusable functions
@@ -85,8 +86,7 @@ Omega_step_au = sciconv.ev_to_hartree(Omega_step_eV)
 f  = lambda t1: 1./4 (np.exp(2j*np.pi*t1/TX_au) + 2 + np.exp(-2j*np.pi*t1/TX_au) )
 fp = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi*t1/TX_au)
                                      + np.exp(-2j*np.pi*t1/TX_au) )
-FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) \
-                + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
+FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
 
 #-------------------------------------------------------------------------
 ## very important: The first Variable in the definition of the function marks the inner
@@ -98,12 +98,12 @@ f = lambda t2, t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV)) * np.exp(t2 * complex(
 #
 
 
-fun1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au))
+fun1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
 fun2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
 
-I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, TX_au/2,
-                                 lambda x: x, lambda x: TX_au/2)
+#I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, TX_au/2,
+#                                 lambda x: x, lambda x: TX_au/2)
 
-print I
+#print I
 
 print sciconv.bohr_to_angstrom(2)
