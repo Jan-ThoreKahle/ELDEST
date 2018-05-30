@@ -17,6 +17,7 @@ import scipy.integrate as integrate
 import numpy as np
 import sciconv
 import complex_integration as ci
+import in_out
 
 #-------------------------------------------------------------------------
 # Input parameters
@@ -128,15 +129,6 @@ while (Omega_au < Omega_max_au):
     Omega_au = Omega_au + Omega_step_au
 
 
-# output filename will give the time in ps
-t_s = sciconv.atu_to_second(t_au)
-t_ps = t_s * 1E12
-filename = format(t_ps, '.8f') + '.dat'
-outfile = open(filename, mode='w')
-res_lines = '\n'.join(outlines)
-outfile.write(res_lines)
-outfile.close
-
-
+in_out.doout(t_au,outlines)
 
 
