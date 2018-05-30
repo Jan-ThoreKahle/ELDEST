@@ -34,7 +34,7 @@ Gamma_eV      = 0.5           # electronic decay width of the resonant state
 
 # laser parameters
 Omega_min_eV  = 10.0          # scanning XUV pulse from Omega_min-eV to
-Omega_max_eV  = 18.0          #
+Omega_max_eV  = 20.0          #
 TX_s          = 100E-18       # duration of the XUV pulse in seconds
 A0X           = 1.0           # amplitude of the XUV pulse
 
@@ -46,7 +46,7 @@ delta_t_s     = 1.0E-15       # time difference between the maxima of the two pu
 # parameters of the simulation
 tmax_s        = 1.0E-10       # simulate until time tmax in seconds
 timestep_s    = 10E-18        # evaluate expression every timestep_s seconds 
-Omega_step_eV = 0.1           # energy difference between different evaluated Omegas
+Omega_step_eV = 0.5           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
 print 'Hello World'
@@ -96,14 +96,11 @@ FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2
 
 #-------------------------------------------------------------------------
-## very important: The first Variable in the definition of the function marks the inner
-## integral, while the second marks the outer integral.
-## If any limit is replaced by the integration variable of the outer integral,
-## this is always specified as x, never as the actual name of the variable.
-#f = lambda t2, t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV)) * np.exp(t2 * complex(Gamma_eV/2, Er_eV + E_kin_eV))
-##f = lambda t2, t1: np.exp(t1 * Gamma_eV/2) * np.exp(t2 * Gamma_eV/2)
+# very important: The first Variable in the definition of the function marks the inner
+# integral, while the second marks the outer integral.
+# If any limit is replaced by the integration variable of the outer integral,
+# this is always specified as x, never as the actual name of the variable.
 #
-
 
 fun1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
 fun2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
@@ -112,6 +109,33 @@ I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, TX_au/2,
                                  lambda x: x, lambda x: TX_au/2)
 
 print I
+
+t_au = TX_au/2
+Omega_au = Omega_min_au
+outlines = []
+
+while (Omega_au < Omega_max_au):
+    I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, t_au,
+                                     lambda x: x, lambda x: t_au)
+
+    square = np.absolute(I[0])**2
+    #print square
+    Omega_eV = sciconv.hartree_to_ev(Omega_au)
+    string = str(Omega_eV) + '   ' + str(square)
+    #print string
+    outlines.append(string)
+    
+    Omega_au = Omega_au + Omega_step_au
+
+
+# output filename will give the time in ps
+t_s = sciconv.atu_to_second(t_au)
+t_ps = t_s * 1E12
+filename = format(t_ps, '.8f') + '.dat'
+outfile = open(filename, mode='w')
+res_lines = '\n'.join(outlines)
+outfile.write(res_lines)
+outfile.close
 
 
 
