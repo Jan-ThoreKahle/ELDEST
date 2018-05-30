@@ -14,12 +14,12 @@
 
 import scipy
 import scipy.integrate as integrate
-import scipy.constants as constants
+#import scipy.constants as constants
 #from numpy import sqrt, sin, cos, pi, absolute, exp
 import numpy as np
 #from sympy import *
 #from mpmath import *
-
+import sciconv
 
 #-------------------------------------------------------------------------
 # Input parameters
@@ -92,18 +92,6 @@ def complex_double_quadrature(outer, inner, a, b, gfun, hfun, **kwargs):
             first_real_integral[1:])
 
 #-------------------------------------------------------------------------
-#   unit conversion
-#      Distances, Areas, Volume
-
-a_0 = constants.hbar / (constants.m_e * constants.c * constants.fine_structure)
-
-#def bohr_to_angstrom = 
-
-#      Energies
-#      Time
-#def 
-
-#-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
 f  = lambda t1: 1./4 (np.exp(2j*np.pi*t1/TX) + 2 + np.exp(-2j*np.pi*t1/TX) )
@@ -127,3 +115,4 @@ I = complex_double_quadrature(fun1,fun2, -TX_s/2, TX_s/2, lambda x: x, lambda x:
 
 print I
 
+print sciconv.bohr_to_angstrom(2)
