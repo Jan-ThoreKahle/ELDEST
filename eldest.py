@@ -60,8 +60,8 @@ Omega= 13.5
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
 Er_au          = sciconv.ev_to_hartree(Er_eV)
-Er_kin_au      = sciconv.ev_to_hartree(E_kin_eV)
-Er_fin_au      = sciconv.ev_to_hartree(E_fin_eV)
+E_kin_au       = sciconv.ev_to_hartree(E_kin_eV)
+E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 
 Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)
 
@@ -98,10 +98,11 @@ f = lambda t2, t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV)) * np.exp(t2 * complex(
 #
 
 
-fun1 = lambda t1: np.exp(t1 * complex(Gamma_eV/2,Er_eV))
-fun2 = lambda t2: np.exp(t2 * complex(Gamma_eV/2, Er_eV + E_kin_eV))
+fun1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au))
+fun2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
 
-I = ci.complex_double_quadrature(fun1,fun2, -TX_s/2, TX_s/2, lambda x: x, lambda x: TX_s/2)
+I = ci.complex_double_quadrature(fun1,fun2, -TX_au/2, TX_au/2,
+                                 lambda x: x, lambda x: TX_au/2)
 
 print I
 
