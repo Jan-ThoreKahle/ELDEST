@@ -52,7 +52,10 @@ Omega_step_eV = 0.2           # energy difference between different evaluated Om
 
 print 'Hello World'
 
-in_out.check_input(TX_s,TL_s,delta_t_s)
+in_out.check_input(Er_eV, E_kin_eV, E_fin_eV, Gamma_eV,
+                   Omega_min_eV, Omega_max_eV, TX_s, A0X,
+                   omega_eV, TL_s, A0L, delta_t_s,
+                   tmax_s, timestep_s, Omega_step_eV)
 
 Omega= 13.5
 Omega_au = sciconv.ev_to_hartree(Omega)

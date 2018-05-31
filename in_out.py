@@ -14,7 +14,10 @@ from sys import exit
 
 #-------------------------------------------------------------------------
 #   input
-def check_input(TX,TL,delta_t):
+def check_input(Er, E_kin, E_fin, Gamma,
+                Omega_min, Omega_max, TX, A0X,
+                omega, TL, A0L, delta_t,
+                tmax, timestep, Omega_step):
     print 'Input Check'
     if (TL/2 > (delta_t + TX/2)):
         exit('Warning: TL/2 > delta_t + TX/2' + '\n'
