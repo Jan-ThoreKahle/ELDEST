@@ -47,3 +47,23 @@ def integral_8(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
            + complex(0,1./E_kin) * (np.exp(-(t-TX/2) * res)
                                     - np.(-(dm-TX/2) * E_kin)))
     return I
+
+# Integral 9
+def integral_9(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
+    dm = delta - TL/2
+    I = - Vr * rdg / (res * reskin) \
+          * (np.exp((t-dm) * res)
+             - np.exp((t-TX/2) * res) * np.exp(1j*(dm-TX/2) * E_kin)
+             - 1
+             + np.exp((dm-TX/2) * reskin))
+    return I
+
+# Integral 10 but without the extra phase facot coming from the second pulse
+def integral_9(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
+    dm = delta - TL/2
+    I = - Vr * rdg / (res * reskin) \
+          * (np.exp(1j*(t-dm) * E_kin)
+             - np.exp((t-dm) * res)
+             - np.(-(t-dm) * reskin)
+             + 1)
+    return I
