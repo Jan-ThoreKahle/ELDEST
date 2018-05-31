@@ -17,7 +17,7 @@ import numpy as np
 #-------------------------------------------------------------------------
 #   output
 def prep_output(I, Omega_au):
-    square = np.absolute(I[0])**2
+    square = np.absolute(I)**2
     Omega_eV = sciconv.hartree_to_ev(Omega_au)
     string = str(Omega_eV) + '   ' + str(square)
     return string
