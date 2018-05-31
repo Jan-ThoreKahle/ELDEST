@@ -46,8 +46,8 @@ A0L           = 1.0           # amplitude of the IR pulse
 delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
 
 # parameters of the simulation
-tmax_s        = 2.0E-16       # simulate until time tmax in seconds
-timestep_s    = 50E-18        # evaluate expression every timestep_s seconds 
+tmax_s        = 1.0E-14       # simulate until time tmax in seconds
+timestep_s    = 200E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
@@ -120,7 +120,18 @@ fun_TX2_delta_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
 # this is always specified as x, never as the actual name of the variable.
 #
 
+#-------------------------------------------------------------------------
+# initialization
 t_au = -TX_au/2
+
+#-------------------------------------------------------------------------
+# constant integrals, they are independent of both Omega and t
+integral_6_12 = ai.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                                 TX=TX_au, TL=TL_au, delta=delta_t_au,
+                                 res=res, res_kin=res_kin)
+integral_7_13 = ai.integral_7_13(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                                 TX=TX_au, TL=TL_au, delta=delta_t_au,
+                                 res=res, res_kin=res_kin)
 
 
 #-------------------------------------------------------------------------
@@ -214,11 +225,11 @@ while (t_au >= (delta_t_au - TL_au/2)
         J = I_inf_TX2
         #
         # Integral 6
-        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                         TX_au/2, delta_t_au - TL_au/2,
-                                         lambda x: x, lambda x: TX_au/2)
-        I_TX2_delta_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
-        J = J + I_TX2_delta_t1
+        #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+        #                                 TX_au/2, delta_t_au - TL_au/2,
+        #                                 lambda x: x, lambda x: TX_au/2)
+        #I_TX2_delta_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
+        J = J + integral_6_12
         #
         # Integral 7
         I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
