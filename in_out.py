@@ -10,9 +10,17 @@
 
 import sciconv
 import numpy as np
+from sys import exit
 
 #-------------------------------------------------------------------------
 #   input
+def check_input(TX,TL,delta_t):
+    print 'Input Check'
+    if (TL/2 > (delta_t + TX/2)):
+        exit('Warning: TL/2 > delta_t + TX/2' + '\n'
+             + 'Stopping Script')
+    return 0
+    
 
 #-------------------------------------------------------------------------
 #   output

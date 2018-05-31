@@ -40,7 +40,7 @@ TX_s          = 100E-18       # duration of the XUV pulse in seconds
 A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
-TL_s          = 1.0E-14       # duration of the IR streaking pulse
+TL_s          = 1.0E-11       # duration of the IR streaking pulse
 A0L           = 1.0           # amplitude of the IR pulse
 delta_t_s     = 5.0E-13       # time difference between the maxima of the two pulses
 
@@ -51,6 +51,9 @@ Omega_step_eV = 0.2           # energy difference between different evaluated Om
 #-------------------------------------------------------------------------
 
 print 'Hello World'
+
+in_out.check_input(TX_s,TL_s,delta_t_s)
+
 Omega= 13.5
 Omega_au = sciconv.ev_to_hartree(Omega)
 
