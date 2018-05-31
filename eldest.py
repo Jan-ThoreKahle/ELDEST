@@ -46,7 +46,7 @@ A0L           = 1.0           # amplitude of the IR pulse
 delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
 
 # parameters of the simulation
-tmax_s        = 1.0E-16       # simulate until time tmax in seconds
+tmax_s        = 2.0E-16       # simulate until time tmax in seconds
 timestep_s    = 50E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
@@ -181,11 +181,13 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
         #I_TX2_t_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
         #
         # Integral 4
-        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                         TX_au/2, t_au,
-                                         lambda x: TX_au/2, lambda x: t_au)
-        I_TX2_t_TX2 = I[0] * np.exp(1j * E_kin_au * t_au) * rdg_au * VEr_au
-        J = J + I_TX2_t_TX2
+        I = ai.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
+        J = J + I
+        #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+        #                                 TX_au/2, t_au,
+        #                                 lambda x: TX_au/2, lambda x: t_au)
+        #I_TX2_t_TX2 = I[0] * np.exp(1j * E_kin_au * t_au) * rdg_au * VEr_au
+        #J = J + I_TX2_t_TX2
        
 
         #J = I_inf_TX2 + I_TX2_t_t1 + I_TX2_t_TX2
