@@ -40,12 +40,12 @@ TX_s          = 100E-18       # duration of the XUV pulse in seconds
 A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
-TL_s          = 1.0E-14       # duration of the IR streaking pulse
+TL_s          = 1.0E-16       # duration of the IR streaking pulse
 A0L           = 1.0           # amplitude of the IR pulse
-delta_t_s     = 5.0E-13       # time difference between the maxima of the two pulses
+delta_t_s     = 5.0E-16       # time difference between the maxima of the two pulses
 
 # parameters of the simulation
-tmax_s        = 3.0E-16       # simulate until time tmax in seconds
+tmax_s        = 3.0E-15       # simulate until time tmax in seconds
 timestep_s    = 50E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
@@ -160,8 +160,6 @@ print 'tmax                 = ', sciconv.atu_to_second(tmax_au)
 while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     print 'in while loop 2'
-    #fun1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au))
-    #fun2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
 
     Omega_au = Omega_min_au
     outlines = []
@@ -187,6 +185,72 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
        
 
         J = I_inf_TX2 + I_TX2_t_t1 + I_TX2_t_TX2
+
+        string = in_out.prep_output(J, Omega_au)
+        outlines.append(string)
+        
+        Omega_au = Omega_au + Omega_step_au
+    
+    
+    in_out.doout(t_au,outlines)
+
+    t_au = t_au + timestep_au
+
+
+
+#-------------------------------------------------------------------------
+while (t_au >= (delta_t_au - TL_au/2)
+       and t_au <= (delta_t_au + TL_au/2)
+       and (t_au <= tmax_au)):
+#-------------------------------------------------------------------------
+    print 'in while loop 3'
+
+    Omega_au = Omega_min_au
+    outlines = []
+    
+    while (Omega_au < Omega_max_au):
+        # Integral 5 = Integral 2
+        I = ci.complex_double_quadrature(fun_inf_TX2_1,fun_inf_TX2_2,
+                                         -TX_au/2, TX_au/2,
+                                         lambda x: x, lambda x: TX_au/2)
+        I_inf_TX2 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
+        J = I_inf_TX2
+        #
+        # Integral 6
+        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+                                         TX_au/2, delta_t_au - TL_au/2,
+                                         lambda x: x, lambda x: TX_au/2)
+        I_TX2_delta_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
+        J = J + I_TX2_delta_t1
+        #
+        # Integral 7
+        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+                                         TX_au/2, delta_t_au - TL_au/2,
+                                         lambda x: TX_au/2,
+                                         lambda x: delta_t_au -TL_au/2)
+        I_TX2_delta_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
+                           * rdg_au * VEr_au)
+        J = J + I_TX2_delta_TX2       
+        #
+        # Integral 8
+        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+                                         delta_t_au - TL_au/2, t_au,
+                                         lambda x: x,
+                                         lambda x: TX_au/2)
+        I_delta_t_t1 = (I[0] * np.exp(1j * E_kin_au * TX_au/2)
+                        * rdg_au * VEr_au)
+        J = J + I_delta_t_t1       
+        #
+        # Integral 9
+        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+                                         delta_t_au - TL_au/2, t_au,
+                                         lambda x: TX_au/2,
+                                         lambda x: delta_t_au - TL_au/2)
+        I_delta_t_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
+                        * rdg_au * VEr_au)
+        J = J + I_delta_t_TX2       
+
+        
 
         string = in_out.prep_output(J, Omega_au)
         outlines.append(string)
