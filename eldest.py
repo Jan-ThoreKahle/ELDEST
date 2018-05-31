@@ -17,6 +17,7 @@ import scipy.integrate as integrate
 import numpy as np
 import sciconv
 import complex_integration as ci
+import analytic_integrals as ai
 import in_out
 
 #-------------------------------------------------------------------------
@@ -42,23 +43,18 @@ A0X           = 1.0           # amplitude of the XUV pulse
 omega_eV      = 1.0           # IR pulse
 TL_s          = 1.0E-14       # duration of the IR streaking pulse
 A0L           = 1.0           # amplitude of the IR pulse
-delta_t_s     = 5.0E-14       # time difference between the maxima of the two pulses
+delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
 
 # parameters of the simulation
-tmax_s        = 1.0E-13       # simulate until time tmax in seconds
-timestep_s    = 10E-18        # evaluate expression every timestep_s seconds 
-Omega_step_eV = 0.1           # energy difference between different evaluated Omegas
+tmax_s        = 1.0E-16       # simulate until time tmax in seconds
+timestep_s    = 50E-18        # evaluate expression every timestep_s seconds 
+Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
-
-print 'Hello World'
 
 in_out.check_input(Er_eV, E_kin_eV, E_fin_eV, Gamma_eV,
                    Omega_min_eV, Omega_max_eV, TX_s, A0X,
                    omega_eV, TL_s, A0L, delta_t_s,
                    tmax_s, timestep_s, Omega_step_eV)
-
-Omega= 13.5
-Omega_au = sciconv.ev_to_hartree(Omega)
 
 #-------------------------------------------------------------------------
 # Definitions of reusable functions
@@ -89,6 +85,9 @@ Omega_step_au = sciconv.ev_to_hartree(Omega_step_eV)
 
 p_au          = np.sqrt(2*E_kin_au)
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
+
+res_kin = complex(Gamma_au/2,Er_au + E_kin_au)
+res     = complex(Gamma_au/2,Er_au)
 
 #-------------------------------------------------------------------------
 # physical defintions of functions
@@ -171,21 +170,25 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
                                          -TX_au/2, TX_au/2,
                                          lambda x: x, lambda x: TX_au/2)
         I_inf_TX2 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
+        J = I_inf_TX2
         #
         # Integral 3
-        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                         TX_au/2, t_au,
-                                         lambda x: x, lambda x: TX_au/2)
-        I_TX2_t_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
+        I = ai.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
+        J = J + I
+        #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+        #                                 TX_au/2, t_au,
+        #                                 lambda x: x, lambda x: TX_au/2)
+        #I_TX2_t_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
         #
         # Integral 4
         I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
                                          TX_au/2, t_au,
                                          lambda x: TX_au/2, lambda x: t_au)
         I_TX2_t_TX2 = I[0] * np.exp(1j * E_kin_au * t_au) * rdg_au * VEr_au
+        J = J + I_TX2_t_TX2
        
 
-        J = I_inf_TX2 + I_TX2_t_t1 + I_TX2_t_TX2
+        #J = I_inf_TX2 + I_TX2_t_t1 + I_TX2_t_TX2
 
         string = in_out.prep_output(J, Omega_au)
         outlines.append(string)
