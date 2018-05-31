@@ -87,6 +87,7 @@ tmax_au       = sciconv.second_to_atu(tmax_s)
 timestep_au   = sciconv.second_to_atu(timestep_s)
 Omega_step_au = sciconv.ev_to_hartree(Omega_step_eV)
 
+p_au          = np.sqrt(2*E_kin_au)
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 
 #-------------------------------------------------------------------------
@@ -103,6 +104,7 @@ FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin
 
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2
+integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
@@ -125,8 +127,7 @@ t_au = -TX_au/2
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-#    fun1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
-#    fun2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
+    print 'during the first pulse'
 
     Omega_au = Omega_min_au
     outlines = []
@@ -159,7 +160,7 @@ print 'tmax                 = ', sciconv.atu_to_second(tmax_au)
 #-------------------------------------------------------------------------
 while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    print 'in while loop 2'
+    print 'between the pulses'
 
     Omega_au = Omega_min_au
     outlines = []
@@ -199,11 +200,12 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
 
 #-------------------------------------------------------------------------
+# during the IR pulse
 while (t_au >= (delta_t_au - TL_au/2)
        and t_au <= (delta_t_au + TL_au/2)
        and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    print 'in while loop 3'
+    print 'during the IR pulse'
 
     Omega_au = Omega_min_au
     outlines = []
@@ -249,6 +251,16 @@ while (t_au >= (delta_t_au - TL_au/2)
         I_delta_t_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
                         * rdg_au * VEr_au)
         J = J + I_delta_t_TX2       
+        #
+        # Integral 10
+        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+                                         delta_t_au - TL_au/2, t_au,
+                                         lambda x: delta_t_au - TL_au/2,
+                                         lambda x: t_au)
+        I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
+        I_delta_t_delta = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
+                           * rdg_au * VEr_au)
+        J = J + I_delta_t_delta     
 
         
 
