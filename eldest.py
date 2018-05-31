@@ -212,6 +212,19 @@ while (t_au >= (delta_t_au - TL_au/2)
        and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     print 'during the IR pulse'
+    # integrals, that are independent of Omega
+    integral_8 = ai.integral_8(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                               TX=TX_au, TL=TL_au, delta=delta_t_au,
+                               res=res, res_kin=res_kin, t=t_au)
+    integral_9 = ai.integral_9(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                               TX=TX_au, TL=TL_au, delta=delta_t_au,
+                               res=res, res_kin=res_kin, t=t_au)
+    integral_10 = ai.integral_10(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                                 TX=TX_au, TL=TL_au, delta=delta_t_au,
+                                 res=res, res_kin=res_kin, t=t_au)
+    I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
+    I10  = integral_10 * I_IR[0]
+    K = integral_8 + integral_9 + I10
 
     Omega_au = Omega_min_au
     outlines = []
@@ -222,53 +235,53 @@ while (t_au >= (delta_t_au - TL_au/2)
                                          -TX_au/2, TX_au/2,
                                          lambda x: x, lambda x: TX_au/2)
         I_inf_TX2 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
-        J = I_inf_TX2
+        K = I_inf_TX2
         #
         # Integral 6
         #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
         #                                 TX_au/2, delta_t_au - TL_au/2,
         #                                 lambda x: x, lambda x: TX_au/2)
         #I_TX2_delta_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
-        J = J + integral_6_12
+        #J = J + integral_6_12
         #
         # Integral 7
-        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                         TX_au/2, delta_t_au - TL_au/2,
-                                         lambda x: TX_au/2,
-                                         lambda x: delta_t_au -TL_au/2)
-        I_TX2_delta_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-                           * rdg_au * VEr_au)
-        J = J + I_TX2_delta_TX2       
+        #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+        #                                 TX_au/2, delta_t_au - TL_au/2,
+        #                                 lambda x: TX_au/2,
+        #                                 lambda x: delta_t_au -TL_au/2)
+        #I_TX2_delta_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
+        #                   * rdg_au * VEr_au)
+        #J = J + I_TX2_delta_TX2       
         #
         # Integral 8
-        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                         delta_t_au - TL_au/2, t_au,
-                                         lambda x: x,
-                                         lambda x: TX_au/2)
-        I_delta_t_t1 = (I[0] * np.exp(1j * E_kin_au * TX_au/2)
-                        * rdg_au * VEr_au)
-        J = J + I_delta_t_t1       
+        #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+        #                                 delta_t_au - TL_au/2, t_au,
+        #                                 lambda x: x,
+        #                                 lambda x: TX_au/2)
+        #I_delta_t_t1 = (I[0] * np.exp(1j * E_kin_au * TX_au/2)
+        #                * rdg_au * VEr_au)
+        #J = J + I_delta_t_t1       
         #
         # Integral 9
-        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                         delta_t_au - TL_au/2, t_au,
-                                         lambda x: TX_au/2,
-                                         lambda x: delta_t_au - TL_au/2)
-        I_delta_t_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-                        * rdg_au * VEr_au)
-        J = J + I_delta_t_TX2       
+        #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+        #                                 delta_t_au - TL_au/2, t_au,
+        #                                 lambda x: TX_au/2,
+        #                                 lambda x: delta_t_au - TL_au/2)
+        #I_delta_t_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
+        #                * rdg_au * VEr_au)
+        #J = J + I_delta_t_TX2       
         #
         # Integral 10
-        I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                         delta_t_au - TL_au/2, t_au,
-                                         lambda x: delta_t_au - TL_au/2,
-                                         lambda x: t_au)
-        I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
-        I_delta_t_delta = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-                           * np.exp(1j/2 * I_IR[0])
-                           * rdg_au * VEr_au)
-        J = J + I_delta_t_delta     
-
+        #I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
+        #                                 delta_t_au - TL_au/2, t_au,
+        #                                 lambda x: delta_t_au - TL_au/2,
+        #                                 lambda x: t_au)
+        #I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
+        #I_delta_t_delta = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
+        #                   * np.exp(1j/2 * I_IR[0])
+        #                   * rdg_au * VEr_au)
+        #J = J + I_delta_t_delta     
+        J = J + K + integral_7_13
         
 
         string = in_out.prep_output(J, Omega_au)
