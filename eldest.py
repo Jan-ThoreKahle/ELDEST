@@ -259,6 +259,7 @@ while (t_au >= (delta_t_au - TL_au/2)
                                          lambda x: t_au)
         I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
         I_delta_t_delta = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
+                           * np.exp(1j/2 * I_IR[0])
                            * rdg_au * VEr_au)
         J = J + I_delta_t_delta     
 
