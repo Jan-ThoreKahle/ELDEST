@@ -14,7 +14,7 @@ import numpy as np
 # Integral 3
 def integral_3(Vr, rdg, E_kin, TX, res, res_kin, t):
     I = - Vr * rdg / res_kin * (1./res * (np.exp((t-TX/2) * res) - 1)
-                              + complex(0,1./E_kin)
+                              - complex(0,1./E_kin)
                                 * (np.exp(-1j*(t-TX/2)*E_kin) - 1))
     return I
 
@@ -28,7 +28,7 @@ def integral_4(Vr, rdg, E_kin, TX, res, res_kin, t):
 def integral_6_12(Vr, rdg, E_kin, TX, TL, delta, res, res_kin):
     dm = delta - TL/2
     I = - Vr * rdg / res_kin * (1./res * (np.exp((dm-TX/2) * res) - 1)
-                            + complex(0,1./E_kin) * (np.exp(-(dm-TX/2) * res) - 1))
+                            - complex(0,1./E_kin) * (np.exp(-(dm-TX/2) * res) - 1))
     return I
 
 # Integral 7 and 13
@@ -44,8 +44,8 @@ def integral_8(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
     dm = delta - TL/2
     I = - Vr * rdg / res_kin \
         * (1./res * (np.exp((t-TX/2) * res) - np.exp((dm-TX/2) * res))
-           + complex(0,1./E_kin) * (np.exp(-(t-TX/2) * res)
-                                    - np.exp(-(dm-TX/2) * E_kin)))
+           - complex(0,1./E_kin) * (np.exp(-(t-TX/2) * res)
+                                    - np.exp(-1j*(dm-TX/2) * E_kin)))
     return I
 
 # Integral 9
@@ -66,6 +66,16 @@ def integral_10(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
              - np.exp((t-dm) * res)
              - np.exp(-(t-dm) * res_kin)
              + 1)
+    return I
+
+# Integral 14
+def integral_14(Vr, rdg, E_kin, TX, TL, delta, res, res_kin):
+    dm = delta - TL/2
+    dp = delta + TL/2
+    I = - Vr * rdg / res_kin \
+        * (1./res * (np.exp((dp-TX/2) * res) - np.exp((dm-TX/2) * res))
+           - complex(0,1./E_kin) * (np.exp(-(dp-TX/2) * res)
+                                    - np.exp(-1j*(dm-TX/2) * E_kin)))
     return I
 
 # Integral 15
