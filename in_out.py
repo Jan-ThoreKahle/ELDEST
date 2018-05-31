@@ -19,9 +19,17 @@ def check_input(Er, E_kin, E_fin, Gamma,
                 omega, TL, A0L, delta_t,
                 tmax, timestep, Omega_step):
     print 'Input Check'
+
     if (TL/2 > (delta_t + TX/2)):
         exit('Warning: TL/2 > delta_t + TX/2' + '\n'
              + 'Stopping Script')
+
+    if (Omega_min > Omega_max):
+        exit('Warning: Omega_min > Omega_max' + '\n'
+             + 'Stopping Script')
+
+    print 'Input fullfills requirements'
+
     return 0
     
 

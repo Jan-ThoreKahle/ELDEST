@@ -40,7 +40,7 @@ TX_s          = 100E-18       # duration of the XUV pulse in seconds
 A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
-TL_s          = 1.0E-11       # duration of the IR streaking pulse
+TL_s          = 1.0E-14       # duration of the IR streaking pulse
 A0L           = 1.0           # amplitude of the IR pulse
 delta_t_s     = 5.0E-13       # time difference between the maxima of the two pulses
 
@@ -104,7 +104,8 @@ FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2
 
-# functions
+#-------------------------------------------------------------------------
+# technical defintions of functions
 fun_inf_TX2_1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
 fun_inf_TX2_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
 
