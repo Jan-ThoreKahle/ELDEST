@@ -67,3 +67,14 @@ def integral_10(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
              - np.exp(-(t-dm) * res_kin)
              + 1)
     return I
+
+# Integral 15
+def integral_15(Vr, rdg, E_kin, TX, TL, delta, res, res_kin):
+    dm = delta - TL/2
+    dp = delta + TL/2
+    I = - Vr * rdg / (res * res_kin) \
+          * (np.exp(TL * res)
+             - np.exp((dp-TX/2) * res) * np.exp(1j*(dm-TX/2) * E_kin)
+             - 1
+             + np.exp((dm-TX/2) * res_kin))
+    return I
