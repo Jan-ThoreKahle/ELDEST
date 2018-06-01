@@ -132,6 +132,16 @@ integral_6_12 = ai.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
 integral_7_13 = ai.integral_7_13(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin)
+integral_14 = ai.integral_14(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                             TX=TX_au, TL=TL_au, delta=delta_t_au,
+                             res=res, res_kin=res_kin)
+integral_15 = ai.integral_15(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                             TX=TX_au, TL=TL_au, delta=delta_t_au,
+                             res=res, res_kin=res_kin)
+integral_16 = ai.integral_16(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+                             TX=TX_au, TL=TL_au, delta=delta_t_au,
+                             res=res, res_kin=res_kin)
+
 
 
 #-------------------------------------------------------------------------
