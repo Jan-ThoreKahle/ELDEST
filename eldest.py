@@ -47,7 +47,7 @@ delta_t_s     = 1.0E-14       # time difference between the maxima of the two pu
 
 # parameters of the simulation
 tmax_s        = 5.0E-14       # simulate until time tmax in seconds
-timestep_s    = 200E-17        # evaluate expression every timestep_s seconds 
+timestep_s    = 2E-15        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
