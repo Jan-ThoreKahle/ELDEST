@@ -130,3 +130,15 @@ def integral_19(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
              - 1
              + np.exp(TL * res))
     return I
+
+# Integral 20 but without the extra phase factor coming from the second pulse
+def integral_20(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
+    dm = delta - TL/2
+    dp = delta + TL/2
+    I = - Vr * rdg / (res * res_kin) \
+          * (np.exp(-1j*TL * E_kin)
+             - np.exp((t-dm) * res) * np.exp(-1j*(t-dp-TL) * E_kin)
+             - np.exp(-(t-dp) * res) * np.exp(-1j*TL * E_kin)
+             + np.exp(1j*(t-dp-TL) * E_kin))
+    return I
+
