@@ -76,3 +76,13 @@ def second_to_atu(t_s):
 def atu_to_second(t_au):
     t_s = t_au * constants.hbar / E_h
     return t_s
+
+
+#-------------------------------------------------------------------------
+#      Intensities
+def aiu_to_Wcm2(I_au):
+    I_Wcm2 = I_au * constants.e**2 / a_0**4 * constants.c * constants.epsilon_0 / 2
+    return I_Wcm2
+
+def Wcm2_to_aiu(I_Wcm2):
+    I_aiu = I_Wcm2 * a_0**4 / constants.e**2 / constants.c / constants.epsilon_0 * 2
