@@ -30,7 +30,7 @@ cdg           = 0.5           # transition dipole moment into any continuum stat
 # the ground state energy is being defined as Eg = 0
 Er_eV         = 44.0          # resonance energy in eV
 E_kin_eV      = 2.0           # kinetic energy of secondary electron
-E_fin_eV      = 12.0          # final state energy in eV
+#E_fin_eV      = 12.0          # final state energy in eV
 
 Gamma_eV      = 0.5           # electronic decay width of the resonant state
 
@@ -39,14 +39,14 @@ Omega_min_eV  = 42.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 46.0          #
 TX_s          = 100E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 1.0           # intensity of the XUV pulse in W/cm^2
-A0X           = 1.0           # amplitude of the XUV pulse
+I_X           = 5.0E11        # intensity of the XUV pulse in W/cm^2
+#A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
 TL_s          = 1.0E-14       # duration of the IR streaking pulse
 n_L           = 4
-I_L           = 1.0           # intensity of the IR pulse in W/cm^2
-A0L           = 1.0           # amplitude of the IR pulse
+I_L           = 1.0E09        # intensity of the IR pulse in W/cm^2
+#A0L           = 1.0           # amplitude of the IR pulse
 delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
 phi           = 0
 
