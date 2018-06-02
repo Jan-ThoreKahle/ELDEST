@@ -38,19 +38,21 @@ Gamma_eV      = 0.5           # electronic decay width of the resonant state
 Omega_min_eV  = 42.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 46.0          #
 TX_s          = 100E-18       # duration of the XUV pulse in seconds
-n_X           = 2
+n_X           = 3
+I_X           = 1.0           # intensity of the XUV pulse in W/cm^2
 A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
 TL_s          = 1.0E-14       # duration of the IR streaking pulse
-n_L           = 3
+n_L           = 4
+I_L           = 1.0           # intensity of the IR pulse in W/cm^2
 A0L           = 1.0           # amplitude of the IR pulse
 delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
 phi           = 0
 
 # parameters of the simulation
 tmax_s        = 5.0E-14       # simulate until time tmax in seconds
-timestep_s    = 2E-15        # evaluate expression every timestep_s seconds 
+timestep_s    = 200E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
@@ -73,10 +75,17 @@ Omega_min_au  = sciconv.ev_to_hartree(Omega_min_eV)
 Omega_max_au  = sciconv.ev_to_hartree(Omega_max_eV)
 TX_au         = sciconv.second_to_atu(TX_s)
 TX_au         = n_X * 2 * np.pi / Omega_min_au
+I_X_au        = sciconv.Wcm2_to_aiu(I_X)
+E0X           = np.sqrt(I_X_au)
+A0X           = E0X / Omega_min_au # this could be wrong and might have
+                                   # to be evaluated for each Omega
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 TL_au         = sciconv.second_to_atu(TL_s)
 TL_au         = n_L * 2 * np.pi / omega_au
+I_L_au        = sciconv.Wcm2_to_aiu(I_L)
+E0L           = np.sqrt(I_L_au)
+A0L           = E0L / omegahave
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
 
 # parameters of the simulation
