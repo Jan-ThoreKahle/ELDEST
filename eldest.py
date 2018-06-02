@@ -32,7 +32,8 @@ Er_eV         = 44.0          # resonance energy in eV
 E_kin_eV      = 2.0           # kinetic energy of secondary electron
 #E_fin_eV      = 12.0          # final state energy in eV
 
-Gamma_eV      = 0.5           # electronic decay width of the resonant state
+#Gamma_eV      = 0.5           # electronic decay width of the resonant state
+tau_s         = 2.0E-15       # lifetime
 
 # laser parameters
 Omega_min_eV  = 42.0          # scanning XUV pulse from Omega_min-eV to
@@ -69,6 +70,8 @@ E_kin_au       = sciconv.ev_to_hartree(E_kin_eV)
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 
 Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)
+tau_au         = sciconv.second_to_au(tau_s)
+Gamma_au       = 1. / tau_au
 
 # laser parameters
 Omega_min_au  = sciconv.ev_to_hartree(Omega_min_eV)
