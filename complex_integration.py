@@ -41,6 +41,12 @@ def complex_double_quadrature(outer, inner, a, b, gfun, hfun, **kwargs):
     sec_real_integral   = integrate.nquad(sec_real, [temp_ranges, [a,b]])
     first_imag_integral = integrate.nquad(first_imag, [temp_ranges, [a,b]])
     sec_imag_integral   = integrate.nquad(sec_imag, [temp_ranges, [a,b]])
+
+#    print first_real_integral
+#    print sec_real_integral
+#    print first_imag_integral
+#    print sec_real_integral
+
     return (first_real_integral[0] + sec_real_integral[0]
             + 1j*first_imag_integral[0] + 1j*sec_imag_integral[0],
             first_real_integral[1:])
