@@ -38,12 +38,15 @@ Gamma_eV      = 0.5           # electronic decay width of the resonant state
 Omega_min_eV  = 42.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 46.0          #
 TX_s          = 100E-18       # duration of the XUV pulse in seconds
+n_X           = 2
 A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
 TL_s          = 1.0E-14       # duration of the IR streaking pulse
+n_L           = 3
 A0L           = 1.0           # amplitude of the IR pulse
 delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
+phi           = 0
 
 # parameters of the simulation
 tmax_s        = 5.0E-14       # simulate until time tmax in seconds
@@ -51,10 +54,6 @@ timestep_s    = 2E-15        # evaluate expression every timestep_s seconds
 Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
-in_out.check_input(Er_eV, E_kin_eV, E_fin_eV, Gamma_eV,
-                   Omega_min_eV, Omega_max_eV, TX_s, A0X,
-                   omega_eV, TL_s, A0L, delta_t_s,
-                   tmax_s, timestep_s, Omega_step_eV)
 
 #-------------------------------------------------------------------------
 # Definitions of reusable functions
@@ -73,9 +72,11 @@ Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)
 Omega_min_au  = sciconv.ev_to_hartree(Omega_min_eV)
 Omega_max_au  = sciconv.ev_to_hartree(Omega_max_eV)
 TX_au         = sciconv.second_to_atu(TX_s)
+TX_au         = n_X * 2 * np.pi / Omega_min_au
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 TL_au         = sciconv.second_to_atu(TL_s)
+TL_au         = n_L * 2 * np.pi / omega_au
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
 
 # parameters of the simulation
@@ -90,6 +91,11 @@ res_kin = complex(Gamma_au/2,Er_au + E_kin_au)
 res     = complex(Gamma_au/2,Er_au)
 
 #-------------------------------------------------------------------------
+in_out.check_input(Er_au, E_kin_au, E_fin_au, Gamma_au,
+                   Omega_min_au, Omega_max_au, TX_au, A0X,
+                   omega_au, TL_au, A0L, delta_t_au,
+                   tmax_au, timestep_au, Omega_step_au)
+#-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
 f  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
@@ -102,7 +108,8 @@ fp = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi*t1/TX_au)
 FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
 
 # IR pulse
-A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2
+A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) * omega_au / TL_au
+                               + phi)**2
 integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
 #-------------------------------------------------------------------------
@@ -174,6 +181,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 print 't                    = ', sciconv.atu_to_second(t_au)
 print 'TX/2                 = ', sciconv.atu_to_second(TX_au/2)
+print 'TL/2                 = ', sciconv.atu_to_second(TL_au/2)
 print 'delta_t_au - TL_au/2 = ', sciconv.atu_to_second(delta_t_au - TL_au/2)
 print 'tmax                 = ', sciconv.atu_to_second(tmax_au)
 
