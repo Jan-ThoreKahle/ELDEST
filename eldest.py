@@ -48,12 +48,12 @@ TL_s          = 1.0E-14       # duration of the IR streaking pulse
 n_L           = 4
 I_L           = 1.0E09        # intensity of the IR pulse in W/cm^2
 #A0L           = 1.0           # amplitude of the IR pulse
-delta_t_s     = 5.0E-14       # time difference between the maxima of the two pulses
+delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
 phi           = 0
 
 # parameters of the simulation
-tmax_s        = 1.0E-14       # simulate until time tmax in seconds
-timestep_s    = 100E-18        # evaluate expression every timestep_s seconds 
+tmax_s        = 3.0E-14       # simulate until time tmax in seconds
+timestep_s    = 500E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
@@ -356,8 +356,12 @@ while (t_au >= (delta_t_au + TL_au/2)
 
     # omega independent integrals
     #integral 16
+    #print 't_au = ', t_au
+    #print 'integral_16 before phase= ', integral_16
     I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, delta_t_au + TL_au/2)
-    integral_16 = integral_16 * I_IR[0]
+    integral_16_p = integral_16 * I_IR[0]
+    #print I_IR[0]
+    #print 'integral_16 = ', integral_16_p
     #integral 17
     integral_17 = ai.integral_17(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
@@ -375,9 +379,16 @@ while (t_au >= (delta_t_au + TL_au/2)
     integral_20 = ai.integral_20(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
-    integral_20 = integral_20 * I_IR[0]
+    #print 'integral_17 = ', integral_17
+    #print 'integral_18 = ', integral_18
+    #print 'integral_19 = ', integral_19
+    #print 'integral_20 = ', integral_20
+    integral_20_p = integral_20 * I_IR[0]
+    #print 'integral_20 = ', integral_20_p
 
-    K = integral_16 + integral_17 + integral_18 + integral_19 + integral_20
+    K = (integral_16_p + integral_17 + integral_18 + integral_19
+         + integral_20_p + const_after)
+    print 'K = ',K
 
     Omega_au = Omega_min_au
     outlines = []
@@ -397,10 +408,12 @@ while (t_au >= (delta_t_au + TL_au/2)
 # other integration variable
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
+        #print I1[0]
+        #print I2[0]
 
         J = - rdg_au * VEr_au / res_kin * (I1[0] - I2[0])
 
-        L = J + K + const_after
+        L = J + K
 
 
         string = in_out.prep_output(L, Omega_au)
