@@ -86,3 +86,4 @@ def aiu_to_Wcm2(I_au):
 
 def Wcm2_to_aiu(I_Wcm2):
     I_aiu = I_Wcm2 * a_0**4 / constants.e**2 / constants.c / constants.epsilon_0 * 2
+    return I_aiu
