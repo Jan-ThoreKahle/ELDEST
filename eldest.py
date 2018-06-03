@@ -36,8 +36,8 @@ E_fin_eV      = 12.0          # final state energy in eV
 tau_s         = 2.0E-15       # lifetime
 
 # laser parameters
-Omega_min_eV  = 20.0          # scanning XUV pulse from Omega_min-eV to
-Omega_max_eV  = 60.0          #
+Omega_min_eV  = 10.0          # scanning XUV pulse from Omega_min-eV to
+Omega_max_eV  = 90.0          #
 TX_s          = 100E-18       # duration of the XUV pulse in seconds
 n_X           = 3
 I_X           = 5.0E11        # intensity of the XUV pulse in W/cm^2
@@ -48,13 +48,13 @@ TL_s          = 1.0E-14       # duration of the IR streaking pulse
 n_L           = 4
 I_L           = 1.0E09        # intensity of the IR pulse in W/cm^2
 #A0L           = 1.0           # amplitude of the IR pulse
-delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
+delta_t_s     = 5.0E-14       # time difference between the maxima of the two pulses
 phi           = 0
 
 # parameters of the simulation
 tmax_s        = 3.0E-14       # simulate until time tmax in seconds
-timestep_s    = 500E-18        # evaluate expression every timestep_s seconds 
-Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
+timestep_s    = 100E-18        # evaluate expression every timestep_s seconds 
+Omega_step_eV = 0.5           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
 
@@ -111,14 +111,14 @@ in_out.check_input(Er_au, E_kin_au, E_fin_au, Gamma_au,
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
-f  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
-                      + 2
-                      + np.exp(-2j * np.pi * t1 /TX_au) )
-
-fp = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi*t1/TX_au)
-                                     + np.exp(-2j*np.pi*t1/TX_au) )
-
-FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
+#f  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
+#                      + 2
+#                      + np.exp(-2j * np.pi * t1 /TX_au) )
+#
+#fp = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi*t1/TX_au)
+#                                     + np.exp(-2j*np.pi*t1/TX_au) )
+#
+#FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
 
 # probiere Umdefinieren der Integrationsvariable
 f_t  = lambda tau: 1./4 * ( np.exp(2j * np.pi * (t_au - tau) / TX_au)
@@ -128,7 +128,7 @@ f_t  = lambda tau: 1./4 * ( np.exp(2j * np.pi * (t_au - tau) / TX_au)
 fp_t = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t_au - tau)/TX_au)
                                      + np.exp(-2j*np.pi* (t_au - tau) /TX_au) )
 
-FX_t = lambda tau: - A0X * np.cos(Omega_au * (t_au - tau)) * fp(tau) + A0X * Omega_au * np.sin(Omega_au * (t_au - tau)) * f(tau)
+FX_t = lambda tau: - A0X * np.cos(Omega_au * (t_au - tau)) * fp_t(tau) + A0X * Omega_au * np.sin(Omega_au * (t_au - tau)) * f_t(tau)
 #Variante mit TX
 f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
                       + 2
@@ -137,7 +137,7 @@ f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
 fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_au)
                                      + np.exp(-2j*np.pi* (TX_au/2 - tau) /TX_au) )
 
-FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f(tau)
+FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
 
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) * omega_au / TL_au
@@ -146,18 +146,18 @@ integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
-fun_inf_TX2_1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
-fun_inf_TX2_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
-
-fun_TX2_delta_1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au))
-fun_TX2_delta_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
-
+#fun_inf_TX2_1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
+#fun_inf_TX2_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
 #
-fun_t_1 = lambda t1: np.exp(-t_au * res) * np.exp(t1 * res) * FX(t1)
-fun_t_2 = lambda t1: np.exp(complex(0,E_kin_au) * (t_au-t1)) * FX(t1)
-
-fun_TX2_1 = lambda t1: np.exp(-TX_au/2 * res) * np.exp(t1 * res) * FX(t1)
-fun_TX2_2 = lambda t1: np.exp(complex(0,E_kin_au) * (TX_au/2-t1)) * FX(t1)
+#fun_TX2_delta_1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au))
+#fun_TX2_delta_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
+#
+##
+#fun_t_1 = lambda t1: np.exp(-t_au * res) * np.exp(t1 * res) * FX(t1)
+#fun_t_2 = lambda t1: np.exp(complex(0,E_kin_au) * (t_au-t1)) * FX(t1)
+#
+#fun_TX2_1 = lambda t1: np.exp(-TX_au/2 * res) * np.exp(t1 * res) * FX(t1)
+#fun_TX2_2 = lambda t1: np.exp(complex(0,E_kin_au) * (TX_au/2-t1)) * FX(t1)
 
 # probiere Umschreiben der Integrationsvariable
 fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
