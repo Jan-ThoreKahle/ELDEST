@@ -16,4 +16,4 @@ set term png size 1600,1200
 #   }
 
 set output "image.number.png"
-plot [42:46] "filename" u 1:2 w l
+plot [30:60] "filename" u 1:2 w l
