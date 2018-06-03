@@ -166,12 +166,6 @@ fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
 fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
 fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
 
-#-------------------------------------------------------------------------
-# very important: The first Variable in the definition of the function marks the inner
-# integral, while the second marks the outer integral.
-# If any limit is replaced by the integration variable of the outer integral,
-# this is always specified as x, never as the actual name of the variable.
-#
 
 #-------------------------------------------------------------------------
 # initialization
@@ -324,8 +318,6 @@ while (t_au >= (delta_t_au - TL_au/2)
 #
         #I1 = ci.complex_quadrature(fun_TX2_1, -TX_au/2, TX_au/2)
         #I2 = ci.complex_quadrature(fun_TX2_2, -TX_au/2, TX_au/2)
-        #print "i1 = ", i1[0]
-        #print "i2 = ", i2[0]
 # other integration variable
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
@@ -356,12 +348,8 @@ while (t_au >= (delta_t_au + TL_au/2)
 
     # omega independent integrals
     #integral 16
-    #print 't_au = ', t_au
-    #print 'integral_16 before phase= ', integral_16
     I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, delta_t_au + TL_au/2)
     integral_16_p = integral_16 * I_IR[0]
-    #print I_IR[0]
-    #print 'integral_16 = ', integral_16_p
     #integral 17
     integral_17 = ai.integral_17(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
@@ -379,16 +367,10 @@ while (t_au >= (delta_t_au + TL_au/2)
     integral_20 = ai.integral_20(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
-    #print 'integral_17 = ', integral_17
-    #print 'integral_18 = ', integral_18
-    #print 'integral_19 = ', integral_19
-    #print 'integral_20 = ', integral_20
     integral_20_p = integral_20 * I_IR[0]
-    #print 'integral_20 = ', integral_20_p
 
     K = (integral_16_p + integral_17 + integral_18 + integral_19
          + integral_20_p + const_after)
-    print 'K = ',K
 
     Omega_au = Omega_min_au
     outlines = []
@@ -408,8 +390,6 @@ while (t_au >= (delta_t_au + TL_au/2)
 # other integration variable
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
-        #print I1[0]
-        #print I2[0]
 
         J = - rdg_au * VEr_au / res_kin * (I1[0] - I2[0])
 
