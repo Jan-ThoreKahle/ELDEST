@@ -128,6 +128,9 @@ t_au = -TX_au/2
 #-------------------------------------------------------------------------
 # constant integrals, they are independent of both Omega and t
 # Integral 6 - 12
+print '--------------------------------------------------------------'
+print 'constant integrals'
+print '--------------------------------------------------------------'
 integral_6_12 = ai.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin)
@@ -201,6 +204,9 @@ print 'integral 16 quadrature = ', I_deltam_deltap_deltam
 #-------------------------------------------------------------------------
 # time-dependent integrals
 #-------------------------------------------------------------------------
+print '--------------------------------------------------------------'
+print 'between the pulses'
+print '--------------------------------------------------------------'
 # between the pulses
 t_au = TX_au
 # integrals 3 and 4 are independent of Omega, they are therefore
@@ -233,6 +239,9 @@ print 'integral 4 quadrature = ', I_TX2_t_TX2
 # during the IR pulse
 t_au = delta_t_au -TL_au/2 + TX_au
 #-------------------------------------------------------------------------
+print '--------------------------------------------------------------'
+print 'during the second pulse'
+print '--------------------------------------------------------------'
 # integrals, that are independent of Omega
 # Integral 8
 integral_8 = ai.integral_8(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
@@ -285,7 +294,9 @@ print 'integral 10 quadrature = ', I_delta_t_delta
 # after the second pulse
 t_au = delta_t_au + TL_au/2 + TX_au
 #-------------------------------------------------------------------------
+print '--------------------------------------------------------------'
 print 'after the second pulse'
+print '--------------------------------------------------------------'
 
 # Omega independent integrals
 #Integral 17
