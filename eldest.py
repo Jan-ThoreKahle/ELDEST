@@ -36,8 +36,8 @@ E_fin_eV      = 12.0          # final state energy in eV
 tau_s         = 2.0E-15       # lifetime
 
 # laser parameters
-Omega_min_eV  = 40.0          # scanning XUV pulse from Omega_min-eV to
-Omega_max_eV  = 50.0          #
+Omega_min_eV  = 20.0          # scanning XUV pulse from Omega_min-eV to
+Omega_max_eV  = 60.0          #
 TX_s          = 100E-18       # duration of the XUV pulse in seconds
 n_X           = 3
 I_X           = 5.0E11        # intensity of the XUV pulse in W/cm^2
@@ -53,7 +53,7 @@ phi           = 0
 
 # parameters of the simulation
 tmax_s        = 3.0E-14       # simulate until time tmax in seconds
-timestep_s    = 500E-18        # evaluate expression every timestep_s seconds 
+timestep_s    = 100E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.5           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
