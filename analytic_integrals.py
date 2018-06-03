@@ -92,7 +92,7 @@ def integral_15(Vr, rdg, E_kin, TX, TL, delta, res, res_kin):
 # Integral 16 but without the extra phase facot coming from the second pulse
 def integral_16(Vr, rdg, E_kin, TX, TL, delta, res, res_kin):
     dm = delta - TL/2
-    dm = delta + TL/2
+    dp = delta + TL/2
     I = - Vr * rdg / (res * res_kin) \
           * (np.exp(1j*TL * E_kin)
              - np.exp(TL * res)
