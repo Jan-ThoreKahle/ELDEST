@@ -48,13 +48,13 @@ TL_s          = 1.0E-14       # duration of the IR streaking pulse
 n_L           = 4
 I_L           = 1.0E09        # intensity of the IR pulse in W/cm^2
 #A0L           = 1.0           # amplitude of the IR pulse
-delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
+delta_t_s     = 5.0E-14       # time difference between the maxima of the two pulses
 phi           = 0
 
 # parameters of the simulation
-tmax_s        = 3.0E-14       # simulate until time tmax in seconds
+tmax_s        = 1.0E-14       # simulate until time tmax in seconds
 timestep_s    = 100E-18        # evaluate expression every timestep_s seconds 
-Omega_step_eV = 0.5           # energy difference between different evaluated Omegas
+Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
 
@@ -248,7 +248,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 #-------------------------------------------------------------------------
     print 'between the pulses'
 
-    omega_au = Omega_min_au
+    Omega_au = Omega_min_au
     outlines = []
 
     # integrals 3 and 4 are independent of omega, they are therefore
@@ -281,7 +281,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
         string = in_out.prep_output(L, Omega_au)
         outlines.append(string)
         
-        omega_au = omega_au + omega_step_au
+        Omega_au = Omega_au + Omega_step_au
     
     
     in_out.doout(t_au,outlines)
