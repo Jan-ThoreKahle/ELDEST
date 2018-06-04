@@ -52,8 +52,8 @@ delta_t_s     = 5.0E-14       # time difference between the maxima of the two pu
 phi           = 0
 
 # parameters of the simulation
-tmax_s        = 3.0E-14       # simulate until time tmax in seconds
-timestep_s    = 100E-18        # evaluate expression every timestep_s seconds 
+tmax_s        = 3.0E-15       # simulate until time tmax in seconds
+timestep_s    = 50E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.5           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
@@ -79,7 +79,6 @@ Omega_max_au  = sciconv.ev_to_hartree(Omega_max_eV)
 TX_au         = sciconv.second_to_atu(TX_s)
 TX_au         = n_X * 2 * np.pi / Omega_min_au
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
-#print I_X_au
 E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_min_au # this could be wrong and might have
                                    # to be evaluated for each Omega
@@ -108,6 +107,9 @@ in_out.check_input(Er_au, E_kin_au, E_fin_au, Gamma_au,
                    Omega_min_au, Omega_max_au, TX_au, A0X,
                    omega_au, TL_au, A0L, delta_t_au,
                    tmax_au, timestep_au, Omega_step_au)
+#-------------------------------------------------------------------------
+# open outputfile
+outfile = open("eldest.out", mode='w')
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
@@ -171,6 +173,17 @@ fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
 # initialization
 t_au = -TX_au/2
 
+outfile.write(' '.join(('TX/2                 = ',
+                        str(sciconv.atu_to_second(TX_au/2)), 's', '\n')))
+outfile.write(' '.join(('TL/2                 = ',
+                        str(sciconv.atu_to_second(TL_au/2)), 's', '\n')))
+outfile.write(' '.join(('delta_t_au - TL_au/2 = ',
+                        str(sciconv.atu_to_second(delta_t_au - TL_au/2)), 's', '\n')))
+outfile.write(' '.join(('delta_t_au + TL_au/2 = ',
+                        str(sciconv.atu_to_second(delta_t_au + TL_au/2)), 's', '\n')))
+outfile.write(' '.join(('tmax                 = ',
+                        str(sciconv.atu_to_second(tmax_au)), 's', '\n')))
+
 #-------------------------------------------------------------------------
 # constant integrals, they are independent of both Omega and t
 integral_6_12 = ai.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
@@ -189,14 +202,13 @@ integral_16 = ai.integral_16(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                              TX=TX_au, TL=TL_au, delta=delta_t_au,
                              res=res, res_kin=res_kin)
 const_after = integral_6_12 + integral_7_13 + integral_14 + integral_15
-print const_after
 
 
 
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    print 'during the first pulse'
+    outfile.write('during the first pulse \n')
 
     Omega_au = Omega_min_au
     outlines = []
@@ -229,18 +241,12 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     t_au = t_au + timestep_au
 
 
-print 't                    = ', sciconv.atu_to_second(t_au)
-print 'TX/2                 = ', sciconv.atu_to_second(TX_au/2)
-print 'TL/2                 = ', sciconv.atu_to_second(TL_au/2)
-print 'delta_t_au - TL_au/2 = ', sciconv.atu_to_second(delta_t_au - TL_au/2)
-print 'delta_t_au + TL_au/2 = ', sciconv.atu_to_second(delta_t_au + TL_au/2)
-print 'tmax                 = ', sciconv.atu_to_second(tmax_au)
 
 
 #-------------------------------------------------------------------------
 while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    print 'between the pulses'
+    outfile.write('between the pulses \n')
 
     Omega_au = Omega_min_au
     outlines = []
@@ -290,7 +296,7 @@ while (t_au >= (delta_t_au - TL_au/2)
        and t_au <= (delta_t_au + TL_au/2)
        and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    print 'during the IR pulse'
+    outfile.write('during the second pulse \n')
     # integrals, that are independent of omega
     integral_8 = ai.integral_8(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                TX=TX_au, TL=TL_au, delta=delta_t_au,
@@ -344,7 +350,7 @@ while (t_au >= (delta_t_au - TL_au/2)
 while (t_au >= (delta_t_au + TL_au/2)
        and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    print 'after the second pulse'
+    outfile.write('after the second pulse')
 
     # omega independent integrals
     #integral 16
@@ -405,3 +411,5 @@ while (t_au >= (delta_t_au + TL_au/2)
     in_out.doout(t_au,outlines)
 
     t_au = t_au + timestep_au
+
+outfile.close
