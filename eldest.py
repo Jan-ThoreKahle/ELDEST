@@ -113,16 +113,6 @@ outfile = open("eldest.out", mode='w')
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
-#f  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
-#                      + 2
-#                      + np.exp(-2j * np.pi * t1 /TX_au) )
-#
-#fp = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi*t1/TX_au)
-#                                     + np.exp(-2j*np.pi*t1/TX_au) )
-#
-#FX = lambda t1: - A0X * np.cos(Omega_au * t1) * fp(t1) + A0X * Omega_au * np.sin(Omega_au * t1) * f(t1)
-
-# probiere Umdefinieren der Integrationsvariable
 f_t  = lambda tau: 1./4 * ( np.exp(2j * np.pi * (t_au - tau) / TX_au)
                       + 2
                       + np.exp(-2j * np.pi * (t_au - tau) /TX_au) )
@@ -148,18 +138,6 @@ integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
-#fun_inf_TX2_1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au)) * FX(t1)
-#fun_inf_TX2_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
-#
-#fun_TX2_delta_1 = lambda t1: np.exp(t1 * complex(Gamma_au/2,Er_au))
-#fun_TX2_delta_2 = lambda t2: np.exp(t2 * complex(Gamma_au/2, Er_au + E_kin_au))
-#
-##
-#fun_t_1 = lambda t1: np.exp(-t_au * res) * np.exp(t1 * res) * FX(t1)
-#fun_t_2 = lambda t1: np.exp(complex(0,E_kin_au) * (t_au-t1)) * FX(t1)
-#
-#fun_TX2_1 = lambda t1: np.exp(-TX_au/2 * res) * np.exp(t1 * res) * FX(t1)
-#fun_TX2_2 = lambda t1: np.exp(complex(0,E_kin_au) * (TX_au/2-t1)) * FX(t1)
 
 # probiere Umschreiben der Integrationsvariable
 fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
@@ -214,16 +192,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     outlines = []
     
     while (Omega_au < Omega_max_au):
-        #I = ci.complex_double_quadrature(fun_inf_TX2_1,fun_inf_TX2_2,
-        #                                 -TX_au/2, t_au,
-        #                                 lambda x: x, lambda x: t_au)
-#
-#        J = I[0] * np.exp(1j * E_kin_au * t_au) * rdg_au * VEr_au
 
-# inneres Integral vorher ausgewertet
-#        I1 = ci.complex_quadrature(fun_t_1, -TX_au/2, t_au)
-#        I2 = ci.complex_quadrature(fun_t_2, -TX_au/2, t_au)
-
+# integral 1
 # other integration variable
         I1 = ci.complex_quadrature(fun_t_1, (t_au + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_t_2, (t_au + TX_au/2), 0)
@@ -263,13 +233,6 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     
     while (Omega_au < Omega_max_au):
         # integral 2
-        #I = ci.complex_double_quadrature(fun_inf_TX2_1,fun_inf_TX2_2,
-        #                                 -tX_au/2, TX_au/2,
-        #                                 lambda x: x, lambda x: TX_au/2)
-        #I_inf_TX2 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
-
-        #I1 = ci.complex_quadrature(fun_tx2_1, -TX_au/2, TX_au/2)
-        #I2 = ci.complex_quadrature(fun_tx2_2, -TX_au/2, TX_au/2)
 
 # other integration variable
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
@@ -316,14 +279,6 @@ while (t_au >= (delta_t_au - TL_au/2)
     
     while (Omega_au < Omega_max_au):
         # integral 5 = integral 2
-        #I = ci.complex_double_quadrature(fun_inf_TX2_1,fun_inf_TX2_2,
-        #                                 -TX_au/2, TX_au/2,
-        #                                 lambda x: x, lambda x: TX_au/2)
-        #I_inf_tx2 = I[0] * np.exp(1j * e_kin_au * TX_au/2) * rdg_au * VEr_au
-        #K = I_inf_tx2
-#
-        #I1 = ci.complex_quadrature(fun_TX2_1, -TX_au/2, TX_au/2)
-        #I2 = ci.complex_quadrature(fun_TX2_2, -TX_au/2, TX_au/2)
 # other integration variable
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
@@ -383,16 +338,6 @@ while (t_au >= (delta_t_au + TL_au/2)
     
     while (Omega_au < Omega_max_au):
         # integral 11 = integral 5 = integral 2
-        #I = ci.complex_double_quadrature(fun_inf_TX2_1,fun_inf_TX2_2,
-        #                                 -TX_au/2, TX_au/2,
-        #                                 lambda x: x, lambda x: TX_au/2)
-        #I_inf_TX2 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
-        #J = I_inf_TX2
-
-# inner integral solved
-        #I1 = ci.complex_quadrature(fun_TX2_1, -TX_au/2, TX_au/2)
-        #I2 = ci.complex_quadrature(fun_TX2_2, -TX_au/2, TX_au/2)
-
 # other integration variable
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
