@@ -24,7 +24,7 @@ import in_out
 #-------------------------------------------------------------------------
 # Input parameters
 
-rdg_au        = 0.5           # transition dipole moment into the resonant state
+rdg_au        = 3.0           # transition dipole moment into the resonant state
 cdg_au        = 0.5           # transition dipole moment into any continuum state
 
 # parameters of the investigated system
@@ -34,7 +34,7 @@ E_kin_eV      = 2.0           # kinetic energy of secondary electron
 E_fin_eV      = 12.0          # final state energy in eV
 
 #Gamma_eV      = 0.5           # electronic decay width of the resonant state
-tau_s         = 2.0E-15       # lifetime
+tau_s         = 0.5E-15       # lifetime
 
 # laser parameters
 Omega_min_eV  = 20.0          # scanning XUV pulse from Omega_min-eV to
@@ -55,8 +55,8 @@ print delta_t_s
 phi           = 0
 
 # parameters of the simulation
-tmax_s        = 1.0E-15       # simulate until time tmax in seconds
-timestep_s    = 50E-18        # evaluate expression every timestep_s seconds 
+tmax_s        = 5.0E-14       # simulate until time tmax in seconds
+timestep_s    = 200E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 1.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
