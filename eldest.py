@@ -17,7 +17,7 @@ import scipy.integrate as integrate
 import numpy as np
 import sciconv
 import complex_integration as ci
-import analytic_integrals as ai
+import res_anal_integ as aires
 import in_out
 
 #-------------------------------------------------------------------------
@@ -164,19 +164,19 @@ outfile.write(' '.join(('tmax                 = ',
 
 #-------------------------------------------------------------------------
 # constant integrals, they are independent of both Omega and t
-integral_6_12 = ai.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+integral_6_12 = aires.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin)
-integral_7_13 = ai.integral_7_13(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+integral_7_13 = aires.integral_7_13(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin)
-integral_14 = ai.integral_14(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+integral_14 = aires.integral_14(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                              TX=TX_au, TL=TL_au, delta=delta_t_au,
                              res=res, res_kin=res_kin)
-integral_15 = ai.integral_15(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+integral_15 = aires.integral_15(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                              TX=TX_au, TL=TL_au, delta=delta_t_au,
                              res=res, res_kin=res_kin)
-integral_16 = ai.integral_16(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+integral_16 = aires.integral_16(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                              TX=TX_au, TL=TL_au, delta=delta_t_au,
                              res=res, res_kin=res_kin)
 const_after = integral_6_12 + integral_7_13 + integral_14 + integral_15
@@ -224,10 +224,10 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     # integrals 3 and 4 are independent of omega, they are therefore
     # evaluated before integral 2 and especially outside the loop
     #integral 3
-    integral_3 = ai.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
+    integral_3 = aires.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
     K = integral_3
     #integral 4
-    integral_4 = ai.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
+    integral_4 = aires.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
     K = K + integral_4
     
     
@@ -261,13 +261,13 @@ while (t_au >= (delta_t_au - TL_au/2)
 #-------------------------------------------------------------------------
     outfile.write('during the second pulse \n')
     # integrals, that are independent of omega
-    integral_8 = ai.integral_8(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+    integral_8 = aires.integral_8(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                TX=TX_au, TL=TL_au, delta=delta_t_au,
                                res=res, res_kin=res_kin, t=t_au)
-    integral_9 = ai.integral_9(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+    integral_9 = aires.integral_9(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                TX=TX_au, TL=TL_au, delta=delta_t_au,
                                res=res, res_kin=res_kin, t=t_au)
-    integral_10 = ai.integral_10(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+    integral_10 = aires.integral_10(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
     I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
@@ -312,20 +312,20 @@ while (t_au >= (delta_t_au + TL_au/2)
     I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, delta_t_au + TL_au/2)
     integral_16_p = integral_16 * I_IR[0]
     #integral 17
-    integral_17 = ai.integral_17(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+    integral_17 = aires.integral_17(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
     #integral 18
-    integral_18 = ai.integral_18(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+    integral_18 = aires.integral_18(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
     #integral 19
-    integral_19 = ai.integral_19(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+    integral_19 = aires.integral_19(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
     integral_19 = integral_19 * I_IR[0]
     #integral 20
-    integral_20 = ai.integral_20(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
+    integral_20 = aires.integral_20(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
     integral_20_p = integral_20 * I_IR[0]
