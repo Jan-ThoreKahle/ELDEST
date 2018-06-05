@@ -28,7 +28,7 @@ def check_input(Er, E_kin, E_fin, Gamma,
         exit('Warning: Omega_min > Omega_max' + '\n'
              + 'Stopping Script')
 
-    if (TX < n_X * 3 * np.pi / Omega_min):
+    if (TX < n_X * 2 * np.pi / Omega_min):
         exit('Warning: TX is too short to cover for the minimum energy requested'
              + '\n'
              + 'Stopping Script')
@@ -60,3 +60,9 @@ def doout(t_au, outlines):
     res_lines = '\n'.join(outlines)
     outfile.write(res_lines)
     outfile.close
+
+def doout_1f(filename, outlines):
+    res_lines = '\n'.join(outlines)
+    res_lines = res_lines + '\n' + '' + '\n'
+    filename.write(res_lines)
+    #outfile.close
