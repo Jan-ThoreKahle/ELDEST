@@ -15,7 +15,7 @@ from sys import exit
 #-------------------------------------------------------------------------
 #   input
 def check_input(Er, E_kin, E_fin, Gamma,
-                Omega_min, Omega_max, TX, A0X,
+                Omega_min, Omega_max, TX, n_X, A0X,
                 omega, TL, A0L, delta_t,
                 tmax, timestep, Omega_step):
     print 'Input Check'
@@ -28,6 +28,11 @@ def check_input(Er, E_kin, E_fin, Gamma,
         exit('Warning: Omega_min > Omega_max' + '\n'
              + 'Stopping Script')
 
+    if (TX < n_X * 3 * np.pi / Omega_min):
+        exit('Warning: TX is too short to cover for the minimum energy requested'
+             + '\n'
+             + 'Stopping Script')
+
     print 'Input fullfills requirements'
 
     return 0
@@ -35,10 +40,11 @@ def check_input(Er, E_kin, E_fin, Gamma,
 
 #-------------------------------------------------------------------------
 #   output
-def prep_output(I, Omega_au):
+def prep_output(I, Omega_au, t_au):
     square = np.absolute(I)**2
     Omega_eV = sciconv.hartree_to_ev(Omega_au)
-    string = str(Omega_eV) + '   ' + str(square)
+    t_s = sciconv.atu_to_second(t_au)
+    string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + str(square)
     return string
 
 def doout(t_au, outlines):
