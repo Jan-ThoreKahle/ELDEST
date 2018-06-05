@@ -9,6 +9,7 @@
 ##########################################################################
 
 import numpy as np
+import complex_integration as ci
 #-------------------------------------------------------------------------
 #   integration
 # Integral 3
@@ -142,3 +143,12 @@ def integral_20(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t):
              + np.exp(1j*(t-dp-TL) * E_kin))
     return I
 
+
+## functions that calculate contributions
+#def calc_res_TX2_TX2(Vr, rdg, E_kin, TX, TL, delta, res, res_kin, t, Omega
+#                     fun1, fun2):
+#    I1 = ci.complex_quadrature(fun_t_1, (t_au + TX_au/2), 0)
+#    I2 = ci.complex_quadrature(fun_t_2, (t_au + TX_au/2), 0)
+#
+#    J = - rdg * Vr / res_kin * (I1[0] - I2[0])
+#    return J
