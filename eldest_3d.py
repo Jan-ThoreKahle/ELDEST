@@ -24,8 +24,8 @@ import in_out
 #-------------------------------------------------------------------------
 # Input parameters
 
-rdg_au        = 3.0           # transition dipole moment into the resonant state
-cdg_au        = 0.5           # transition dipole moment into any continuum state
+rdg_au        = 0.5           # transition dipole moment into the resonant state
+cdg_au        = 0.0           # transition dipole moment into any continuum state
 
 # parameters of the investigated system
 # the ground state energy is being defined as Eg = 0
@@ -34,30 +34,30 @@ E_kin_eV      = 2.0           # kinetic energy of secondary electron
 E_fin_eV      = 12.0          # final state energy in eV
 
 #Gamma_eV      = 0.5           # electronic decay width of the resonant state
-tau_s         = 0.5E-15       # lifetime
+tau_s         = 5.0E-15       # lifetime
 
 # laser parameters
-Omega_min_eV  = 20.0          # scanning XUV pulse from Omega_min-eV to
-Omega_max_eV  = 78.0          #
+Omega_min_eV  = 30.0          # scanning XUV pulse from Omega_min-eV to
+Omega_max_eV  = 56.0          #
 TX_s          = 700E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 5.0E11        # intensity of the XUV pulse in W/cm^2
+I_X           = 5.0E9        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
 TL_s          = 1.0E-15       # duration of the IR streaking pulse
-print TL_s
+#print TL_s
 n_L           = 4
-I_L           = 1.0E09        # intensity of the IR pulse in W/cm^2
+I_L           = 1.0E12        # intensity of the IR pulse in W/cm^2
 #A0L           = 1.0           # amplitude of the IR pulse
-delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
-print delta_t_s
+delta_t_s     = 6.0E-13       # time difference between the maxima of the two pulses
+#print delta_t_s
 phi           = 0
 
 # parameters of the simulation
-tmax_s        = 5.0E-14       # simulate until time tmax in seconds
+tmax_s        = 3.0E-14       # simulate until time tmax in seconds
 timestep_s    = 200E-18        # evaluate expression every timestep_s seconds 
-Omega_step_eV = 1.0           # energy difference between different evaluated Omegas
+Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
 
@@ -80,8 +80,10 @@ Gamma_au       = 1. / tau_au
 Omega_min_au  = sciconv.ev_to_hartree(Omega_min_eV)
 Omega_max_au  = sciconv.ev_to_hartree(Omega_max_eV)
 TX_au         = sciconv.second_to_atu(TX_s)
-#TX_au         = n_X * 2 * np.pi / Omega_min_au
+#TX_au         = sciconv.n_X * 2 * np.pi / Omega_min_au
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
+print 'I_X = ', I_X
+print 'I_X_au = ', I_X_au
 E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_min_au # this could be wrong and might have
                                    # to be evaluated for each Omega
@@ -91,8 +93,12 @@ TL_au         = sciconv.second_to_atu(TL_s)
 TL_au         = n_L * 2 * np.pi / omega_au
 print TL_au/2
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
+print 'I_L = ', I_L
+print 'I_L_au = ', I_L_au
 E0L           = np.sqrt(I_L_au)
+print 'E0L', E0L
 A0L           = E0L / omega_au
+print 'A0L = ', A0L
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
 print delta_t_au
 
@@ -104,8 +110,6 @@ Omega_step_au = sciconv.ev_to_hartree(Omega_step_eV)
 p_au          = np.sqrt(2*E_kin_au)
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 
-res_kin = complex(Gamma_au/2,Er_au + E_kin_au)
-res     = complex(Gamma_au/2,Er_au)
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_kin_au, E_fin_au, Gamma_au,
@@ -138,8 +142,8 @@ fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_a
 FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
 
 # IR pulse
-A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) * omega_au / TL_au
-                               + phi)**2
+A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
+                      * np.cos(omega_au * t3 + phi)
 integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
 #-------------------------------------------------------------------------
@@ -169,36 +173,47 @@ outfile.write(' '.join(('tmax                 = ',
                         str(sciconv.atu_to_second(tmax_au)), 's', '\n')))
 
 #-------------------------------------------------------------------------
+# constants / prefactors
+res_kin = complex(Gamma_au/2,Er_au + E_kin_au)
+res     = complex(Gamma_au/2,Er_au)
+
+prefac_res = - VEr_au * rdg_au
+prefac_indir = 1j * np.pi / VEr_au**2 * cdg_au
+
+print 'prefac_res', prefac_res
+print 'prefac_indir', prefac_indir
+
+#-------------------------------------------------------------------------
 # constant integrals, they are independent of both Omega and t
 integral_6_12 = aires.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin)
-res_integral_6_12 = integral_6_12 * (-VEr_au) * rdg_au
-indir_integral_6_12 = integral_6_12 * 1j * np.pi / VEr_au**2 * cdg_au
+res_integral_6_12 = integral_6_12 * prefac_res
+indir_integral_6_12 = integral_6_12 * prefac_indir
 
 integral_7_13 = aires.integral_7_13(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin)
-res_integral_7_13 = integral_7_13 * (-VEr_au) * rdg_au
-indir_integral_7_13 = integral_7_13 * 1j * np.pi / VEr_au**2 * cdg_au
+res_integral_7_13 = integral_7_13 * prefac_res
+indir_integral_7_13 = integral_7_13 * prefac_indir
 
 integral_14 = aires.integral_14(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                              TX=TX_au, TL=TL_au, delta=delta_t_au,
                              res=res, res_kin=res_kin)
-res_integral_14 = integral_14 * (-VEr_au) * rdg_au
-indir_integral_14 = integral_14 * 1j * np.pi / VEr_au**2 * cdg_au
+res_integral_14 = integral_14 * prefac_res
+indir_integral_14 = integral_14 * prefac_indir
 
 integral_15 = aires.integral_15(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                              TX=TX_au, TL=TL_au, delta=delta_t_au,
                              res=res, res_kin=res_kin)
-res_integral_15 = integral_15 * (-VEr_au) * rdg_au
-indir_integral_15 = integral_15 * 1j * np.pi / VEr_au**2 * cdg_au
+res_integral_15 = integral_15 * prefac_res
+indir_integral_15 = integral_15 * prefac_indir
 
 integral_16 = aires.integral_16(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                              TX=TX_au, TL=TL_au, delta=delta_t_au,
                              res=res, res_kin=res_kin)
-res_integral_16 = integral_16 * (-VEr_au) * rdg_au
-indir_integral_16 = integral_16 * 1j * np.pi / VEr_au**2 * cdg_au
+res_integral_16 = integral_16 * prefac_res
+indir_integral_16 = integral_16 * prefac_indir
 
 # direct ionization
 dir_integral_5_8 = aidir.integral_5_8(cdg=cdg_au, E_kin=E_kin_au,
@@ -209,8 +224,11 @@ dir_integral_9 = aidir.integral_9(cdg=cdg_au, E_kin=E_kin_au,
 # sums of constant terms
 res_const_after = (res_integral_6_12 + res_integral_7_13 + res_integral_14
                    + res_integral_15)
+print 'res_const_after = ', res_const_after
+
 indir_const_after = (indir_integral_6_12 + indir_integral_7_13 + indir_integral_14
                    + indir_integral_15)
+print 'indir_const_after = ', indir_const_after
 
 
 
@@ -229,11 +247,13 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         I1 = ci.complex_quadrature(fun_t_1, (t_au + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_t_2, (t_au + TX_au/2), 0)
 
-        res_J = - rdg_au * VEr_au / res_kin * (I1[0] - I2[0])
-        indir_J = 1j * np.pi / VEr_au**2 * cdg_au / res_kin * (I1[0] - I2[0])
+        res_J = prefac_res / res_kin * (I1[0] - I2[0])
+        indir_J = prefac_indir / res_kin * (I1[0] - I2[0])
         dir_J = 1j * cdg_au * I2[0]
 
-        J = res_J + indir_J + dir_J
+        J = res_J + indir_J# + dir_J
+
+        #print 'J = ', J
 
         string = in_out.prep_output(J, Omega_au, t_au)
         outlines.append(string)
@@ -260,17 +280,25 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     # evaluated before integral 2 and especially outside the loop
     #integral 3
     integral_3 = aires.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
-    res_integral_3 = integral_3 * (-VEr_au) * rdg_au
-    indir_integral_3 = integral_3 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_3 = integral_3 * prefac_res
+    indir_integral_3 = integral_3 * prefac_indir
     dir_integral_3 = aidir.integral_3(cdg=cdg_au, E_kin=E_kin_au, TX=TX_au, t=t_au)
 
-    K = res_integral_3 + indir_integral_3 + dir_integral_3
+    K = (0
+         #+ res_integral_3
+         #+ indir_integral_3
+       # + dir_integral_3
+         )
 
     #integral 4
     integral_4 = aires.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
-    res_integral_4 = integral_4 * (-VEr_au) * rdg_au
-    indir_integral_4 = integral_4 * 1j * np.pi / VEr_au**2 * cdg_au
-    K = K + res_integral_4 + indir_integral_4
+    res_integral_4 = integral_4 * prefac_res
+    indir_integral_4 = integral_4 * prefac_indir
+
+    K = (K
+         + res_integral_4
+         + indir_integral_4
+         )
     
     
     while (Omega_au < Omega_max_au):
@@ -280,11 +308,11 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
 
-        res_J = - rdg_au * VEr_au / res_kin * (I1[0] - I2[0])
-        indir_J = 1j * np.pi / VEr_au**2 * cdg_au / res_kin * (I1[0] - I2[0])
+        res_J = prefac_res / res_kin * (I1[0] - I2[0])
+        indir_J = prefac_indir / res_kin * (I1[0] - I2[0])
         dir_J = 1j * cdg_au * I2[0]
 
-        J = res_J + indir_J + dir_J
+        J = res_J + indir_J# + dir_J
 
         L = K + J
 
@@ -311,20 +339,20 @@ while (t_au >= (delta_t_au - TL_au/2)
     integral_8 = aires.integral_8(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                TX=TX_au, TL=TL_au, delta=delta_t_au,
                                res=res, res_kin=res_kin, t=t_au)
-    res_integral_8 = integral_8 * (-VEr_au) * rdg_au
-    indir_integral_8 = integral_8 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_8 = integral_8 * prefac_res
+    indir_integral_8 = integral_8 * prefac_indir
 
     integral_9 = aires.integral_9(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                TX=TX_au, TL=TL_au, delta=delta_t_au,
                                res=res, res_kin=res_kin, t=t_au)
-    res_integral_9 = integral_9 * (-VEr_au) * rdg_au
-    indir_integral_9 = integral_9 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_9 = integral_9 * prefac_res
+    indir_integral_9 = integral_9 * prefac_indir
 
     integral_10 = aires.integral_10(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
-    res_integral_10 = integral_10 * (-VEr_au) * rdg_au
-    indir_integral_10 = integral_10 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_10 = integral_10 * prefac_res
+    indir_integral_10 = integral_10 * prefac_indir
 
     dir_integral_6 = aidir.integral_6(cdg=cdg_au, E_kin=E_kin_au, TX=TX_au, TL=TL_au,
                                       delta=delta_t_au, t=t_au)
@@ -334,9 +362,18 @@ while (t_au >= (delta_t_au - TL_au/2)
     indir_I10  = indir_integral_10 * I_IR[0]
     dir_I6 = dir_integral_6 * I_IR[0]
 
-    K = (res_integral_8 + res_integral_9 + res_I10 + res_integral_7_13
-         + indir_integral_8 + indir_integral_9 + indir_I10 + indir_integral_7_13
-         + dir_integral_5_8 + dir_I6)
+    K = (0
+         + res_integral_8
+         + res_integral_9
+         + res_I10 # ein Teil des Problems
+         + res_integral_7_13
+         + indir_integral_8
+         + indir_integral_9
+         + indir_I10
+         + indir_integral_7_13
+        # + dir_integral_5_8
+        # + dir_I6
+         )
 
     Omega_au = Omega_min_au
     outlines = []
@@ -347,11 +384,11 @@ while (t_au >= (delta_t_au - TL_au/2)
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
 
-        res_J = - rdg_au * VEr_au / res_kin * (I1[0] - I2[0])
-        indir_J = 1j * np.pi / VEr_au**2 * cdg_au / res_kin * (I1[0] - I2[0])
+        res_J = prefac_res / res_kin * (I1[0] - I2[0])
+        indir_J = prefac_indir / res_kin * (I1[0] - I2[0])
         dir_J = 1j * cdg_au * I2[0]
 
-        J = res_J + indir_J + dir_J
+        J = res_J + indir_J# + dir_J
 
         L = J + K 
         
@@ -378,34 +415,34 @@ while (t_au >= (delta_t_au + TL_au/2)
     # omega independent integrals
     #integral 16
     I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, delta_t_au + TL_au/2)
-    res_integral_16_p = integral_16 * I_IR[0]
-    indir_integral_16_p = integral_16 * I_IR[0]
+    res_integral_16_p = res_integral_16 * I_IR[0]
+    indir_integral_16_p = indir_integral_16 * I_IR[0]
     #integral 17
     integral_17 = aires.integral_17(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
-    res_integral_17 = integral_17 * (-VEr_au) * rdg_au
-    indir_integral_17 = integral_17 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_17 = integral_17 * prefac_res
+    indir_integral_17 = integral_17 * prefac_indir
     #integral 18
     integral_18 = aires.integral_18(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
-    res_integral_18 = integral_18 * (-VEr_au) * rdg_au
-    indir_integral_18 = integral_18 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_18 = integral_18 * prefac_res
+    indir_integral_18 = integral_18 * prefac_indir
     #integral 19
     integral_19 = aires.integral_19(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
-    res_integral_19 = integral_19 * (-VEr_au) * rdg_au
-    indir_integral_19 = integral_19 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_19 = integral_19 * prefac_res
+    indir_integral_19 = integral_19 * prefac_indir
     res_integral_19_p = res_integral_19 * I_IR[0]
     indir_integral_19_p = indir_integral_19 * I_IR[0]
     #integral 20
     integral_20 = aires.integral_20(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
                                  TX=TX_au, TL=TL_au, delta=delta_t_au,
                                  res=res, res_kin=res_kin, t=t_au)
-    res_integral_20 = integral_20 * (-VEr_au) * rdg_au
-    indir_integral_20 = integral_20 * 1j * np.pi / VEr_au**2 * cdg_au
+    res_integral_20 = integral_20 * prefac_res
+    indir_integral_20 = integral_20 * prefac_indir
     res_integral_20_p = res_integral_20 * I_IR[0]
     indir_integral_20_p = indir_integral_20 * I_IR[0]
 
@@ -414,11 +451,26 @@ while (t_au >= (delta_t_au + TL_au/2)
                                         delta=delta_t_au, t=t_au)
     dir_integral_10_p = dir_integral_10 * I_IR[0]
 
-    K = (res_integral_16_p + res_integral_17 + res_integral_18 + res_integral_19_p
-         + res_integral_20_p + res_const_after
-         + indir_integral_16_p + indir_integral_17 + indir_integral_18
-         + indir_integral_19_p + indir_integral_20_p + indir_const_after
-         + dir_integral_5_8 + dir_integral_9_p)
+    #print 'res_integral_16_p',  res_integral_16_p
+
+    K = ( 0
+         + res_integral_16_p # Teil des Problems
+         + res_integral_17
+         + res_integral_18
+         #+ res_integral_19_p # ein Teil des Problems, auch Zacken
+         + res_integral_20_p # ein Teil des Problems
+         + res_const_after
+         #+ indir_integral_16_p
+         #+ indir_integral_17
+         #+ indir_integral_18
+         #+ indir_integral_19_p
+         #+ indir_integral_20_p
+         #+ indir_const_after
+         #+ dir_integral_5_8
+         #+ dir_integral_9_p
+         #+ dir_integral_10_p
+         )
+
 
     Omega_au = Omega_min_au
     outlines = []
@@ -429,11 +481,11 @@ while (t_au >= (delta_t_au + TL_au/2)
         I1 = ci.complex_quadrature(fun_TX2_1, (TX_au/2 + TX_au/2), 0)
         I2 = ci.complex_quadrature(fun_TX2_2, (TX_au/2 + TX_au/2), 0)
 
-        res_J = - rdg_au * VEr_au / res_kin * (I1[0] - I2[0])
-        indir_J = 1j * np.pi / VEr_au**2 * cdg_au / res_kin * (I1[0] - I2[0])
+        res_J = prefac_res / res_kin * (I1[0] - I2[0])
+        indir_J = prefac_indir / res_kin * (I1[0] - I2[0])
         dir_J = 1j * cdg_au * I2[0]
 
-        J = res_J + indir_J + dir_J
+        J = res_J + indir_J# + dir_J
 
         L = J + K
 
@@ -444,7 +496,7 @@ while (t_au >= (delta_t_au + TL_au/2)
         Omega_au = Omega_au + Omega_step_au
     
     
-    in_out.doout(pure_out,outlines)
+    in_out.doout_1f(pure_out,outlines)
 
     t_au = t_au + timestep_au
 
