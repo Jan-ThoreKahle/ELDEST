@@ -24,6 +24,7 @@ def integral_4(Vr, rdg, E_kin, TX, res, res_kin, t):
     I = 1.0 / (res * res_kin) \
           * (1 - np.exp((t-TX/2) * res_kin) - np.exp(-(t-TX/2) * res)
              + np.exp(1j*(t-TX/2) * E_kin))
+    return I
 
 # Integral 6 and 12 (they are the same)
 def integral_6_12(Vr, rdg, E_kin, TX, TL, delta, res, res_kin):
