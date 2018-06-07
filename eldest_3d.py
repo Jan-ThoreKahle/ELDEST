@@ -41,7 +41,7 @@ Omega_min_eV  = 30.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 56.0          #
 TX_s          = 700E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 5.0E9        # intensity of the XUV pulse in W/cm^2
+I_X           = 5.0E10        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
@@ -291,7 +291,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
          )
 
     #integral 4
-    integral_4 = aires.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
+    integral_4 = aires.integral_4(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
     res_integral_4 = integral_4 * prefac_res
     indir_integral_4 = integral_4 * prefac_indir
 
@@ -300,6 +300,9 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
          + indir_integral_4
          )
     
+    print 'res_integral_3 = ', res_integral_3
+    print 'res_integral_4 = ', res_integral_4
+
     
     while (Omega_au < Omega_max_au):
         # integral 2
