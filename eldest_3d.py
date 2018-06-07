@@ -24,8 +24,8 @@ import in_out
 #-------------------------------------------------------------------------
 # Input parameters
 
-rdg_au        = 0.5           # transition dipole moment into the resonant state
-cdg_au        = 0.0           # transition dipole moment into any continuum state
+rdg_au        = 1000.0          # transition dipole moment into the resonant state
+cdg_au        = 0.5           # transition dipole moment into any continuum state
 
 # parameters of the investigated system
 # the ground state energy is being defined as Eg = 0
@@ -34,7 +34,7 @@ E_kin_eV      = 2.0           # kinetic energy of secondary electron
 E_fin_eV      = 12.0          # final state energy in eV
 
 #Gamma_eV      = 0.5           # electronic decay width of the resonant state
-tau_s         = 5.0E-15       # lifetime
+tau_s         =  5.E-15       # lifetime
 
 # laser parameters
 Omega_min_eV  = 30.0          # scanning XUV pulse from Omega_min-eV to
@@ -55,8 +55,8 @@ delta_t_s     = 6.0E-13       # time difference between the maxima of the two pu
 phi           = 0
 
 # parameters of the simulation
-tmax_s        = 3.0E-14       # simulate until time tmax in seconds
-timestep_s    = 200E-18        # evaluate expression every timestep_s seconds 
+tmax_s        = 3.0E-15       # simulate until time tmax in seconds
+timestep_s    = 20E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
@@ -109,6 +109,10 @@ Omega_step_au = sciconv.ev_to_hartree(Omega_step_eV)
 
 p_au          = np.sqrt(2*E_kin_au)
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
+print 'VEr_au = ', VEr_au
+
+#test q=1
+cdg_au = rdg_au / (np.pi * VEr_au)
 
 
 #-------------------------------------------------------------------------
@@ -176,9 +180,11 @@ outfile.write(' '.join(('tmax                 = ',
 # constants / prefactors
 res_kin = complex(Gamma_au/2,Er_au + E_kin_au)
 res     = complex(Gamma_au/2,Er_au)
+print 'res = ', res
 
 prefac_res = - VEr_au * rdg_au
 prefac_indir = 1j * np.pi / VEr_au**2 * cdg_au
+prefac_indir = 0
 
 print 'prefac_res', prefac_res
 print 'prefac_indir', prefac_indir
@@ -251,7 +257,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         indir_J = prefac_indir / res_kin * (I1[0] - I2[0])
         dir_J = 1j * cdg_au * I2[0]
 
-        J = res_J + indir_J# + dir_J
+        J = (0
+             + res_J
+#             + indir_J
+#             + dir_J
+             )
 
         #print 'J = ', J
 
@@ -285,9 +295,9 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     dir_integral_3 = aidir.integral_3(cdg=cdg_au, E_kin=E_kin_au, TX=TX_au, t=t_au)
 
     K = (0
-         #+ res_integral_3
-         #+ indir_integral_3
-       # + dir_integral_3
+         + res_integral_3
+#         + indir_integral_3
+#         + dir_integral_3
          )
 
     #integral 4
@@ -297,11 +307,11 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
     K = (K
          + res_integral_4
-         + indir_integral_4
+#         + indir_integral_4
          )
     
-    print 'res_integral_3 = ', res_integral_3
-    print 'res_integral_4 = ', res_integral_4
+  #  print 'res_integral_3 = ', res_integral_3
+  #  print 'res_integral_4 = ', res_integral_4
 
     
     while (Omega_au < Omega_max_au):
@@ -315,7 +325,11 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
         indir_J = prefac_indir / res_kin * (I1[0] - I2[0])
         dir_J = 1j * cdg_au * I2[0]
 
-        J = res_J + indir_J# + dir_J
+        J = (0
+             + res_J
+#             + indir_J
+#             + dir_J
+              )
 
         L = K + J
 
