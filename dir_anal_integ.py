@@ -21,6 +21,7 @@ def integral_5_8(cdg, E_kin, TX, TL, delta, t):
     dm = delta - TL/2
     I = 1j * cdg \
         * complex(0,1./E_kin) * (np.exp(-1j*(dm-TX/2)*E_kin) - 1)
+    return I
 
 # Integral 6
 def integral_6(cdg, E_kin, TX, TL, delta, t):
