@@ -41,7 +41,7 @@ Omega_min_eV  = 130.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 170.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 5.0E12        # intensity of the XUV pulse in W/cm^2
+I_X           = 5.0E11        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
@@ -56,7 +56,7 @@ phi           = 0
 
 # parameters of the simulation
 tmax_s        = 3.0E-15       # simulate until time tmax in seconds
-timestep_s    = 40E-18        # evaluate expression every timestep_s seconds 
+timestep_s    = 100E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
@@ -136,6 +136,7 @@ fp_t = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t_au - tau)/TX_au)
                                      + np.exp(-2j*np.pi* (t_au - tau) /TX_au) )
 
 FX_t = lambda tau: - A0X * np.cos(Omega_au * (t_au - tau)) * fp_t(tau) + A0X * Omega_au * np.sin(Omega_au * (t_au - tau)) * f_t(tau)
+
 #Variante mit TX
 f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
                       + 2
@@ -145,6 +146,16 @@ fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_a
                                      + np.exp(-2j*np.pi* (TX_au/2 - tau) /TX_au) )
 
 FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
+
+# functions for the norm
+f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1) / TX_au)
+                      + 2
+                      + np.exp(-2j * np.pi * (t1) /TX_au) )
+
+fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1)/TX_au)
+                                     + np.exp(-2j*np.pi* (t1) /TX_au) )
+
+FX_t1 = lambda t1: - A0X * np.cos(Omega_au * (t1)) * fp_t(t1) + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t(t1)
 
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
@@ -160,6 +171,10 @@ fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
 
 fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
 fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
+
+#norm
+fun_norm_1 = lambda t1: FX_t1(t1)**2
+fun_norm_2 = lambda t1: FX_t1(t1)**2 * t1
 
 
 #-------------------------------------------------------------------------
@@ -190,6 +205,11 @@ prefac_indir = 1j * np.pi / VEr_au**2 * cdg_au
 
 print 'prefac_res', prefac_res
 print 'prefac_indir', prefac_indir
+
+# predefined factors for the norm
+# assuming that transition dipole moments are real
+sum_gs     = rdg_au**2 + cdg_au**2
+norm_pref1 = 2 * np.pi**2 * VEr_au**3 * cdg_au * rdg_au
 
 #-------------------------------------------------------------------------
 # constant integrals, they are independent of both Omega and t
@@ -247,6 +267,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
     outlines = []
     Omega_au = Omega_min_au
+    norm_pref = sum_gs - norm_pref1 * t_au
     
     print 't_au = ', t_au
     while (Omega_au < Omega_max_au):
@@ -262,13 +283,23 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
         J = (0
              + res_J
-#             + indir_J
-#             + dir_J
+             + indir_J
+             + dir_J
              )
 
         #print 'J = ', J
 
-        string = in_out.prep_output(J, Omega_au, t_au)
+        square = np.absolute(J)**2
+
+        norm_I1 = ci.complex_quadrature(fun_norm_1, -TX_au/2, t_au)
+        norm_I2 = ci.complex_quadrature(fun_norm_2, -TX_au/2, t_au)
+
+        norm = norm_pref * norm_I1[0]  +  norm_pref1 * norm_I2[0]
+        print 'square during', square
+        print 'norm during', norm
+
+
+        string = in_out.prep_output(square / norm, Omega_au, t_au)
         outlines.append(string)
         
         Omega_au = Omega_au + Omega_step_au
@@ -281,6 +312,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 
 
+norm_pref = sum_gs - norm_pref1 * TX_au
 #-------------------------------------------------------------------------
 while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
@@ -288,6 +320,8 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
     Omega_au = Omega_min_au
     outlines = []
+    norm_Omega_indep = (sum_gs - t_au * norm_pref1) * (t_au - TX_au/2) \
+                       + norm_pref1 / 2 * (t_au**2 - (TX_au/2)**2)
 
     # integrals 3 and 4 are independent of omega, they are therefore
     # evaluated before integral 2 and especially outside the loop
@@ -299,8 +333,8 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
     K = (0
          + res_integral_3
-#         + indir_integral_3
-#         + dir_integral_3
+         + indir_integral_3
+         + dir_integral_3
          )
 
     #integral 4
@@ -310,12 +344,9 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
     K = (K
          + res_integral_4
-#         + indir_integral_4
+         + indir_integral_4
          )
     
-  #  print 'res_integral_3 = ', res_integral_3
-  #  print 'res_integral_4 = ', res_integral_4
-
     
     while (Omega_au < Omega_max_au):
         # integral 2
@@ -330,13 +361,22 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
         J = (0
              + res_J
-#             + indir_J
-#             + dir_J
+             + indir_J
+             + dir_J
               )
 
         L = K + J
 
-        string = in_out.prep_output(L, Omega_au, t_au)
+        square = np.absolute(L)**2
+
+        norm_I1 = ci.complex_quadrature(fun_norm_1, -TX_au/2, TX_au)
+        norm_I2 = ci.complex_quadrature(fun_norm_2, -TX_au/2, TX_au)
+
+        norm = norm_pref * norm_I1[0]  +  norm_pref1 * norm_I2[0] + norm_Omega_indep
+        print 'square after', square
+        print 'norm after', norm
+
+        string = in_out.prep_output(square / norm, Omega_au, t_au)
         outlines.append(string)
         
         Omega_au = Omega_au + Omega_step_au
