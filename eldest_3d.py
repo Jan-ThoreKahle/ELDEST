@@ -24,24 +24,24 @@ import in_out
 #-------------------------------------------------------------------------
 # Input parameters
 
-rdg_au        = 1000.0          # transition dipole moment into the resonant state
+rdg_au        = 0.30          # transition dipole moment into the resonant state
 cdg_au        = 0.5           # transition dipole moment into any continuum state
 
 # parameters of the investigated system
 # the ground state energy is being defined as Eg = 0
-Er_eV         = 44.0          # resonance energy in eV
+Er_eV         = 150.0          # resonance energy in eV
 E_kin_eV      = 2.0           # kinetic energy of secondary electron
 E_fin_eV      = 12.0          # final state energy in eV
 
 #Gamma_eV      = 0.5           # electronic decay width of the resonant state
-tau_s         =  5.E-15       # lifetime
+tau_s         =  400.0E-18       # lifetime
 
 # laser parameters
-Omega_min_eV  = 30.0          # scanning XUV pulse from Omega_min-eV to
-Omega_max_eV  = 56.0          #
-TX_s          = 700E-18       # duration of the XUV pulse in seconds
+Omega_min_eV  = 130.0          # scanning XUV pulse from Omega_min-eV to
+Omega_max_eV  = 170.0          #
+TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 5.0E10        # intensity of the XUV pulse in W/cm^2
+I_X           = 5.0E12        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
@@ -56,7 +56,7 @@ phi           = 0
 
 # parameters of the simulation
 tmax_s        = 3.0E-15       # simulate until time tmax in seconds
-timestep_s    = 20E-18        # evaluate expression every timestep_s seconds 
+timestep_s    = 40E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
 
@@ -113,6 +113,7 @@ print 'VEr_au = ', VEr_au
 
 #test q=1
 cdg_au = rdg_au / (np.pi * VEr_au)
+print 'cdg_au = ', cdg_au
 
 
 #-------------------------------------------------------------------------
@@ -165,6 +166,7 @@ fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
 # initialization
 t_au = -TX_au/2
 
+print 'TX/2 = ', sciconv.atu_to_second(TX_au/2)
 outfile.write(' '.join(('TX/2                 = ',
                         str(sciconv.atu_to_second(TX_au/2)), 's', '\n')))
 outfile.write(' '.join(('TL/2                 = ',
@@ -184,7 +186,7 @@ print 'res = ', res
 
 prefac_res = - VEr_au * rdg_au
 prefac_indir = 1j * np.pi / VEr_au**2 * cdg_au
-prefac_indir = 0
+#prefac_indir = 0
 
 print 'prefac_res', prefac_res
 print 'prefac_indir', prefac_indir
@@ -246,6 +248,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     outlines = []
     Omega_au = Omega_min_au
     
+    print 't_au = ', t_au
     while (Omega_au < Omega_max_au):
 
 # integral 1
