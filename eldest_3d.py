@@ -41,7 +41,7 @@ Omega_min_eV  = 130.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 170.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 5.0E19        # intensity of the XUV pulse in W/cm^2
+I_X           = 5.0E20        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
@@ -287,7 +287,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         J = (0
              + res_J
              + indir_J
-             + dir_J
+        #     + dir_J
              )
 
         #print 'J = ', J
@@ -316,7 +316,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #        print 'square during', square
 #        print 'norm during', norm
 
-        square = square / norm
+        #square = square / norm
 
         string = in_out.prep_output(square, Omega_au, t_au)
         outlines.append(string)
@@ -353,7 +353,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     K = (0
          + res_integral_3
          + indir_integral_3
-         + dir_integral_3
+        # + dir_integral_3
          )
 
     #integral 4
@@ -381,7 +381,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
         J = (0
              + res_J
              + indir_J
-             + dir_J
+        #     + dir_J
               )
 
         L = K + J
@@ -395,7 +395,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
         #print 'square after', square
         #print 'norm after', norm
 
-        square = square / norm
+        #square = square / norm
 
         string = in_out.prep_output(square, Omega_au, t_au)
         outlines.append(string)
