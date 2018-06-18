@@ -41,10 +41,10 @@ def check_input(Er, E_kin, E_fin, Gamma,
 #-------------------------------------------------------------------------
 #   output
 def prep_output(I, Omega_au, t_au):
-    square = np.absolute(I)**2
+#    square = np.absolute(I)**2
     Omega_eV = sciconv.hartree_to_ev(Omega_au)
     t_s = sciconv.atu_to_second(t_au)
-    string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(square, '.15f')
+    string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(I, '.15f')
     return string
 
 def doout(t_au, outlines):
