@@ -41,7 +41,7 @@ Omega_min_eV  = 130.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 170.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 5.0E09        # intensity of the XUV pulse in W/cm^2
+I_X           = 5.0E19        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
@@ -53,6 +53,7 @@ I_L           = 1.0E12        # intensity of the IR pulse in W/cm^2
 delta_t_s     = 6.0E-13       # time difference between the maxima of the two pulses
 #print delta_t_s
 phi           = 0
+q             = 5
 
 # parameters of the simulation
 tmax_s        = 2.0E-15       # simulate until time tmax in seconds
@@ -112,7 +113,7 @@ VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print 'VEr_au = ', VEr_au
 
 #test q=1
-cdg_au = rdg_au / (np.pi * VEr_au)
+cdg_au = rdg_au / ( q * np.pi * VEr_au)
 print 'cdg_au = ', cdg_au
 
 
@@ -210,6 +211,8 @@ print 'prefac_indir', prefac_indir
 # assuming that transition dipole moments are real
 sum_gs     = rdg_au**2 + cdg_au**2
 norm_pref1 = 2 * np.pi**2 * VEr_au**3 * cdg_au * rdg_au
+print 'sum_gs = ', sum_gs
+print 'norm_pref1 = ', norm_pref1
 
 #-------------------------------------------------------------------------
 # constant integrals, they are independent of both Omega and t
@@ -311,7 +314,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #        print 'dir_J = ', dir_J
 
 #        print 'square during', square
-        print 'norm during', norm
+#        print 'norm during', norm
 
         square = square / norm
 
@@ -390,7 +393,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
         norm = norm_pref * norm_I1[0]  +  norm_pref1 * norm_I2[0] + norm_Omega_indep
         #print 'square after', square
-        print 'norm after', norm
+        #print 'norm after', norm
 
         square = square / norm
 
