@@ -41,11 +41,11 @@ Omega_min_eV  = 130.0          # scanning XUV pulse from Omega_min-eV to
 Omega_max_eV  = 170.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
 n_X           = 3
-I_X           = 5.0E11        # intensity of the XUV pulse in W/cm^2
+I_X           = 5.0E09        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
 omega_eV      = 1.0           # IR pulse
-TL_s          = 1.0E-15       # duration of the IR streaking pulse
+TL_s          = 1.0E-10       # duration of the IR streaking pulse
 #print TL_s
 n_L           = 4
 I_L           = 1.0E12        # intensity of the IR pulse in W/cm^2
@@ -55,7 +55,7 @@ delta_t_s     = 6.0E-13       # time difference between the maxima of the two pu
 phi           = 0
 
 # parameters of the simulation
-tmax_s        = 3.0E-15       # simulate until time tmax in seconds
+tmax_s        = 2.0E-15       # simulate until time tmax in seconds
 timestep_s    = 100E-18        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 2.0           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
@@ -200,7 +200,7 @@ res     = complex(Gamma_au/2,Er_au)
 print 'res = ', res
 
 prefac_res = - VEr_au * rdg_au
-prefac_indir = 1j * np.pi / VEr_au**2 * cdg_au
+prefac_indir = 1j * np.pi * VEr_au**2 * cdg_au
 #prefac_indir = 0
 
 print 'prefac_res', prefac_res
@@ -295,11 +295,27 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         norm_I2 = ci.complex_quadrature(fun_norm_2, -TX_au/2, t_au)
 
         norm = norm_pref * norm_I1[0]  +  norm_pref1 * norm_I2[0]
-        print 'square during', square
+
+
+#        print 'I1', I1[0]
+#        print 'I2', I2[0]
+#        print 'norm_I1', norm_I1[0]
+#        print 'norm_I2', norm_I2[0]
+
+#        print 'prefac_res', prefac_res
+#        print 'prefac_indir', prefac_indir
+#        print 'res_kin', res_kin
+
+#        print 'res_J = ', res_J
+#        print 'indir_J = ', indir_J
+#        print 'dir_J = ', dir_J
+
+#        print 'square during', square
         print 'norm during', norm
 
+        square = square / norm
 
-        string = in_out.prep_output(square / norm, Omega_au, t_au)
+        string = in_out.prep_output(square, Omega_au, t_au)
         outlines.append(string)
         
         Omega_au = Omega_au + Omega_step_au
@@ -373,10 +389,12 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
         norm_I2 = ci.complex_quadrature(fun_norm_2, -TX_au/2, TX_au)
 
         norm = norm_pref * norm_I1[0]  +  norm_pref1 * norm_I2[0] + norm_Omega_indep
-        print 'square after', square
+        #print 'square after', square
         print 'norm after', norm
 
-        string = in_out.prep_output(square / norm, Omega_au, t_au)
+        square = square / norm
+
+        string = in_out.prep_output(square, Omega_au, t_au)
         outlines.append(string)
         
         Omega_au = Omega_au + Omega_step_au
