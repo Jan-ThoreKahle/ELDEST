@@ -14,23 +14,14 @@ from sys import exit
 
 #-------------------------------------------------------------------------
 #   input
-def check_input(Er, E_kin, E_fin, Gamma,
-                Omega_min, Omega_max, TX, n_X, A0X,
+def check_input(Er, E_fin, Gamma,
+                Omega, TX, n_X, A0X,
                 omega, TL, A0L, delta_t,
-                tmax, timestep, Omega_step):
+                tmax, timestep, E_step):
     print 'Input Check'
 
     if (TL/2 > (delta_t + TX/2)):
         exit('Warning: TL/2 > delta_t + TX/2' + '\n'
-             + 'Stopping Script')
-
-    if (Omega_min > Omega_max):
-        exit('Warning: Omega_min > Omega_max' + '\n'
-             + 'Stopping Script')
-
-    if (TX < n_X * 2 * np.pi / Omega_min):
-        exit('Warning: TX is too short to cover for the minimum energy requested'
-             + '\n'
              + 'Stopping Script')
 
     if (E_fin > Omega):
