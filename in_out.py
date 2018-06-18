@@ -33,6 +33,10 @@ def check_input(Er, E_kin, E_fin, Gamma,
              + '\n'
              + 'Stopping Script')
 
+    if (E_fin > Omega):
+        exit('Warning: E_fin > Omega' + '\n'
+             + 'Stopping Script')
+
     print 'Input fullfills requirements'
 
     return 0
