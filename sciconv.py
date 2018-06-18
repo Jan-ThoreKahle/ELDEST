@@ -10,6 +10,7 @@
 ##########################################################################
 
 import scipy.constants as constants
+import numpy as np
 #-------------------------------------------------------------------------
 #   unit conversion
 
@@ -81,11 +82,16 @@ def atu_to_second(t_au):
 #-------------------------------------------------------------------------
 #      Intensities
 def aiu_to_Wcm2(I_au):
-    I_Wcm2 = I_au * constants.e**2 / a_0**4 * constants.c * constants.epsilon_0 / 2
-    #I_Wcm2 = I_au * 3.51E16
+#    I_Wcm2 = I_au * constants.e**2 / a_0**4 * constants.c * constants.epsilon_0 / 2
+#    I_Wcm2 = I_au * 3.51E16
+    I_Wcm2 = I_au / (E_h * a_0**2 / constants.hbar**2 / constants.c
+                          / constants.fine_structure / 10000)
     return I_Wcm2
 
 def Wcm2_to_aiu(I_Wcm2):
     I_aiu = I_Wcm2 * a_0**4 / constants.e**2 / constants.c / constants.epsilon_0 * 2
-    #I_aiu = I_Wcm2 / 3.51E16
+    I_aiu = I_Wcm2 / 3.51E16
+#    I_aiu = np.sqrt(I_Wcm2) * np.sqrt(constants.epsilon_0 * constants.c)\
+#    I_aiu = I_Wcm2 * np.sqrt(constants.epsilon_0 * constants.c)\
+#            * (a_0 * constants.e / E_h) * 10000
     return I_aiu
