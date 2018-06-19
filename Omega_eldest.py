@@ -74,7 +74,7 @@ Gamma_au       = 1. / tau_au
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
 TX_au         = sciconv.second_to_atu(TX_s)
-#TX_au         = sciconv.n_X * 2 * np.pi / Omega_min_au
+TX_au         = n_X * 2 * np.pi / Omega_au
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 print 'I_X = ', I_X
 print 'I_X_au = ', I_X_au
@@ -165,8 +165,8 @@ fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
 fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
 
 #norm
-fun_norm_1 = lambda t1: FX_t1(t1)**2
-fun_norm_2 = lambda t1: FX_t1(t1)**2 * t1
+fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
+                                   * np.exp(1j * E_kin_au * (t1-t_au))
 
 
 #-------------------------------------------------------------------------
@@ -191,45 +191,42 @@ print 'prefac_indir', prefac_indir
 
 print 'Hello World'
 
-##-------------------------------------------------------------------------
-#while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
-##-------------------------------------------------------------------------
-#    outfile.write('during the first pulse \n')
-#
-#    outlines = []
-#    E_au     = E_min_au
-#    
-#    print 't_au = ', t_au
-#    while (Omega_au < Omega_max_au):
-#
-## integral 1
-## other integration variable
-#        I1 = ci.complex_quadrature(fun_t_1, (t_au + TX_au/2), 0)
-#        I2 = ci.complex_quadrature(fun_t_2, (t_au + TX_au/2), 0)
-#
-#        res_J = prefac_res / res_kin * (I1[0] - I2[0])
-#        indir_J = prefac_indir / res_kin * (I1[0] - I2[0])
-#        dir_J = 1j * cdg_au * I2[0]
-#
-#        J = (0
-#             + res_J
-#             + indir_J
-#        #     + dir_J
-#             )
-#
-#        #print 'J = ', J
-#
-#        square = np.absolute(J)**2
-#
-#        string = in_out.prep_output(square, Omega_au, t_au)
-#        outlines.append(string)
-#        
-#        E_au = E_au + E_step_au
-#    
-#    
-#    in_out.doout_1f(pure_out, outlines)
-#
-#    t_au = t_au + timestep_au
+#-------------------------------------------------------------------------
+while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
+#-------------------------------------------------------------------------
+    outfile.write('during the first pulse \n')
+
+    outlines = []
+    E_kin_au = 0
+    
+    print 't_au = ', t_au
+    while (E_kin_au <= Omega_au):
+
+# integral 1
+# other integration variable
+        I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+
+        dir_J = prefac_dir * I[0]
+
+        J = (0
+        #    + res_J
+        #    + indir_J
+             + dir_J
+             )
+
+        #print 'J = ', J
+
+        square = np.absolute(J)**2
+
+        string = in_out.prep_output(square, E_kin_au, t_au)
+        outlines.append(string)
+        
+        E_kin_au = E_kin_au + E_step_au
+    
+    
+    in_out.doout_1f(pure_out, outlines)
+
+    t_au = t_au + timestep_au
 
 
 
