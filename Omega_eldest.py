@@ -37,7 +37,7 @@ tau_s         =  400.0E-18       # lifetime
 # laser parameters
 Omega_eV      = 150.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
-n_X           = 7
+n_X           = 4
 I_X           = 5.0E12        # intensity of the XUV pulse in W/cm^2
 #A0X           = 1.0           # amplitude of the XUV pulse
 
@@ -53,7 +53,7 @@ phi           = 0
 q             = 5
 
 # parameters of the simulation
-tmax_s        = 3.0E-16       # simulate until time tmax in seconds
+tmax_s        = 1.5E-15       # simulate until time tmax in seconds
 timestep_s    = 20E-18        # evaluate expression every timestep_s seconds 
 E_min_eV      = 130
 E_max_eV      = 170
@@ -230,6 +230,44 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 #-------------------------------------------------------------------------
 while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au)):
+#-------------------------------------------------------------------------
+    outfile.write('between the pulses \n')
+
+    outlines = []
+    E_kin_au = 0
+    
+    print 't_au = ', t_au
+    while (E_kin_au <= Omega_au):
+
+# integral 1
+        I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+
+        dir_J = prefac_dir * (I1[0]
+                              )
+
+        J = (0
+             + dir_J
+             )
+
+        square = np.absolute(J)**2
+
+        string = in_out.prep_output(square, E_kin_au, t_au)
+        outlines.append(string)
+        
+        E_kin_au = E_kin_au + E_step_au
+
+    
+    
+    in_out.doout_1f(pure_out,outlines)
+
+    t_au = t_au + timestep_au
+
+
+#-------------------------------------------------------------------------
+# during the ir pulse
+while (t_au >= (delta_t_au - TL_au/2)
+       and t_au <= (delta_t_au + TL_au/2)
+       and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
 
