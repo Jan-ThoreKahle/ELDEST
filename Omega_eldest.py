@@ -37,27 +37,23 @@ tau_s         =  400.0E-18       # lifetime
 # laser parameters
 Omega_eV      = 150.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
-n_X           = 4
-I_X           = 5.0E12        # intensity of the XUV pulse in W/cm^2
-#A0X           = 1.0           # amplitude of the XUV pulse
+n_X           = 11
+I_X           = 5.0E09        # intensity of the XUV pulse in W/cm^2
 
-omega_eV      = 1.0           # IR pulse
-TL_s          = 1.0E-10       # duration of the IR streaking pulse
-#print TL_s
-n_L           = 4
+omega_eV      = 5.0           # IR pulse
+n_L           = 10
 I_L           = 1.0E12        # intensity of the IR pulse in W/cm^2
-#A0L           = 1.0           # amplitude of the IR pulse
-delta_t_s     = 6.0E-13       # time difference between the maxima of the two pulses
-#print delta_t_s
+delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
 phi           = 0
 q             = 5
 
 # parameters of the simulation
-tmax_s        = 1.5E-15       # simulate until time tmax in seconds
-timestep_s    = 20E-18        # evaluate expression every timestep_s seconds 
-E_min_eV      = 130
-E_max_eV      = 170
+tmax_s        = 2.0E-14       # simulate until time tmax in seconds
+timestep_s    = 500E-18        # evaluate expression every timestep_s seconds 
 E_step_eV     = 2.0           # energy difference between different evaluated Omegas
+
+E_min_eV      =  50.0
+E_max_eV      = 110.0
 #-------------------------------------------------------------------------
 
 
@@ -67,7 +63,6 @@ E_step_eV     = 2.0           # energy difference between different evaluated Om
 Er_au          = sciconv.ev_to_hartree(Er_eV)
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 
-#Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)
 tau_au         = sciconv.second_to_atu(tau_s)
 Gamma_au       = 1. / tau_au
 
@@ -75,6 +70,7 @@ Gamma_au       = 1. / tau_au
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
 TX_au         = sciconv.second_to_atu(TX_s)
 TX_au         = n_X * 2 * np.pi / Omega_au
+print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 print 'I_X = ', I_X
 print 'I_X_au = ', I_X_au
@@ -82,9 +78,9 @@ E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_au
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
-TL_au         = sciconv.second_to_atu(TL_s)
 TL_au         = n_L * 2 * np.pi / omega_au
-print TL_au/2
+print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
+print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
 print 'I_L = ', I_L
 print 'I_L_au = ', I_L_au
@@ -99,6 +95,9 @@ print delta_t_au
 tmax_au       = sciconv.second_to_atu(tmax_s)
 timestep_au   = sciconv.second_to_atu(timestep_s)
 E_step_au = sciconv.ev_to_hartree(E_step_eV)
+
+E_min_au = sciconv.ev_to_hartree(E_min_eV)
+E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print 'VEr_au = ', VEr_au
@@ -170,6 +169,12 @@ fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                    * np.exp(1j * E_kin_au * (t1-TX_au/2))
 
+dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
+dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
+fun_dress = lambda t1: fun_TX2_dir_1(t1) * dress(t1)
+
+fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
+                                  * dress(t1)
 
 #-------------------------------------------------------------------------
 # initialization
@@ -191,18 +196,17 @@ print 'prefac_res', prefac_res
 print 'prefac_indir', prefac_indir
 
 
-print 'Hello World'
-
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('during the first pulse \n')
+    print 'during the first pulse'
 
     outlines = []
-    E_kin_au = 0
+    E_kin_au = E_min_au
     
     print 't_au = ', t_au
-    while (E_kin_au <= Omega_au):
+    while (E_kin_au <= E_max_au):
 
 # integral 1
         I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
@@ -232,12 +236,14 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
+    print 'between the pulses'
 
     outlines = []
-    E_kin_au = 0
+    E_kin_au = E_min_au
     
     print 't_au = ', t_au
-    while (E_kin_au <= Omega_au):
+    #while (E_kin_au <= Omega_au):
+    while (E_kin_au <= E_max_au):
 
 # integral 1
         I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
@@ -269,21 +275,22 @@ while (t_au >= (delta_t_au - TL_au/2)
        and t_au <= (delta_t_au + TL_au/2)
        and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    outfile.write('between the pulses \n')
+    outfile.write('during the IR pulse \n')
+    print 'during the IR pulse'
 
     outlines = []
-    E_kin_au = 0
+    E_kin_au = E_min_au
     
     print 't_au = ', t_au
-    while (E_kin_au <= Omega_au):
+    #while (E_kin_au <= Omega_au):
+    while (E_kin_au <= E_max_au):
 
-# integral 1
-        I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-        #dir_integral_3 = aidir.integral_3(E_fin=E_fin_au, E_kin=E_kin_au,
-        #                                  TX=TX_au, t=t_au)
+        p_au = np.sqrt(2*E_kin_au)
+
+
+        I1 = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), TX_au/2)
 
         dir_J = prefac_dir * (I1[0]
-                #              + dir_integral_3 # this could be 0
                               )
 
         J = (0
@@ -302,6 +309,52 @@ while (t_au >= (delta_t_au - TL_au/2)
     in_out.doout_1f(pure_out,outlines)
 
     t_au = t_au + timestep_au
+
+
+
+#-------------------------------------------------------------------------
+# after the second pulse
+while (t_au >= (delta_t_au + TL_au/2)
+       and (t_au <= tmax_au)):
+#-------------------------------------------------------------------------
+    outfile.write('after the IR pulse \n')
+    print 'after the IR pulse'
+
+    outlines = []
+    E_kin_au = E_min_au
+    
+    print 't_au = ', t_au
+    #while (E_kin_au <= Omega_au):
+    while (E_kin_au <= E_max_au):
+
+        p_au = np.sqrt(2*E_kin_au)
+
+        I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+
+        dress_I = ci.complex_quadrature(integ_IR, (delta_t_au - TL_au/2),
+                                                  (delta_t_au + TL_au/2))
+        dress = np.exp(-1j/2 * dress_I[0])
+
+        dir_J = prefac_dir * (I1[0] * dress
+                              )
+
+        J = (0
+             + dir_J
+             )
+
+        square = np.absolute(J)**2
+
+        string = in_out.prep_output(square, E_kin_au, t_au)
+        outlines.append(string)
+        
+        E_kin_au = E_kin_au + E_step_au
+
+    
+    
+    in_out.doout_1f(pure_out,outlines)
+
+    t_au = t_au + timestep_au
+
 
 
 outfile.close
