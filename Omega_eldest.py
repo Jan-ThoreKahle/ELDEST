@@ -37,22 +37,22 @@ tau_s         =  400.0E-18       # lifetime
 # laser parameters
 Omega_eV      = 150.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
-n_X           = 11
-I_X           = 5.0E09        # intensity of the XUV pulse in W/cm^2
+n_X           = 10
+I_X           = 5.0E16        # intensity of the XUV pulse in W/cm^2
 
-omega_eV      = 5.0           # IR pulse
+omega_eV      = 1.6           # IR pulse
 n_L           = 10
-I_L           = 1.0E12        # intensity of the IR pulse in W/cm^2
-delta_t_s     = 1.0E-14       # time difference between the maxima of the two pulses
+I_L           = 1.0E14        # intensity of the IR pulse in W/cm^2
+delta_t_s     = 15000.0E-18       # time difference between the maxima of the two pulses
 phi           = 0
 q             = 5
 
 # parameters of the simulation
-tmax_s        = 2.0E-14       # simulate until time tmax in seconds
-timestep_s    = 500E-18        # evaluate expression every timestep_s seconds 
-E_step_eV     = 2.0           # energy difference between different evaluated Omegas
+tmax_s        = 3.0E-14       # simulate until time tmax in seconds
+timestep_s    = 200.0E-18     # evaluate expression every timestep_s seconds 
+E_step_eV     = 1.0           # energy difference between different evaluated Omegas
 
-E_min_eV      =  50.0
+E_min_eV      =  30.0
 E_max_eV      = 110.0
 #-------------------------------------------------------------------------
 
@@ -76,6 +76,7 @@ print 'I_X = ', I_X
 print 'I_X_au = ', I_X_au
 E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_au
+print 'A0X = ', A0X
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 TL_au         = n_L * 2 * np.pi / omega_au
@@ -89,7 +90,6 @@ print 'E0L', E0L
 A0L           = E0L / omega_au
 print 'A0L = ', A0L
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
-print delta_t_au
 
 # parameters of the simulation
 tmax_au       = sciconv.second_to_atu(tmax_s)
@@ -171,7 +171,12 @@ fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
-fun_dress = lambda t1: fun_TX2_dir_1(t1) * dress(t1)
+
+dress_I_after = lambda t1: integrate.quad(integ_IR,t1,(delta_t_au + TL_au/2))[0]
+dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))
+fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
+                              * np.exp(1j * E_kin_au * ((delta_t_au + TL_au/2)-t_au)) \
+                              * dress_after(t1)
 
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                   * dress(t1)
@@ -329,13 +334,9 @@ while (t_au >= (delta_t_au + TL_au/2)
 
         p_au = np.sqrt(2*E_kin_au)
 
-        I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+        I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
 
-        dress_I = ci.complex_quadrature(integ_IR, (delta_t_au - TL_au/2),
-                                                  (delta_t_au + TL_au/2))
-        dress = np.exp(-1j/2 * dress_I[0])
-
-        dir_J = prefac_dir * (I1[0] * dress
+        dir_J = prefac_dir * (I1[0]
                               )
 
         J = (0
