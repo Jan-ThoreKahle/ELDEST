@@ -12,8 +12,9 @@ import numpy as np
 #-------------------------------------------------------------------------
 #   integration
 # Integral 3
-def integral_3(cdg, E_kin, TX, t):
-    I = 1j * cdg * complex(0,1./E_kin) * (1 - np.exp(1j*(t-TX/2)*E_kin))
+def integral_3(E_fin, E_kin, TX, t):
+    I = complex(0,-1./ (E_kin+E_fin)) * (np.exp(1j* E_kin * t)
+                                      - np.exp(1j* E_fin*TX/2 + 1j*(TX/2-t)*E_kin))
     return I
 
 # Integral 5 and 8
