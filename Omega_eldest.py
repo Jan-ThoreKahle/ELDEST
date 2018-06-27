@@ -48,7 +48,7 @@ phi           = 0
 q             = 5
 
 # parameters of the simulation
-tmax_s        = 3.0E-14       # simulate until time tmax in seconds
+tmax_s        = 1.0E-14       # simulate until time tmax in seconds
 timestep_s    = 200.0E-18     # evaluate expression every timestep_s seconds 
 E_step_eV     = 1.0           # energy difference between different evaluated Omegas
 
@@ -210,7 +210,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     outlines = []
     E_kin_au = E_min_au
     
-    print 't_au = ', t_au
+    print 't_s = ', sciconv.atu_to_second(t_au)
     while (E_kin_au <= E_max_au):
 
 # integral 1
@@ -246,7 +246,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     outlines = []
     E_kin_au = E_min_au
     
-    print 't_au = ', t_au
+    print 't_s = ', sciconv.atu_to_second(t_au)
     #while (E_kin_au <= Omega_au):
     while (E_kin_au <= E_max_au):
 
@@ -286,7 +286,7 @@ while (t_au >= (delta_t_au - TL_au/2)
     outlines = []
     E_kin_au = E_min_au
     
-    print 't_au = ', t_au
+    print 't_s = ', sciconv.atu_to_second(t_au)
     #while (E_kin_au <= Omega_au):
     while (E_kin_au <= E_max_au):
 
@@ -328,7 +328,7 @@ while (t_au >= (delta_t_au + TL_au/2)
     outlines = []
     E_kin_au = E_min_au
     
-    print 't_au = ', t_au
+    print 't_s = ', sciconv.atu_to_second(t_au)
     #while (E_kin_au <= Omega_au):
     while (E_kin_au <= E_max_au):
 
