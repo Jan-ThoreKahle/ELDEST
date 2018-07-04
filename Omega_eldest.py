@@ -29,7 +29,7 @@ print infile
 
 (rdg_au, cdg_au, 
  Er_eV, E_fin_eV, tau_s,
- Omega_eV, n_X, I_X,
+ Omega_eV, n_X, I_X, X_sinsq, X_gauss,
  omega_eV, n_L, I_L, delta_t_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV) = in_out.read_input(infile)
@@ -46,8 +46,11 @@ Gamma_au       = 1. / tau_au
 
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
-#TX_au         = sciconv.second_to_atu(TX_s)
-TX_au         = n_X * 2 * np.pi / Omega_au
+if (X_sinsq):
+    TX_au     = n_X * 2 * np.pi / Omega_au
+elif(X_gauss):
+    sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
+    TX_au     = 5./ 2 * sigma
 print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 print 'I_X = ', I_X
@@ -118,17 +121,18 @@ FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0
 
 # functions for the norm
 if (X_sinsq):
+    print 'use sinsq function'
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
                           + 2
                           + np.exp(-2j * np.pi * t1 /TX_au) )
     
     fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* t1/TX_au)
                                          + np.exp(-2j*np.pi* t1 /TX_au) )
-if (X_gauss):
+elif (X_gauss):
+    print 'use gauss function'
     f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
                        * np.exp(-t1**2 / (2*sigma**2)))
-    
-    fp_t1 = lambda t1: ( -t1/ np.sqrt(2*np.pi) / sigma**3
+    fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
     print 'no pulse shape selected'

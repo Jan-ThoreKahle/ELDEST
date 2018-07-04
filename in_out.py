@@ -54,10 +54,12 @@ def read_input(inputfile):
                 X_sinsq = True
                 X_gauss = False
                 print 'X_shape = Sin**2'
-            if (words[2] == 'gauss'):
+            elif (words[2] == 'gauss'):
                 X_sinsq = False
                 X_gauss = True
                 print 'X_shape = Gauss'
+            else:
+                print 'no XUV pulse shape selected'
     
     # dressing laser parameters
         elif (words[0] == 'omega_eV'):
@@ -100,7 +102,7 @@ def read_input(inputfile):
     f.close()
     return (rdg_au, cdg_au,
             Er_eV, E_fin_eV, tau_s,
-            Omega_eV, n_X, I_X,
+            Omega_eV, n_X, I_X, X_sinsq, X_gauss,
             omega_eV, n_L, I_L, delta_t_s, phi, q,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV)
