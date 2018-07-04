@@ -34,41 +34,6 @@ print infile
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV) = in_out.read_input(infile)
 
-##-------------------------------------------------------------------------
-## Input parameters
-#
-#rdg_au        = 0.30          # transition dipole moment into the resonant state
-#cdg_au        = 0.5           # transition dipole moment into any continuum state
-#
-## parameters of the investigated system
-## the ground state energy is being defined as Eg = 0
-#Er_eV         = 150.0         # resonance energy in eV
-#E_fin_eV      =  70.0         # final state energy in eV
-#
-#tau_s         =  400.0E-18       # lifetime
-#
-## laser parameters
-#Omega_eV      = 150.0          #
-#TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
-#n_X           = 2
-#I_X           = 5.0E16        # intensity of the XUV pulse in W/cm^2
-#
-#omega_eV      = 1.6           # IR pulse
-#n_L           = 10
-#I_L           = 1.0E14        # intensity of the IR pulse in W/cm^2
-#delta_t_s     = 55000.0E-18       # time difference between the maxima of the two pulses
-#phi           = 0
-#q             = 5
-#
-## parameters of the simulation
-#tmax_s        = 5.0E-16       # simulate until time tmax in seconds
-#timestep_s    = 10.0E-18     # evaluate expression every timestep_s seconds 
-#E_step_eV     = 1.0           # energy difference between different evaluated Omegas
-#
-#E_min_eV      =  10.0
-#E_max_eV      = 150.0
-##-------------------------------------------------------------------------
-
 
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
