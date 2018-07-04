@@ -29,7 +29,7 @@ print infile
 
 (rdg_au, cdg_au, 
  Er_eV, E_fin_eV, tau_s,
- Omega_eV, n_X, I_X,
+ Omega_eV, n_X, I_X, X_sinsq, X_gauss,
  omega_eV, n_L, I_L, delta_t_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV) = in_out.read_input(infile)
