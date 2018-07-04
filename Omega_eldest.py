@@ -35,9 +35,6 @@ print infile
  E_min_eV, E_max_eV) = in_out.read_input(infile)
 
 
-X_gauss = T
-X_sinsq = F
-
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
@@ -120,12 +117,21 @@ fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_a
 FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
 
 # functions for the norm
-f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
-                      + 2
-                      + np.exp(-2j * np.pi * t1 /TX_au) )
-
-fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* t1/TX_au)
-                                     + np.exp(-2j*np.pi* t1 /TX_au) )
+if (X_sinsq):
+    f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
+                          + 2
+                          + np.exp(-2j * np.pi * t1 /TX_au) )
+    
+    fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* t1/TX_au)
+                                         + np.exp(-2j*np.pi* t1 /TX_au) )
+if (X_gauss):
+    f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
+                       * np.exp(-t1**2 / (2*sigma**2)))
+    
+    fp_t1 = lambda t1: ( -t1/ np.sqrt(2*np.pi) / sigma**3
+                       * np.exp(-t1**2 / (2*sigma**2)))
+else:
+    print 'no pulse shape selected'
 
 FX_t1 = lambda t1: - A0X * np.cos(Omega_au * t1) * fp_t(t1) + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t(t1)
 
