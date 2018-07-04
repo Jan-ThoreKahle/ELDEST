@@ -10,7 +10,7 @@ tau_s         =  400.0E-18       # lifetime
 # laser parameters
 Omega_eV      = 150.0          #
 TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
-n_X           = 5
+n_X           = 15
 I_X           = 5.0E16        # intensity of the XUV pulse in W/cm^2
 X_shape       = gauss         # options: gauss, sinsq
 #
@@ -24,8 +24,8 @@ q             = 5
 #
 # parameters of the simulation
 tmax_s        = 10.0E-16       # simulate until time tmax in seconds
-timestep_s    = 20.0E-18     # evaluate expression every timestep_s seconds 
-E_step_eV     = 2.0           # energy difference between different evaluated Omegas
+timestep_s    = 50.0E-18     # evaluate expression every timestep_s seconds 
+E_step_eV     = 0.5           # energy difference between different evaluated Omegas
 #
-E_min_eV      =  10.0
-E_max_eV      = 150.0
+E_min_eV      =  50.0
+E_max_eV      = 110.0
