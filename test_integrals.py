@@ -17,7 +17,7 @@ import scipy.integrate as integrate
 import numpy as np
 import sciconv
 import complex_integration as ci
-import analytic_integrals as ai
+#import analytic_integrals as ai
 import in_out
 
 #-------------------------------------------------------------------------
@@ -50,11 +50,6 @@ tmax_s        = 5.0E-14       # simulate until time tmax in seconds
 timestep_s    = 2E-15        # evaluate expression every timestep_s seconds 
 Omega_step_eV = 0.2           # energy difference between different evaluated Omegas
 #-------------------------------------------------------------------------
-
-in_out.check_input(Er_eV, E_kin_eV, E_fin_eV, Gamma_eV,
-                   Omega_min_eV, Omega_max_eV, TX_s, A0X,
-                   omega_eV, TL_s, A0L, delta_t_s,
-                   tmax_s, timestep_s, Omega_step_eV)
 
 #-------------------------------------------------------------------------
 # Definitions of reusable functions
@@ -126,240 +121,12 @@ t_au = -TX_au/2
 
 
 #-------------------------------------------------------------------------
-# constant integrals, they are independent of both Omega and t
-# Integral 6 - 12
-print '--------------------------------------------------------------'
-print 'constant integrals'
-print '--------------------------------------------------------------'
-integral_6_12 = ai.integral_6_12(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                                 TX=TX_au, TL=TL_au, delta=delta_t_au,
-                                 res=res, res_kin=res_kin)
-J = integral_6_12
-print 'integral 6 12 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 TX_au/2, delta_t_au - TL_au/2,
-                                 lambda x: x, lambda x: TX_au/2)
-I_TX2_delta_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
-print 'integral 6 quadrature = ', I_TX2_delta_t1
+square = False
 
-# Integral 7 - 13
-integral_7_13 = ai.integral_7_13(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                                 TX=TX_au, TL=TL_au, delta=delta_t_au,
-                                 res=res, res_kin=res_kin)
-J = integral_7_13
-print 'integral 7 12 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 TX_au/2, delta_t_au - TL_au/2,
-                                 lambda x: TX_au/2,
-                                 lambda x: delta_t_au -TL_au/2)
-I_TX2_delta_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-                   * rdg_au * VEr_au)
-print 'integral 7 quadrature = ', I_TX2_delta_TX2
+if (square):
+    f = lambda x: x**2
+else:
+    f = lambda x: x
 
-# Integral 14
-integral_14 = ai.integral_14(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-                             res=res, res_kin=res_kin)
-J = integral_14
-print 'integral 14 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au - TL_au/2, delta_t_au + TL_au/2,
-                                 lambda x: x,
-                                 lambda x: TX_au/2)
-I_deltam_deltap_t1 = (I[0] * np.exp(1j * E_kin_au * TX_au/2)
-                * rdg_au * VEr_au)
-print 'integral 14 quadrature = ', I_deltam_deltap_t1
-
-# Integral 15
-integral_15 = ai.integral_15(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-                             res=res, res_kin=res_kin)
-J = integral_15
-print 'integral 15 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au - TL_au/2, delta_t_au + TL_au/2,
-                                 lambda x: TX_au/2,
-                                 lambda x: delta_t_au - TL_au/2)
-I_deltam_deltap_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-                * rdg_au * VEr_au)
-print 'integral 15 quadrature = ', I_deltam_deltap_TX2
-
-# Integral 16
-integral_16 = ai.integral_16(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-                             res=res, res_kin=res_kin)
-J = integral_16
-print 'integral 16 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au - TL_au/2, delta_t_au + TL_au/2,
-                                 lambda x: delta_t_au - TL_au/2,
-                                 lambda x: delta_t_au + TL_au/2)
-I_deltam_deltap_deltam = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-#                          * np.exp(1j/2 * I_IR[0])
-                          * rdg_au * VEr_au)
-print 'integral 16 quadrature = ', I_deltam_deltap_deltam
-
-
-
-#-------------------------------------------------------------------------
-# time-dependent integrals
-#-------------------------------------------------------------------------
-print '--------------------------------------------------------------'
-print 'between the pulses'
-print '--------------------------------------------------------------'
-# between the pulses
-t_au = TX_au
-# integrals 3 and 4 are independent of Omega, they are therefore
-# evaluated before integral 2 and especially outside the loop
-#Integral 3
-integral_3 = ai.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
-J = integral_3
-print 'integral 3 analytic = ', J
-
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 TX_au/2, t_au,
-                                 lambda x: x, lambda x: TX_au/2)
-I_TX2_t_t1 = I[0] * np.exp(1j * E_kin_au * TX_au/2) * rdg_au * VEr_au
-print 'integral 3 quadrature = ', I_TX2_t_t1
-
-#Integral 4
-integral_4 = ai.integral_3(VEr_au, rdg_au, E_kin_au, TX_au, res, res_kin, t_au)
-J = integral_4
-print 'integral 4 analytic = ', J
-
-
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 TX_au/2, t_au,
-                                 lambda x: TX_au/2, lambda x: t_au)
-I_TX2_t_TX2 = I[0] * np.exp(1j * E_kin_au * t_au) * rdg_au * VEr_au
-print 'integral 4 quadrature = ', I_TX2_t_TX2
-
-
-#-------------------------------------------------------------------------
-# during the IR pulse
-t_au = delta_t_au -TL_au/2 + TX_au
-#-------------------------------------------------------------------------
-print '--------------------------------------------------------------'
-print 'during the second pulse'
-print '--------------------------------------------------------------'
-# integrals, that are independent of Omega
-# Integral 8
-integral_8 = ai.integral_8(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                           TX=TX_au, TL=TL_au, delta=delta_t_au,
-                           res=res, res_kin=res_kin, t=t_au)
-J = integral_8
-print 'integral 8 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au - TL_au/2, t_au,
-                                 lambda x: x,
-                                 lambda x: TX_au/2)
-I_delta_t_t1 = (I[0] * np.exp(1j * E_kin_au * TX_au/2)
-                * rdg_au * VEr_au)
-print 'integral 8 quadrature = ', I_delta_t_t1
-
-# Integral 9
-integral_9 = ai.integral_9(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                           TX=TX_au, TL=TL_au, delta=delta_t_au,
-                           res=res, res_kin=res_kin, t=t_au)
-J = integral_9
-print 'integral 9 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au - TL_au/2, t_au,
-                                 lambda x: TX_au/2,
-                                 lambda x: delta_t_au - TL_au/2)
-I_delta_t_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-                * rdg_au * VEr_au)
-print 'integral 9 quadrature = ', I_delta_t_TX2
-
-# Integral 10
-integral_10 = ai.integral_10(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-                             res=res, res_kin=res_kin, t=t_au)
-J = integral_10
-print 'integral 10 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au - TL_au/2, t_au,
-                                 lambda x: delta_t_au - TL_au/2,
-                                 lambda x: t_au)
-#I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
-I_delta_t_delta = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-#                   * np.exp(1j/2 * I_IR[0])
-                   * rdg_au * VEr_au)
-print 'integral 10 quadrature = ', I_delta_t_delta
-#I_IR = integrate.quad(integ_IR, delta_t_au - TL_au/2, t_au)
-
-
-
-#-------------------------------------------------------------------------
-# after the second pulse
-t_au = delta_t_au + TL_au/2 + TX_au
-#-------------------------------------------------------------------------
-print '--------------------------------------------------------------'
-print 'after the second pulse'
-print '--------------------------------------------------------------'
-
-# Omega independent integrals
-#Integral 17
-integral_17 = ai.integral_17(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-                             res=res, res_kin=res_kin, t=t_au)
-J = integral_17
-print 'integral 17 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au + TL_au/2, t_au,
-                                 lambda x: x,
-                                 lambda x: TX_au/2)
-I_deltap_t_t1 = (I[0] * np.exp(1j * E_kin_au * TX_au/2)
-                 * rdg_au * VEr_au)
-print 'integral 17 quadrature = ', I_deltap_t_t1
-
-#Integral 18
-integral_18 = ai.integral_18(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-
-                             res=res, res_kin=res_kin, t=t_au)
-J = integral_18
-print 'integral 18 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au + TL_au/2, t_au,
-                                 lambda x: TX_au/2,
-                                 lambda x: delta_t_au - TL_au/2)
-I_deltap_t_TX2 = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-                  * rdg_au * VEr_au)
-print 'integral 18 quadrature = ', I_deltap_t_TX2
-
-#Integral 19
-integral_19 = ai.integral_19(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-                             res=res, res_kin=res_kin, t=t_au)
-#integral_19 = integral_19 * I_IR[0]
-J = integral_19
-print 'integral 19 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au + TL_au/2, t_au,
-                                 lambda x: delta_t_au - TL_au/2,
-                                 lambda x: delta_t_au + TL_au/2)
-I_deltap_t_deltam = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-#                          * np.exp(1j/2 * I_IR[0])
-                          * rdg_au * VEr_au)
-print 'integral 19 quadrature = ', I_deltap_t_deltam
-
-
-#Integral 20
-integral_20 = ai.integral_20(Vr=VEr_au, rdg=rdg_au, E_kin=E_kin_au,
-                             TX=TX_au, TL=TL_au, delta=delta_t_au,
-                             res=res, res_kin=res_kin, t=t_au)
-#integral_20 = integral_20 * I_IR[0]
-J = integral_20
-print 'integral 20 analytic = ', J
-I = ci.complex_double_quadrature(fun_TX2_delta_1,fun_TX2_delta_2,
-                                 delta_t_au + TL_au/2, t_au,
-                                 lambda x: delta_t_au + TL_au/2,
-                                 lambda x: t_au)
-I_deltap_t_deltam = (I[0] * np.exp(1j * E_kin_au * (delta_t_au - TL_au/2))
-#                          * np.exp(1j/2 * I_IR[0])
-                          * np.exp(1j * E_kin_au * (t_au
-                                                    - (delta_t_au + TL_au/2)))
-                          * rdg_au * VEr_au)
-print 'integral 20 quadrature = ', I_deltap_t_deltam
-
+print f(1)
+print f(2)
