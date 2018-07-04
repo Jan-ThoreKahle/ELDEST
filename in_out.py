@@ -49,6 +49,15 @@ def read_input(inputfile):
         elif (words[0] == 'I_X'):
             I_X = float(words[2])
             print 'I_X = ', I_X
+        elif (words[0] == 'X_shape'):
+            if (words[2] == 'sinsq'):
+                X_sinsq = True
+                X_gauss = False
+                print 'X_shape = Sin**2'
+            if (words[2] == 'gauss'):
+                X_sinsq = False
+                X_gauss = True
+                print 'X_shape = Gauss'
     
     # dressing laser parameters
         elif (words[0] == 'omega_eV'):
