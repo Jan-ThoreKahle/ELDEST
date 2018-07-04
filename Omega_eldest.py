@@ -14,47 +14,60 @@
 
 import scipy
 import scipy.integrate as integrate
+from scipy.signal import argrelextrema
 import numpy as np
 import sciconv
 import complex_integration as ci
 import res_anal_integ as aires
 import dir_anal_integ as aidir
 import in_out
+import sys
 
-#-------------------------------------------------------------------------
-# Input parameters
+infile = sys.argv[1]
+print infile
 
-rdg_au        = 0.30          # transition dipole moment into the resonant state
-cdg_au        = 0.5           # transition dipole moment into any continuum state
 
-# parameters of the investigated system
-# the ground state energy is being defined as Eg = 0
-Er_eV         = 150.0         # resonance energy in eV
-E_fin_eV      =  70.0         # final state energy in eV
+(rdg_au, cdg_au, 
+ Er_eV, E_fin_eV, tau_s,
+ Omega_eV, n_X, I_X,
+ omega_eV, n_L, I_L, delta_t_s, phi, q,
+ tmax_s, timestep_s, E_step_eV,
+ E_min_eV, E_max_eV) = in_out.read_input(infile)
 
-tau_s         =  400.0E-18       # lifetime
-
-# laser parameters
-Omega_eV      = 150.0          #
-TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
-n_X           = 2
-I_X           = 5.0E16        # intensity of the XUV pulse in W/cm^2
-
-omega_eV      = 1.6           # IR pulse
-n_L           = 10
-I_L           = 1.0E14        # intensity of the IR pulse in W/cm^2
-delta_t_s     = 55000.0E-18       # time difference between the maxima of the two pulses
-phi           = 0
-q             = 5
-
-# parameters of the simulation
-tmax_s        = 1.0E-14       # simulate until time tmax in seconds
-timestep_s    = 200.0E-18     # evaluate expression every timestep_s seconds 
-E_step_eV     = 1.0           # energy difference between different evaluated Omegas
-
-E_min_eV      =  30.0
-E_max_eV      = 110.0
-#-------------------------------------------------------------------------
+##-------------------------------------------------------------------------
+## Input parameters
+#
+#rdg_au        = 0.30          # transition dipole moment into the resonant state
+#cdg_au        = 0.5           # transition dipole moment into any continuum state
+#
+## parameters of the investigated system
+## the ground state energy is being defined as Eg = 0
+#Er_eV         = 150.0         # resonance energy in eV
+#E_fin_eV      =  70.0         # final state energy in eV
+#
+#tau_s         =  400.0E-18       # lifetime
+#
+## laser parameters
+#Omega_eV      = 150.0          #
+#TX_s          = 250.0E-18       # duration of the XUV pulse in seconds
+#n_X           = 2
+#I_X           = 5.0E16        # intensity of the XUV pulse in W/cm^2
+#
+#omega_eV      = 1.6           # IR pulse
+#n_L           = 10
+#I_L           = 1.0E14        # intensity of the IR pulse in W/cm^2
+#delta_t_s     = 55000.0E-18       # time difference between the maxima of the two pulses
+#phi           = 0
+#q             = 5
+#
+## parameters of the simulation
+#tmax_s        = 5.0E-16       # simulate until time tmax in seconds
+#timestep_s    = 10.0E-18     # evaluate expression every timestep_s seconds 
+#E_step_eV     = 1.0           # energy difference between different evaluated Omegas
+#
+#E_min_eV      =  10.0
+#E_max_eV      = 150.0
+##-------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------
@@ -68,7 +81,7 @@ Gamma_au       = 1. / tau_au
 
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
-TX_au         = sciconv.second_to_atu(TX_s)
+#TX_au         = sciconv.second_to_atu(TX_s)
 TX_au         = n_X * 2 * np.pi / Omega_au
 print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
@@ -185,6 +198,13 @@ fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 # initialization
 t_au = -TX_au/2
 
+# construct list of energy points
+Ekins = []
+E_kin_au = E_min_au
+while (E_kin_au <= E_max_au):
+    Ekins.append(sciconv.hartree_to_ev(E_kin_au))
+    E_kin_au = E_kin_au + E_step_au
+
 
 #-------------------------------------------------------------------------
 # constants / prefactors
@@ -208,6 +228,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     print 'during the first pulse'
 
     outlines = []
+    squares = np.array([])
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
@@ -223,6 +244,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
              )
 
         square = np.absolute(J)**2
+        squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
         outlines.append(string)
@@ -231,6 +253,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     
     
     in_out.doout_1f(pure_out, outlines)
+    max_pos = argrelextrema(squares, np.greater)[0]
+    if (len(max_pos > 0)):
+        for i in range (0, len(max_pos)):
+            print Ekins[max_pos[i]], squares[max_pos[i]]
+    
 
     t_au = t_au + timestep_au
 
@@ -244,10 +271,10 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     print 'between the pulses'
 
     outlines = []
+    squares = np.array([])
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
-    #while (E_kin_au <= Omega_au):
     while (E_kin_au <= E_max_au):
 
 # integral 1
@@ -261,6 +288,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
              )
 
         square = np.absolute(J)**2
+        squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
         outlines.append(string)
@@ -270,6 +298,10 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     
     
     in_out.doout_1f(pure_out,outlines)
+    max_pos = argrelextrema(squares, np.greater)[0]
+    if (len(max_pos > 0)):
+        for i in range (0, len(max_pos)):
+            print Ekins[max_pos[i]], squares[max_pos[i]]
 
     t_au = t_au + timestep_au
 
