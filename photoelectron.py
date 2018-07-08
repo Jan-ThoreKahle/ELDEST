@@ -137,7 +137,18 @@ elif (X_gauss):
 else:
     print 'no pulse shape selected'
 
-FX_t1 = lambda t1: - A0X * np.cos(Omega_au * t1) * fp_t(t1) + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t(t1)
+FX_t1 = lambda t1: (
+                    0
+                    - (A0X
+                       * np.cos(Omega_au * t1)
+                       * fp_t1(t1)
+                      )
+                    + (A0X
+                       * Omega_au
+                       * np.sin(Omega_au * (t1))
+                       * f_t1(t1)
+                      )
+                   )
 
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
@@ -147,12 +158,12 @@ integ_IR = lambda t3: (p_au + A_IR(t3))**2
 #-------------------------------------------------------------------------
 # technical defintions of functions
 
-# probiere Umschreiben der Integrationsvariable
-fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
-fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
-
-fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
-fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
+## probiere Umschreiben der Integrationsvariable
+#fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
+#fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
+#
+#fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
+#fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
 
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
