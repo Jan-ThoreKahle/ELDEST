@@ -57,25 +57,32 @@ if (X_sinsq):
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
     TX_au     = 5 * sigma
-print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
+#print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
+outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
-print 'I_X = ', I_X
-print 'I_X_au = ', I_X_au
+#print 'I_X_au = ', I_X_au
+outfile.write('I_X    = ' + str(I_X) + '\n')
+outfile.write('I_X_au = ' + str(I_X_au) + '\n')
 E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_au
-print 'A0X = ', A0X
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 TL_au         = n_L * 2 * np.pi / omega_au
-print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
-print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
+#print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
+#print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
+outfile.write('start of IR pulse = ' + str( delta_t_s - sciconv.atu_to_second(TL_au/2))
+              + '\n')
+outfile.write('end of IR pulse = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2))
+              + '\n')
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
-print 'I_L = ', I_L
-print 'I_L_au = ', I_L_au
+#print 'I_L = ', I_L
+#print 'I_L_au = ', I_L_au
+outfile.write('I_L    = ' + str(I_L) + '\n')
+outfile.write('I_L_au = ' + str(I_L_au) + '\n')
 E0L           = np.sqrt(I_L_au)
-print 'E0L', E0L
+#print 'E0L', E0L
 A0L           = E0L / omega_au
-print 'A0L = ', A0L
+#print 'A0L = ', A0L
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
 
 # parameters of the simulation
@@ -87,11 +94,11 @@ E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
-print 'VEr_au = ', VEr_au
+#print 'VEr_au = ', VEr_au
 
 #test q=1
 cdg_au = rdg_au / ( q * np.pi * VEr_au)
-print 'cdg_au = ', cdg_au
+#print 'cdg_au = ', cdg_au
 
 
 #-------------------------------------------------------------------------
@@ -214,7 +221,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
-    outfile.write('t_s = ', sciconv.atu_to_second(t_au), '\n')
+    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
@@ -242,10 +249,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(Ekins[max_pos[i]], squares[max_pos[i]], '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
     
 
     t_au = t_au + timestep_au
+    outfile.write('\n')
 
 
 
@@ -261,7 +269,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
-    outfile.write('t_s = ', sciconv.atu_to_second(t_au), '\n')
+    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
@@ -291,9 +299,10 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(Ekins[max_pos[i]], squares[max_pos[i]], '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
+    outfile.write('\n')
 
 
 #-------------------------------------------------------------------------
@@ -309,7 +318,7 @@ while (t_au >= (delta_t_au + TL_au/2)
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
-    outfile.write('t_s = ', sciconv.atu_to_second(t_au), '\n')
+    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
@@ -339,9 +348,10 @@ while (t_au >= (delta_t_au + TL_au/2)
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(Ekins[max_pos[i]], squares[max_pos[i]], '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
+    outfile.write('\n')
 
 
 
