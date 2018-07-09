@@ -14,7 +14,7 @@ from sys import exit
 
 #-------------------------------------------------------------------------
 #   input
-def read_input(inputfile):
+def read_input(inputfile, outfile):
     f = open(inputfile, 'r')
     
     lines = f.readlines()
@@ -24,80 +24,102 @@ def read_input(inputfile):
         if (words[0] == 'rdg_au'):
             rdg_au = float(words[2])
             print 'rdg_au = ', rdg_au
+            outfile.write('rdg_au = ' + str(rdg_au) + '\n')
         elif (words[0] == 'cdg_au'):
             cdg_au = float(words[2])
             print 'cdg_au = ', cdg_au
+            outfile.write('cdg_au = ' + str(cdg_au) + '\n')
     
     # energy parameters of the system
         elif (words[0] == 'Er_eV'):
             Er_eV = float(words[2])
             print 'Er_eV = ', Er_eV
+            outfile.write('Er_eV = ' + str(Er_eV) + '\n')
         elif (words[0] == 'E_fin_eV'):
             E_fin_eV = float(words[2])
             print 'E_fin_eV = ', E_fin_eV
+            outfile.write('E_fin_eV = ' + str(E_fin_eV) + '\n')
         elif (words[0] == 'tau_s'):
             tau_s = float(words[2])
             print 'tau_s = ', tau_s
+            outfile.write('tau_s = ' + str(tau_s) + '\n')
     
     # exciting laser parameters
         elif (words[0] == 'Omega_eV'):
             Omega_eV = float(words[2])
             print 'Omega_eV = ', Omega_eV
+            outfile.write('Omega_eV = ' + str(Omega_eV) + '\n')
         elif (words[0] == 'n_X'):
             n_X = float(words[2])
             print 'n_X = ', n_X
+            outfile.write('n_X = ' + str(n_X) + '\n')
         elif (words[0] == 'I_X'):
             I_X = float(words[2])
             print 'I_X = ', I_X
+            outfile.write('I_X = ' + str(I_X) + '\n')
         elif (words[0] == 'X_shape'):
             if (words[2] == 'sinsq'):
                 X_sinsq = True
                 X_gauss = False
                 print 'X_shape = Sin**2'
+                outfile.write('X_shape = Sin**2 \n')
             elif (words[2] == 'gauss'):
                 X_sinsq = False
                 X_gauss = True
                 print 'X_shape = Gauss'
+                outfile.write('X_shape = Gauss \n')
             else:
                 print 'no XUV pulse shape selected'
+                outfile.write('no XUV pulse shape selected \n')
     
     # dressing laser parameters
         elif (words[0] == 'omega_eV'):
             omega_eV = float(words[2])
             print 'omega_eV = ', omega_eV
+            outfile.write('omega_eV = ' + str(omega_eV) + '\n')
         elif (words[0] == 'n_L'):
             n_L = float(words[2])
             print 'n_L = ', n_L
+            outfile.write('n_L = ' + str(n_L) + '\n')
         elif (words[0] == 'I_L'):
             I_L = float(words[2])
             print 'I_L = ', I_L
+            outfile.write('I_L = ' + str(I_L) + '\n')
         elif (words[0] == 'delta_t_s'):
             delta_t_s = float(words[2])
             print 'delta_t_s = ', delta_t_s
+            outfile.write('delta_t_s = ' + str(delta_t_s) + '\n')
         elif (words[0] == 'phi'):
             phi = float(words[2])
             print 'phi = ', phi
+            outfile.write('phi = ' + str(phi) + '\n')
         elif (words[0] == 'q'):
             q = float(words[2])
             print 'q = ', q
+            outfile.write('q = ' + str(q) + '\n')
     
     # parameters of the simulation
         elif (words[0] == 'tmax_s'):
             tmax_s = float(words[2])
             print 'tmax_s = ', tmax_s
+            outfile.write('tmax_s = ' + str(tmax_s) + '\n')
         elif (words[0] == 'timestep_s'):
             timestep_s = float(words[2])
             print 'timestep_s = ', timestep_s
+            outfile.write('timestep_s = ' + str(timestep_s) + '\n')
         elif (words[0] == 'E_step_eV'):
             E_step_eV = float(words[2])
             print 'E_step_eV = ', E_step_eV
+            outfile.write('E_step_eV = ' + str(E_step_eV) + '\n')
     
         elif (words[0] == 'E_min_eV'):
             E_min_eV = float(words[2])
             print 'E_min_eV = ', E_min_eV
+            outfile.write('E_min_eV = ' + str(E_min_eV) + '\n')
         elif (words[0] == 'E_max_eV'):
             E_max_eV = float(words[2])
             print 'E_max_eV = ', E_max_eV
+            outfile.write('E_max_eV = ' + str(E_max_eV) + '\n')
     
     f.close()
     return (rdg_au, cdg_au,
