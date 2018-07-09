@@ -26,13 +26,19 @@ import sys
 infile = sys.argv[1]
 print infile
 
+#-------------------------------------------------------------------------
+# open outputfile
+outfile = open("eldest.out", mode='w')
+pure_out = open('full.dat', mode='w')
 
+#-------------------------------------------------------------------------
+# read inputfile
 (rdg_au, cdg_au, 
  Er_eV, E_fin_eV, tau_s,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss,
  omega_eV, n_L, I_L, delta_t_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
- E_min_eV, E_max_eV) = in_out.read_input(infile)
+ E_min_eV, E_max_eV) = in_out.read_input(infile, outfile)
 
 
 #-------------------------------------------------------------------------
@@ -93,10 +99,6 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
                    Omega_au, TX_au, n_X, A0X,
                    omega_au, TL_au, A0L, delta_t_au,
                    tmax_au, timestep_au, E_step_au)
-#-------------------------------------------------------------------------
-# open outputfile
-outfile = open("eldest.out", mode='w')
-pure_out = open('full.dat', mode='w')
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
