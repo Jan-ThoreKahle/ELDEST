@@ -26,7 +26,13 @@ import sys
 infile = sys.argv[1]
 print infile
 
+#-------------------------------------------------------------------------
+# open outputfile
+outfile = open("eldest.out", mode='w')
+pure_out = open('full.dat', mode='w')
 
+#-------------------------------------------------------------------------
+# read inputfile
 (rdg_au, cdg_au, 
  Er_eV, E_fin_eV, tau_s,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss,
@@ -93,10 +99,6 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
                    Omega_au, TX_au, n_X, A0X,
                    omega_au, TL_au, A0L, delta_t_au,
                    tmax_au, timestep_au, E_step_au)
-#-------------------------------------------------------------------------
-# open outputfile
-outfile = open("eldest.out", mode='w')
-pure_out = open('full.dat', mode='w')
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
@@ -212,6 +214,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
+    outfile.write('t_s = ', sciconv.atu_to_second(t_au), '\n')
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
@@ -239,6 +242,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
+            outfile.write(Ekins[max_pos[i]], squares[max_pos[i]], '\n')
     
 
     t_au = t_au + timestep_au
@@ -257,6 +261,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
+    outfile.write('t_s = ', sciconv.atu_to_second(t_au), '\n')
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
@@ -286,6 +291,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
+            outfile.write(Ekins[max_pos[i]], squares[max_pos[i]], '\n')
 
     t_au = t_au + timestep_au
 
@@ -303,6 +309,7 @@ while (t_au >= (delta_t_au + TL_au/2)
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
+    outfile.write('t_s = ', sciconv.atu_to_second(t_au), '\n')
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
@@ -332,6 +339,7 @@ while (t_au >= (delta_t_au + TL_au/2)
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
+            outfile.write(Ekins[max_pos[i]], squares[max_pos[i]], '\n')
 
     t_au = t_au + timestep_au
 
