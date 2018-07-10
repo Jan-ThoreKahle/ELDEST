@@ -156,6 +156,44 @@ A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
                       * np.cos(omega_au * t3 + phi)
 integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
+IR_during = lambda t1:  np.exp(-1j * E_kin_au * (t_au - t1)) \
+                        * np.exp( -1j * p_au * A0L / 4
+                        * (np.sin(2*np.pi/TL_au * (t_au - delta_t_au) - omega_au * t_au
+                                  - phi)
+                            / (2*np.pi/TL_au - omega_au)
+                           + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+                                  + phi) 
+                            / (2*np.pi/TL_au - omega_au)
+                           + np.sin(2*np.pi/TL_au * (t_au - delta_t_au) + omega_au * t_au
+                                  + phi) 
+                            / (2*np.pi/TL_au + omega_au)
+                           + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+                                  - phi) 
+                            / (2*np.pi/TL_au + omega_au)
+                           + 4./omega_au * np.sin(omega_au * t_au + phi)
+                           - 4./omega_au * np.sin(omega_au * t1 + phi)
+                          )
+                       )
+
+IR_after = lambda t1:  np.exp(-1j * E_kin_au * (t_au - t1)) \
+                       * np.exp( -1j * p_au * A0L / 4
+                       * (np.sin(np.pi - omega_au * t_au
+                                 + phi)
+                           / (2*np.pi/TL_au - omega_au)
+                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+                                 + phi) 
+                           / (2*np.pi/TL_au - omega_au)
+                          + np.sin(np.pi + omega_au * t_au
+                                 + phi) 
+                           / (2*np.pi/TL_au + omega_au)
+                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+                                 - phi) 
+                           / (2*np.pi/TL_au + omega_au)
+                          + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
+                          - 4./omega_au * np.sin(omega_au * t1 + phi)
+                         )
+                      )
+
 #-------------------------------------------------------------------------
 # technical defintions of functions
 
@@ -177,12 +215,21 @@ dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
 
 dress_I_after = lambda t1: integrate.quad(integ_IR,t1,(delta_t_au + TL_au/2))[0]
 dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))
-fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
+#fun_dress_after = lambda t1: (FX_t1(t1)
+#                              * np.exp(1j * E_fin_au * t1) \
+#                              * np.exp(1j * E_kin_au * ((delta_t_au + TL_au/2)-t_au)) \
+#                              * dress_after(t1)
+#                             )
+fun_dress_after = lambda t1: (FX_t1(t1)
+                              * np.exp(1j * E_fin_au * t1) \
                               * np.exp(1j * E_kin_au * ((delta_t_au + TL_au/2)-t_au)) \
-                              * dress_after(t1)
+                              * IR_after(t1)
+                             )
 
+#fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
+#                                  * dress(t1)
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-                                  * dress(t1)
+                                  * IR_during(t1)
 
 #-------------------------------------------------------------------------
 # initialization
@@ -276,9 +323,11 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
         p_au = np.sqrt(2 * E_kin_au)
 
 # integral 1
-        I1 = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), TX_au/2)
+        #I1 = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), TX_au/2)
+        I1 = ci.complex_romberg(fun_IR_dir, (-TX_au/2), TX_au/2)
 
-        dir_J = prefac_dir * (I1[0]
+        #dir_J = prefac_dir * (I1[0]
+        dir_J = prefac_dir * (I1
                               )
 
         J = (0
@@ -325,9 +374,11 @@ while (t_au >= (delta_t_au + TL_au/2)
         p_au = np.sqrt(2 * E_kin_au)
 
 # integral 1
-        I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
+        #I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
+        I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
 
-        dir_J = prefac_dir * (I1[0]
+        #dir_J = prefac_dir * (I1[0]
+        dir_J = prefac_dir * (I1
                               )
 
         J = (0
