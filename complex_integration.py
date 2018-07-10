@@ -27,6 +27,15 @@ def complex_quadrature(func, a, b, **kwargs):
 # This function was taken from:
 # https://stackoverflow.com/questions/5965583/use-scipy-integrate-quad-to-integrate-complex-numbers
 
+def complex_romberg(func, a, b, **kwargs):
+    def real_func(x):
+        return scipy.real(func(x))
+    def imag_func(x):
+        return scipy.imag(func(x))
+    real_integral = integrate.romberg(real_func, a, b, **kwargs)
+    imag_integral = integrate.romberg(imag_func, a, b, **kwargs)
+    return real_integral + 1j*imag_integral
+
 def complex_double_quadrature(outer, inner, a, b, gfun, hfun, **kwargs):
     first_real = lambda y,x: scipy.real(outer(x)) * scipy.real(inner(y))
     sec_real   = lambda y,x: - scipy.imag(outer(x)) * scipy.imag(inner(y))
