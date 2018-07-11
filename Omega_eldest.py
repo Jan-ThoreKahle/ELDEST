@@ -36,7 +36,7 @@ pure_out = open('full.dat', mode='w')
 (rdg_au, cdg_au, 
  Er_eV, E_fin_eV, tau_s,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss,
- omega_eV, n_L, I_L, delta_t_s, phi, q,
+ omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV
  ) = in_out.read_input(infile, outfile)
@@ -297,7 +297,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + ' ' +  str(squares[max_pos[i]]) + '\n')
     
 
     t_au = t_au + timestep_au
@@ -349,7 +349,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + ' ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
     outfile.write('\n')
@@ -400,7 +400,7 @@ while (t_au >= (delta_t_au + TL_au/2)
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + ' ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
     outfile.write('\n')
