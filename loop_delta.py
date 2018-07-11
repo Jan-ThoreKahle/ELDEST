@@ -141,9 +141,14 @@ if (X_sinsq):
                                          + np.exp(-2j*np.pi* t1 /TX_au) )
 elif (X_gauss):
     print 'use gauss function'
-    f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
+#    f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
+#                       * np.exp(-t1**2 / (2*sigma**2)))
+#    fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
+#                       * np.exp(-t1**2 / (2*sigma**2)))
+# without norm
+    f_t1  = lambda t1: ( 1.
                        * np.exp(-t1**2 / (2*sigma**2)))
-    fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
+    fp_t1 = lambda t1: ( -t1 / sigma
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
     print 'no pulse shape selected'
@@ -262,7 +267,7 @@ print 'prefac_indir', prefac_indir
 
 #-------------------------------------------------------------------------
 # loop over the delta between pulses
-while (delta_t_au <= 2*TX_au):
+while (delta_t_au <= 50*TX_au):
 #-------------------------------------------------------------------------
     outfile.write('after both pulses \n')
     print 'after both pulses'
