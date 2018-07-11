@@ -260,103 +260,6 @@ print 'prefac_res', prefac_res
 print 'prefac_indir', prefac_indir
 
 
-##-------------------------------------------------------------------------
-#while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
-##-------------------------------------------------------------------------
-#    outfile.write('during the XUV pulse \n')
-#    print 'during the XUV pulse'
-#
-#    outlines = []
-#    squares = np.array([])
-#    E_kin_au = E_min_au
-#    
-#    print 't_s = ', sciconv.atu_to_second(t_au)
-#    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
-#    while (E_kin_au <= E_max_au):
-#
-#        p_au = np.sqrt(2 * E_kin_au)
-#
-## integral 1
-#        I = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), t_au)
-#
-#        dir_J = prefac_dir * I[0]
-#
-#        J = (0
-#             + dir_J
-#             )
-#
-#        square = np.absolute(J)**2
-#        squares = np.append(squares, square)
-#
-#        string = in_out.prep_output(square, E_kin_au, t_au)
-#        outlines.append(string)
-#        
-#        E_kin_au = E_kin_au + E_step_au
-#    
-#    
-#    in_out.doout_1f(pure_out, outlines)
-#    max_pos = argrelextrema(squares, np.greater)[0]
-#    if (len(max_pos > 0)):
-#        for i in range (0, len(max_pos)):
-#            print Ekins[max_pos[i]], squares[max_pos[i]]
-#            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
-#    
-#
-#    t_au = t_au + timestep_au
-#    outfile.write('\n')
-#
-#
-#
-#
-##-------------------------------------------------------------------------
-#while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au)):
-##-------------------------------------------------------------------------
-#    outfile.write('only IR pulse \n')
-#    print 'only IR pulse'
-#
-#    outlines = []
-#    squares = np.array([])
-#    E_kin_au = E_min_au
-#    
-#    print 't_s = ', sciconv.atu_to_second(t_au)
-#    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
-#    while (E_kin_au <= E_max_au):
-#
-#        p_au = np.sqrt(2 * E_kin_au)
-#
-## integral 1
-#        #I1 = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), TX_au/2)
-#        I1 = ci.complex_romberg(fun_IR_dir, (-TX_au/2), TX_au/2)
-#
-#        #dir_J = prefac_dir * (I1[0]
-#        dir_J = prefac_dir * (I1
-#                              )
-#
-#        J = (0
-#             + dir_J
-#             )
-#
-#        square = np.absolute(J)**2
-#        squares = np.append(squares, square)
-#
-#        string = in_out.prep_output(square, E_kin_au, t_au)
-#        outlines.append(string)
-#        
-#        E_kin_au = E_kin_au + E_step_au
-#
-#    
-#    
-#    in_out.doout_1f(pure_out,outlines)
-#    max_pos = argrelextrema(squares, np.greater)[0]
-#    if (len(max_pos > 0)):
-#        for i in range (0, len(max_pos)):
-#            print Ekins[max_pos[i]], squares[max_pos[i]]
-#            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
-#
-#    t_au = t_au + timestep_au
-#    outfile.write('\n')
-#
-#
 #-------------------------------------------------------------------------
 # loop over the delta between pulses
 while (delta_t_au <= 2*TX_au):
@@ -401,7 +304,7 @@ while (delta_t_au <= 2*TX_au):
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + ' ' + str(squares[max_pos[i]]) + '\n')
 
     delta_t_au = delta_t_au + shift_step_au
     outfile.write('\n')
