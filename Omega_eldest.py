@@ -97,7 +97,6 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 #print 'VEr_au = ', VEr_au
 
-#test q=1
 cdg_au = rdg_au / ( q * np.pi * VEr_au)
 #print 'cdg_au = ', cdg_au
 
