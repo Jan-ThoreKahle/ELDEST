@@ -89,6 +89,10 @@ def read_input(inputfile, outfile):
             delta_t_s = float(words[2])
             print 'delta_t_s = ', delta_t_s
             outfile.write('delta_t_s = ' + str(delta_t_s) + '\n')
+        elif (words[0] == 'shift_step_s'):
+            shift_step_s = float(words[2])
+            print 'shift_step_s = ', shift_step_s
+            outfile.write('shift_step_s = ' + str(shift_step_s) + '\n')
         elif (words[0] == 'phi'):
             phi = float(words[2])
             print 'phi = ', phi
@@ -125,7 +129,7 @@ def read_input(inputfile, outfile):
     return (rdg_au, cdg_au,
             Er_eV, E_fin_eV, tau_s,
             Omega_eV, n_X, I_X, X_sinsq, X_gauss,
-            omega_eV, n_L, I_L, delta_t_s, phi, q,
+            omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV)
 
