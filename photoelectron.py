@@ -223,6 +223,12 @@ fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                   * dress(t1)
 
+res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au - E_fin_au))) \
+                           * IR_during(t2)
+res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
+res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
+                           * res_inner(t1)
+
 #-------------------------------------------------------------------------
 # initialization
 t_au = -TX_au/2
@@ -243,7 +249,6 @@ print 'res = ', res
 
 prefac_res = - VEr_au * rdg_au
 prefac_indir = 1j * np.pi * VEr_au**2 * cdg_au
-#prefac_indir = 0
 prefac_dir = 1j * cdg_au
 
 print 'prefac_res', prefac_res
@@ -265,11 +270,16 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 # integral 1
         I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
         dir_J = prefac_dir * I[0]
+        res_J = prefac_res * res_I[0]
+        indir_J = prefac_indir * res_I[0]
 
         J = (0
              + dir_J
+             + res_J
+             + indir_J
              )
 
         square = np.absolute(J)**2
@@ -308,12 +318,17 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
 # integral 1
         I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
-        dir_J = prefac_dir * (I1[0]
-                              )
+        dir_J = prefac_dir * I1[0]
+        res_J = prefac_res * res_I[0]
+        indir_J = prefac_indir * res_I[0]
+        
 
         J = (0
              + dir_J
+             + res_J
+             + indir_J
              )
 
         square = np.absolute(J)**2
