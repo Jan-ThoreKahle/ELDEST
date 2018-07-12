@@ -56,7 +56,12 @@ if (X_sinsq):
     TX_au     = n_X * 2 * np.pi / Omega_au
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
+    FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
     TX_au     = 5 * sigma
+    print 'sigma = ', sigma
+    print 'FWHM = ', FWHM
+    outfile.write('sigma = ' + str(sigma) + '\n')
+    outfile.write('FWHM = ' + str(FWHM) + '\n')
 print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 print 'I_X = ', I_X
