@@ -63,6 +63,7 @@ elif(X_gauss):
     outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
 print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
+outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 print 'I_X = ', I_X
 print 'I_X_au = ', I_X_au
@@ -235,15 +236,20 @@ fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
                            * IR_during(t2)
-res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
+#res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
+res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
+                        * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
+                          - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
+                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
+                       )
 res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner(t1)
 
-indir_inner_fun = lambda t2: np.exp(-t2 * (-np.pi * VEr_au**2 + 1j*(Er_au - E_fin_au))) \
-                           * IR_during(t2)
-indir_inner = lambda t1: integrate.quad(indir_inner_fun, t1, t_au)[0]
-indir_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (-np.pi* VEr_au**2 + 1j*Er_au)) \
-                           * indir_inner(t1)
+#indir_inner_fun = lambda t2: np.exp(-t2 * (-np.pi * VEr_au**2 + 1j*(Er_au - E_fin_au))) \
+#                           * IR_during(t2)
+#indir_inner = lambda t1: integrate.quad(indir_inner_fun, t1, t_au)[0]
+#indir_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (-np.pi* VEr_au**2 + 1j*Er_au)) \
+#                           * indir_inner(t1)
 
 #-------------------------------------------------------------------------
 # initialization
@@ -268,8 +274,8 @@ prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
 #prefac_indir = 0
 prefac_dir = 1j * cdg_au
 
-print 'prefac_res', prefac_res
-print 'prefac_indir', prefac_indir
+#print 'prefac_res', prefac_res
+#print 'prefac_indir', prefac_indir
 
 
 #-------------------------------------------------------------------------
@@ -283,6 +289,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
+    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
 # integral 1
@@ -317,6 +324,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
     
 
     t_au = t_au + timestep_au
@@ -335,6 +343,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     E_kin_au = E_min_au
     
     print 't_s = ', sciconv.atu_to_second(t_au)
+    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
 # integral 1
@@ -371,6 +380,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
 
