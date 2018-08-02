@@ -263,8 +263,6 @@ while (E_kin_au <= E_max_au):
 res     = complex(Gamma_au/2,Er_au)
 print 'res = ', res
 
-#prefac_res = - VEr_au * rdg_au
-#prefac_indir = 1j * np.pi * VEr_au**2 * cdg_au
 prefac_res = VEr_au * rdg_au
 prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
 #prefac_indir = 0
