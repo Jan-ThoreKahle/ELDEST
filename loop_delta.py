@@ -77,14 +77,10 @@ outfile.write('start of IR pulse = ' + str( delta_t_s - sciconv.atu_to_second(TL
 outfile.write('end of IR pulse = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2))
               + '\n')
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
-#print 'I_L = ', I_L
-#print 'I_L_au = ', I_L_au
 outfile.write('I_L    = ' + str(I_L) + '\n')
 outfile.write('I_L_au = ' + str(I_L_au) + '\n')
 E0L           = np.sqrt(I_L_au)
-#print 'E0L', E0L
 A0L           = E0L / omega_au
-#print 'A0L = ', A0L
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
 shift_step_au    = sciconv.second_to_atu(shift_step_s)
 
@@ -97,12 +93,8 @@ E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
-#print 'VEr_au = ', VEr_au
 
-#test q=1
 cdg_au = rdg_au / ( q * np.pi * VEr_au)
-#print 'cdg_au = ', cdg_au
-
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_fin_au, Gamma_au,
@@ -112,24 +104,24 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
-f_t  = lambda tau: 1./4 * ( np.exp(2j * np.pi * (t_au - tau) / TX_au)
-                      + 2
-                      + np.exp(-2j * np.pi * (t_au - tau) /TX_au) )
-
-fp_t = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t_au - tau)/TX_au)
-                                     + np.exp(-2j*np.pi* (t_au - tau) /TX_au) )
-
-FX_t = lambda tau: - A0X * np.cos(Omega_au * (t_au - tau)) * fp_t(tau) + A0X * Omega_au * np.sin(Omega_au * (t_au - tau)) * f_t(tau)
-
-#Variante mit TX
-f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
-                      + 2
-                      + np.exp(-2j * np.pi * (TX_au/2 - tau) /TX_au) )
-
-fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_au)
-                                     + np.exp(-2j*np.pi* (TX_au/2 - tau) /TX_au) )
-
-FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
+#f_t  = lambda tau: 1./4 * ( np.exp(2j * np.pi * (t_au - tau) / TX_au)
+#                      + 2
+#                      + np.exp(-2j * np.pi * (t_au - tau) /TX_au) )
+#
+#fp_t = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t_au - tau)/TX_au)
+#                                     + np.exp(-2j*np.pi* (t_au - tau) /TX_au) )
+#
+#FX_t = lambda tau: - A0X * np.cos(Omega_au * (t_au - tau)) * fp_t(tau) + A0X * Omega_au * np.sin(Omega_au * (t_au - tau)) * f_t(tau)
+#
+##Variante mit TX
+#f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
+#                      + 2
+#                      + np.exp(-2j * np.pi * (TX_au/2 - tau) /TX_au) )
+#
+#fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_au)
+#                                     + np.exp(-2j*np.pi* (TX_au/2 - tau) /TX_au) )
+#
+#FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
 
 # functions for the norm
 if (X_sinsq):
@@ -142,15 +134,15 @@ if (X_sinsq):
                                          + np.exp(-2j*np.pi* t1 /TX_au) )
 elif (X_gauss):
     print 'use gauss function'
-#    f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
-#                       * np.exp(-t1**2 / (2*sigma**2)))
-#    fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
-#                       * np.exp(-t1**2 / (2*sigma**2)))
-# without norm
-    f_t1  = lambda t1: ( 1.
+    f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
                        * np.exp(-t1**2 / (2*sigma**2)))
-    fp_t1 = lambda t1: ( -t1 / sigma
+    fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
+## without norm
+#    f_t1  = lambda t1: ( 1.
+#                       * np.exp(-t1**2 / (2*sigma**2)))
+#    fp_t1 = lambda t1: ( -t1 / sigma
+#                       * np.exp(-t1**2 / (2*sigma**2)))
 else:
     print 'no pulse shape selected'
 
@@ -201,15 +193,34 @@ IR_after = lambda t1:  np.exp(-1j * E_kin_au * (t_au - t1)) \
                          )
                       )
 
+IR_after_r = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) \
+                       * np.exp( -1j * p_au * A0L / 4
+                       * (np.sin(np.pi - omega_au * t_au
+                                 + phi)
+                           / (2*np.pi/TL_au - omega_au)
+                          + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
+                                 + phi)
+                           / (2*np.pi/TL_au - omega_au)
+                          + np.sin(np.pi + omega_au * t_au
+                                 + phi)
+                           / (2*np.pi/TL_au + omega_au)
+                          + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
+                                 - phi)
+                           / (2*np.pi/TL_au + omega_au)
+                          + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
+                          - 4./omega_au * np.sin(omega_au * t2 + phi)
+                         )
+                      )
+
 #-------------------------------------------------------------------------
 # technical defintions of functions
 
-# probiere Umschreiben der Integrationsvariable
-fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
-fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
-
-fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
-fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
+## probiere Umschreiben der Integrationsvariable
+#fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
+#fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
+#
+#fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
+#fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
 
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
@@ -238,6 +249,26 @@ fun_dress_after = lambda t1: (FX_t1(t1)
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                   * IR_during(t1)
 
+# resonant state functions
+# after the pulse
+res_inner_after = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
+                             * IR_after_r(t2)
+
+if (integ == 'romberg'):
+    res_inner_a = lambda t1: integrate.romberg(res_inner_after, t1, t_au)
+elif (integ == 'quadrature'):
+    res_inner_a = lambda t1: integrate.quad(res_inner_after, t1, t_au)[0]
+#elif (integ == 'analytic'):
+## analytic inner integral
+#    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
+#                            * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
+#                              - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
+#                            * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
+#                           )
+
+res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
+                           * res_inner_a(t1)
+
 #-------------------------------------------------------------------------
 # initialization
 t_au = delta_t_s + TL_au
@@ -257,8 +288,8 @@ while (E_kin_au <= E_max_au):
 res     = complex(Gamma_au/2,Er_au)
 print 'res = ', res
 
-prefac_res = - VEr_au * rdg_au
-prefac_indir = 1j * np.pi * VEr_au**2 * cdg_au
+prefac_res = VEr_au * rdg_au
+prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
 #prefac_indir = 0
 prefac_dir = 1j * cdg_au
 
@@ -286,13 +317,18 @@ while (delta_t_au <= TL_au/2 - TX_au/2):
 # integral 1
         I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
         #I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
+        res_I = ci.complex_quadrature(res_outer_after, (-TX_au/2), TX_au/2)
 
         dir_J = prefac_dir * (I1[0]
         #dir_J = prefac_dir * (I1
                               )
+        res_J = prefac_res * res_I[0]
+        indir_J = prefac_indir * res_I[0]
 
         J = (0
              + dir_J
+             + res_J
+             + indir_J
              )
 
         square = np.absolute(J)**2
