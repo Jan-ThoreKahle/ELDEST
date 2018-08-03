@@ -18,8 +18,6 @@ from scipy.signal import argrelextrema
 import numpy as np
 import sciconv
 import complex_integration as ci
-#import res_anal_integ as aires
-#import dir_anal_integ as aidir
 import in_out
 import sys
 
