@@ -234,22 +234,30 @@ fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                   * dress(t1)
 
+#res_inner_fun = lambda tau: np.exp(1j*tau*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2 * tau)
+#res_inner = lambda t1: integrate.quad(res_inner_fun, 0, t_au - t1)[0]
+#res_outer_fun = lambda t1: FX_t1(t1) \
+#                           * res_inner(t1) \
+#                           * np.exp(-1j * (t_au - t1) * (E_kin_au + E_fin_au)) \
+
+
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
                            * IR_during(t2)
+# Romberg integration
+res_inner = lambda t1: integrate.romberg(res_inner_fun, t1, t_au)
+
+# Gaussian Quadrature
 #res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
-res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
-                        * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
-                          - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
-                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
-                       )
+
+# analytic inner integral
+#res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
+#                        * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
+#                          - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
+#                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
+#                       )
 res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner(t1)
 
-#indir_inner_fun = lambda t2: np.exp(-t2 * (-np.pi * VEr_au**2 + 1j*(Er_au - E_fin_au))) \
-#                           * IR_during(t2)
-#indir_inner = lambda t1: integrate.quad(indir_inner_fun, t1, t_au)[0]
-#indir_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (-np.pi* VEr_au**2 + 1j*Er_au)) \
-#                           * indir_inner(t1)
 
 #-------------------------------------------------------------------------
 # initialization
@@ -324,7 +332,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     
 
     t_au = t_au + timestep_au
@@ -380,7 +388,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + str(squares[max_pos[i]]) + '\n')
+            outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
 
