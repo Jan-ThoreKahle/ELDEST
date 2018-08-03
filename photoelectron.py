@@ -33,12 +33,13 @@ pure_out = open('full.dat', mode='w')
 
 #-------------------------------------------------------------------------
 # read inputfile
-(rdg_au, cdg_au, 
+(rdg_au, 
  Er_eV, E_fin_eV, tau_s,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss,
  omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
- E_min_eV, E_max_eV) = in_out.read_input(infile, outfile)
+ E_min_eV, E_max_eV,
+ integ) = in_out.read_input(infile, outfile)
 
 
 #-------------------------------------------------------------------------
@@ -227,18 +228,19 @@ fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
                            * IR_during(t2)
-# Romberg integration
-#res_inner = lambda t1: integrate.romberg(res_inner_fun, t1, t_au)
 
-# Gaussian Quadrature
-#res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
-
+if (integ == 'romberg'):
+    res_inner = lambda t1: integrate.romberg(res_inner_fun, t1, t_au)
+elif (integ == 'quadrature'):
+    res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
+elif (integ == 'analytic'):
 # analytic inner integral
-res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
-                        * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
-                          - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
-                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
-                       )
+    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
+                            * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
+                              - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
+                            * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
+                           )
+
 res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner(t1)
 
