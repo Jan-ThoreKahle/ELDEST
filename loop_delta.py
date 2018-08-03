@@ -18,8 +18,8 @@ from scipy.signal import argrelextrema
 import numpy as np
 import sciconv
 import complex_integration as ci
-import res_anal_integ as aires
-import dir_anal_integ as aidir
+#import res_anal_integ as aires
+#import dir_anal_integ as aidir
 import in_out
 import sys
 
@@ -33,12 +33,13 @@ pure_out = open('full.dat', mode='w')
 
 #-------------------------------------------------------------------------
 # read inputfile
-(rdg_au, cdg_au, 
+(rdg_au, 
  Er_eV, E_fin_eV, tau_s,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss,
  omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
- E_min_eV, E_max_eV
+ E_min_eV, E_max_eV,
+ integ
  ) = in_out.read_input(infile, outfile)
 
 
