@@ -18,8 +18,8 @@ from scipy.signal import argrelextrema
 import numpy as np
 import sciconv
 import complex_integration as ci
-import res_anal_integ as aires
-import dir_anal_integ as aidir
+#import res_anal_integ as aires
+#import dir_anal_integ as aidir
 import in_out
 import sys
 
@@ -205,22 +205,11 @@ IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
 #-------------------------------------------------------------------------
 # technical defintions of functions
 
-## probiere Umschreiben der Integrationsvariable
-#fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
-#fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
-#
-#fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
-#fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
-
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
                                    * np.exp(1j * E_kin_au * (t1-t_au))
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
                                    * np.exp(1j * E_kin_au * (t1-t_au))
-#fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-#                                   * np.exp(1j * E_kin_au * t1)
-#fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-#                                   * np.exp(1j * E_kin_au * t1)
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
@@ -234,30 +223,24 @@ fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                   * dress(t1)
 
-#res_inner_fun = lambda tau: np.exp(1j*tau*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2 * tau)
-#res_inner = lambda t1: integrate.quad(res_inner_fun, 0, t_au - t1)[0]
-#res_outer_fun = lambda t1: FX_t1(t1) \
-#                           * res_inner(t1) \
-#                           * np.exp(-1j * (t_au - t1) * (E_kin_au + E_fin_au)) \
 
 
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
                            * IR_during(t2)
 # Romberg integration
-res_inner = lambda t1: integrate.romberg(res_inner_fun, t1, t_au)
+#res_inner = lambda t1: integrate.romberg(res_inner_fun, t1, t_au)
 
 # Gaussian Quadrature
 #res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
 
 # analytic inner integral
-#res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
-#                        * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
-#                          - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
-#                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
-#                       )
+res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
+                        * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
+                          - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
+                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
+                       )
 res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner(t1)
-
 
 #-------------------------------------------------------------------------
 # initialization
@@ -273,17 +256,9 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-#res_kin = complex(Gamma_au/2,Er_au + E_kin_au)
-res     = complex(Gamma_au/2,Er_au)
-print 'res = ', res
-
 prefac_res = VEr_au * rdg_au
 prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
-#prefac_indir = 0
 prefac_dir = 1j * cdg_au
-
-#print 'prefac_res', prefac_res
-#print 'prefac_indir', prefac_indir
 
 
 #-------------------------------------------------------------------------
@@ -303,12 +278,10 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 # integral 1
         I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
         res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
-        #indir_I = ci.complex_quadrature(indir_outer_fun, (-TX_au/2), t_au)
 
         dir_J = prefac_dir * I[0]
         res_J = prefac_res * res_I[0]
         indir_J = prefac_indir * res_I[0]
-        #indir_J = prefac_indir * (res_I[0] - indir_I[0])
 
         J = (0
              + dir_J
@@ -317,8 +290,6 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
              )
 
         square = np.absolute(J)**2
-        #norm   = np.absolute(dir_J)**2
-        #square = square / norm
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
@@ -357,12 +328,10 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 # integral 1
         I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
         res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-        #indir_I = ci.complex_quadrature(indir_outer_fun, (-TX_au/2), TX_au/2)
 
         dir_J = prefac_dir * I1[0]
         res_J = prefac_res * res_I[0]
         indir_J = prefac_indir * res_I[0]
-        #indir_J = prefac_indir * (res_I[0] - indir_I[0])
         
 
         J = (0
@@ -372,8 +341,6 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
              )
 
         square = np.absolute(J)**2
-        #norm   = np.absolute(dir_J)**2
-        #square = square / norm
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
