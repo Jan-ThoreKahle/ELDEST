@@ -193,24 +193,6 @@ IR_after = lambda t1:  np.exp(-1j * E_kin_au * (t_au - t1)) \
                          )
                       )
 
-IR_after_r = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) \
-                       * np.exp( -1j * p_au * A0L / 4
-                       * (np.sin(np.pi - omega_au * t_au
-                                 + phi)
-                           / (2*np.pi/TL_au - omega_au)
-                          + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
-                                 + phi)
-                           / (2*np.pi/TL_au - omega_au)
-                          + np.sin(np.pi + omega_au * t_au
-                                 + phi)
-                           / (2*np.pi/TL_au + omega_au)
-                          + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
-                                 - phi)
-                           / (2*np.pi/TL_au + omega_au)
-                          + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
-                          - 4./omega_au * np.sin(omega_au * t2 + phi)
-                         )
-                      )
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
@@ -252,7 +234,7 @@ fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 # resonant state functions
 # after the pulse
 res_inner_after = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
-                             * IR_after_r(t2)
+                             * IR_after(t2)
 
 if (integ == 'romberg'):
     res_inner_a = lambda t1: integrate.romberg(res_inner_after, t1, t_au)
