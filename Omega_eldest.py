@@ -58,8 +58,13 @@ if (X_sinsq):
     TX_au     = n_X * 2 * np.pi / Omega_au
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
+    FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
     TX_au     = 5 * sigma
-#print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
+    print 'sigma = ', sciconv.atu_to_second(sigma)
+    print 'FWHM = ', sciconv.atu_to_second(FWHM)
+    outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
+    outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
+print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
 outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 #print 'I_X_au = ', I_X_au
@@ -328,12 +333,17 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         p_au = np.sqrt(2 * E_kin_au)
 
 # integral 1
-        I = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), t_au)
-        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+        #I = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), t_au)
+        #res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+        I = ci.complex_romberg(fun_IR_dir, (-TX_au/2), t_au)
+        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
 
-        dir_J = prefac_dir * I[0]
-        res_J = prefac_res * res_I[0]
-        indir_J = prefac_indir * res_I[0]
+        #dir_J = prefac_dir * I[0]
+        #res_J = prefac_res * res_I[0]
+        #indir_J = prefac_indir * res_I[0]
+        dir_J = prefac_dir * I
+        res_J = prefac_res * res_I
+        indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J
