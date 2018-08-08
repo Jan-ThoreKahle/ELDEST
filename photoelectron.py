@@ -363,3 +363,28 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 
 outfile.close
 pure_out.close
+
+# write the time-independent limit at tmax_s into a file to be plotted together with the td result
+print 'Writing the time-independent limit'
+limit = open('limit.dat', mode='w')
+limit.write('\n')
+outlines = []
+
+t_limit = lambda x: rdg_au**2 * VEr_au**2 / ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2) \
+                   + (2 * rdg_au**2 * (x + E_fin_au - Er_au)
+                     / (q * np.pi* ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
+                   + (rdg_au**2 * (x + E_fin_au - Er_au)**2
+                     / (q**2 * np.pi**2 * VEr_au**2
+                        * ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2)))
+
+E_kin_au = E_min_au
+while (E_kin_au <= E_max_au):
+    point = t_limit(E_kin_au)
+    string = in_out.prep_output(point, E_kin_au, tmax_au)
+    outlines.append(string)
+
+    E_kin_au = E_kin_au + E_step_au
+
+in_out.doout_1f(limit,outlines)
+
+limit.close()
