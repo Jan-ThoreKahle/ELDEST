@@ -379,7 +379,7 @@ t_limit = lambda x: rdg_au**2 * VEr_au**2 / ((x + E_fin_au - Er_au)**2 + VEr_au*
 
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
-    point = t_limit(E_kin_au)
+    point = A0X**2 * t_limit(E_kin_au)
     string = in_out.prep_output(point, E_kin_au, tmax_au)
     outlines.append(string)
 
