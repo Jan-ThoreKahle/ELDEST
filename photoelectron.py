@@ -312,7 +312,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 
 #-------------------------------------------------------------------------
-while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au)):
+while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
     print 'between the pulses'
@@ -364,22 +364,41 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au - TL_au/2) and (t_au <= tmax_au))
 outfile.close
 pure_out.close
 
+#---------------------------------------------------------------------------------
 # write the time-independent limit at tmax_s into a file to be plotted together with the td result
 print 'Writing the time-independent limit'
 limit = open('limit.dat', mode='w')
 limit.write('\n')
 outlines = []
+FWHM_E = 1./(2*FWHM)
+print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
 
 t_limit = lambda x: rdg_au**2 * VEr_au**2 / ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2) \
                    + (2 * rdg_au**2 * (x + E_fin_au - Er_au)
                      / (q * np.pi* ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
                    + (rdg_au**2 * (x + E_fin_au - Er_au)**2
                      / (q**2 * np.pi**2 * VEr_au**2
-                        * ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2)))
+                        * ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
+
+t_limit_q = lambda x: (q + (x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2 \
+                      / (1.0 + ((x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2)
+
+t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
+                   - (cdg_au * (x + E_fin_au - Er_au)
+                      / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
+                   - 2 * np.sqrt(np.pi**2*Omega_au/3) * cdg_au \
+                     / (x + E_fin_au - Omega_au - 1j*FWHM_E) \
+                     * np.sin(TX_au*(x+E_fin_au-Omega_au-1j*FWHM_E))
+
+#t_ampl = lambda x: (prefac_res / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
+#                   + (prefac_indir * (x + E_fin_au - Er_au)
+#                      / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
+#                   + prefac_dir / 10 / (x + E_fin_au - Omega_au) * np.sin(TX_au*(x+E_fin_au-Omega_au))
+#                      
 
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
-    point = A0X**2 * t_limit(E_kin_au)
+    point = A0X**2 * np.abs(t_ampl(E_kin_au))**2
     string = in_out.prep_output(point, E_kin_au, tmax_au)
     outlines.append(string)
 
