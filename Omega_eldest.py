@@ -15,6 +15,7 @@
 import scipy
 import scipy.integrate as integrate
 from scipy.signal import argrelextrema
+import scipy.special as special
 import numpy as np
 import sciconv
 import complex_integration as ci
@@ -181,25 +182,51 @@ IR_during = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                           )
                        )
 
+#IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+#                       * np.exp( -1j * p_au * A0L / 4
+#                       * (np.sin(np.pi - omega_au * (delta_t_au + TL_au/2)
+#                                 - phi)
+#                           / (2*np.pi/TL_au - omega_au)
+#                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) + omega_au * t1
+#                                 + phi) 
+#                           / (2*np.pi/TL_au - omega_au)
+#                          + np.sin(np.pi + omega_au * (delta_t_au + TL_au/2)
+#                                 + phi) 
+#                           / (2*np.pi/TL_au + omega_au)
+#                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+#                                 - phi) 
+#                           / (2*np.pi/TL_au + omega_au)
+#                          + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
+#                          - 4./omega_au * np.sin(omega_au * t1 + phi)
+#                         )
+#                      )
+
+#IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+#                       * np.exp( -1j * p_au * A0L / 4
+#                       * (np.sin(np.pi - omega_au * (delta_t_au + TL_au/2)
+#                                 - phi)
+#                           / (2*np.pi/TL_au - omega_au)
+#                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) + omega_au * t1
+#                                 + phi) 
+#                           / (2*np.pi/TL_au - omega_au)
+#                          + np.sin(np.pi + omega_au * (delta_t_au + TL_au/2)
+#                                 + phi) 
+#                           / (2*np.pi/TL_au + omega_au)
+#                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+#                                 - phi) 
+#                           / (2*np.pi/TL_au + omega_au)
+#                          + 2./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
+#                          - 2./omega_au * np.sin(omega_au * t1 + phi)
+#                         )
+#                      )
+
 IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                        * np.exp( -1j * p_au * A0L / 4
-                       * (np.sin(np.pi - omega_au * (delta_t_au + TL_au/2)
-                                 - phi)
-                           / (2*np.pi/TL_au - omega_au)
-                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) + omega_au * t1
-                                 + phi) 
-                           / (2*np.pi/TL_au - omega_au)
-                          + np.sin(np.pi + omega_au * (delta_t_au + TL_au/2)
-                                 + phi) 
-                           / (2*np.pi/TL_au + omega_au)
-                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
-                                 - phi) 
-                           / (2*np.pi/TL_au + omega_au)
+                       * (
                           + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
                           - 4./omega_au * np.sin(omega_au * t1 + phi)
                          )
                       )
-
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
@@ -207,7 +234,7 @@ IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                    * np.exp(1j * p_au**2/2 * (t1-t_au))
-fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
+fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
                                    * np.exp(1j * p_au**2/2 * (t1-TX_au/2))
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
@@ -346,8 +373,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
         J = (0
              + dir_J
-             + res_J
-             + indir_J
+#             + res_J
+#             + indir_J
              )
 
         square = np.absolute(J)**2
@@ -393,7 +420,7 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
         #I1 = ci.complex_quadrature(fun_IR_dir, (-TX_au/2), TX_au/2)
         #res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
         I1 = ci.complex_romberg(fun_IR_dir, (-TX_au/2), TX_au/2)
-        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+#        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
 
         #dir_J = prefac_dir * I1[0]
         #res_J = prefac_res * res_I[0]
@@ -404,8 +431,8 @@ while (t_au >= TX_au/2 and t_au <= (delta_t_au + TL_au/2) and (t_au <= tmax_au))
 
         J = (0
              + dir_J
-             + res_J
-             + indir_J
+#             + res_J
+#             + indir_J
              )
 
         square = np.absolute(J)**2
@@ -490,3 +517,33 @@ while (t_au >= (delta_t_au + TL_au/2)
 
 outfile.close
 pure_out.close
+
+
+##---------------------------------------------------------------------------------
+## write the time-independent limit at tmax_s into a file to be plotted together with the td result
+#print 'Writing the time-independent limit'
+#limit = open('limit.dat', mode='w')
+#limit.write('\n')
+#outlines = []
+#FWHM_E = 1./(2*FWHM)
+#print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
+#
+#E_kin_au = E_min_au
+#while (E_kin_au <= E_max_au):
+#    p_au = np.sqrt(2 * E_kin_au)
+#
+#    I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+#    dir_J = prefac_dir * I1[0]
+#    square = np.absolute(dir_J)**2
+#
+#    bessel_sq = special.jv(1,p_au * A0X / omega_au)**2
+#
+#    point = square * bessel_sq
+#    string = in_out.prep_output(point, E_kin_au, tmax_au)
+#    outlines.append(string)
+#
+#    E_kin_au = E_kin_au + E_step_au
+#
+#in_out.doout_1f(limit,outlines)
+#
+#limit.close()
