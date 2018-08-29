@@ -168,9 +168,10 @@ def check_input(Er, E_fin, Gamma,
 #   output
 def prep_output(I, Omega_au, t_au):
 #    square = np.absolute(I)**2
+    #print I
     Omega_eV = sciconv.hartree_to_ev(Omega_au)
     t_s = sciconv.atu_to_second(t_au)
-    string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(I, '.15f')
+    string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(I, '.15e')
     return string
 
 def doout(t_au, outlines):
