@@ -48,6 +48,8 @@ E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 
 tau_au         = sciconv.second_to_atu(tau_s)
 Gamma_au       = 1. / tau_au
+Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
+outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
@@ -283,6 +285,13 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         res_J = prefac_res * res_I[0]
         indir_J = prefac_indir * res_I[0]
 
+#        I = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+#        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+#
+#        dir_J = prefac_dir * I
+#        res_J = prefac_res * res_I
+#        indir_J = prefac_indir * res_I
+
         J = (0
              + dir_J
              + res_J
@@ -333,6 +342,12 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
         res_J = prefac_res * res_I[0]
         indir_J = prefac_indir * res_I[0]
         
+#        I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+#        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+#
+#        dir_J = prefac_dir * I1
+#        res_J = prefac_res * res_I
+#        indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J
@@ -398,7 +413,7 @@ t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.p
 
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
-    point = A0X**2 * np.abs(t_ampl(E_kin_au))**2
+    point = A0X**2 * np.abs(t_limit_q(E_kin_au))
     string = in_out.prep_output(point, E_kin_au, tmax_au)
     outlines.append(string)
 
