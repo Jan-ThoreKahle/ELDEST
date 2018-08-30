@@ -174,6 +174,13 @@ def prep_output(I, Omega_au, t_au):
     string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(I, '.15e')
     return string
 
+def prep_output_int(I, Omega_au, integer):
+#    square = np.absolute(I)**2
+    #print I
+    Omega_eV = sciconv.hartree_to_ev(Omega_au)
+    string = str(Omega_eV) + '   ' + str(integer) + '   ' + format(I, '.15e')
+    return string
+
 def doout(t_au, outlines):
     # output filename will give the time in ps
     t_s = sciconv.atu_to_second(t_au)
