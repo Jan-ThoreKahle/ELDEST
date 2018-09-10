@@ -32,6 +32,8 @@ print infile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 
+outfile.write("The results were obtained with Omega_eldest.py")
+
 #-------------------------------------------------------------------------
 # read inputfile
 (rdg_au,
