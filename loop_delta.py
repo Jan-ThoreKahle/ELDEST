@@ -300,17 +300,10 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-#res_kin = complex(Gamma_au/2,Er_au + E_kin_au)
-res     = complex(Gamma_au/2,Er_au)
-print 'res = ', res
-
 prefac_res = VEr_au * rdg_au
 prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
 #prefac_indir = 0
 prefac_dir = 1j * cdg_au
-
-print 'prefac_res', prefac_res
-print 'prefac_indir', prefac_indir
 
 
 #-------------------------------------------------------------------------
