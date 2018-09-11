@@ -29,7 +29,7 @@ print infile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 
-outfile.write("The results were obtained with photoelectron.py")
+outfile.write("The results were obtained with photoelectron.py \n")
 #-------------------------------------------------------------------------
 # read inputfile
 (rdg_au, 

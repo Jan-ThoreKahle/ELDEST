@@ -31,7 +31,7 @@ print infile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 
-outfile.write("The results were obtained with loop_delta.py")
+outfile.write("The results were obtained with loop_delta.py \n")
 
 #-------------------------------------------------------------------------
 # read inputfile

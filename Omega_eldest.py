@@ -32,7 +32,7 @@ print infile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 
-outfile.write("The results were obtained with Omega_eldest.py")
+outfile.write("The results were obtained with Omega_eldest.py \n")
 
 #-------------------------------------------------------------------------
 # read inputfile
