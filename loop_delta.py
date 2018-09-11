@@ -215,32 +215,72 @@ dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))
 #                              * dress_after(t1)
 #                             )
 fun_dress_after = lambda t1: (FX_t1(t1)
-                              * np.exp(1j * E_fin_au * t1) \
-                              * np.exp(1j * E_kin_au * ((delta_t_au + TL_au/2)-t_au)) \
+                              * np.exp(1j * E_fin_au * (t1-t_au)) \
                               * IR_after(t1)
                              )
 
 #fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 #                                  * dress(t1)
-fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
+fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
                                   * IR_during(t1)
 
+#-------------------------------------------------------------------------
 # resonant state functions
+inner_prefac = lambda x,y:  np.exp(-1j * y * (p_au**2/2 + E_fin_au)) \
+                        * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au - omega_au))
+                                 *np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                         - omega_au * x - phi) ) \
+                        * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au + omega_au))
+                                 *np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                         + omega_au * x + phi) ) \
+                        * np.exp(-1j * p_au * A0L / omega_au
+                                 *np.sin(omega_au * x + phi) )
+
+inner_int_part = lambda x,y: 1./(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)
+                              +1j*p_au*A0L/4
+                                 * np.cos(-2*np.pi/TL_au * (x-delta_t_au) + omega_au * x + phi)
+                              +1j*p_au*A0L/4
+                                 * np.cos(-2*np.pi/TL_au * (x-delta_t_au) - omega_au * x - phi)
+                              +1j*A0L*p_au
+                                 * np.cos(omega_au * x + phi)
+                              ) \
+                           *(np.exp(y*(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)))
+                           *np.exp(-1j*A0L*p_au /(4*(2*np.pi/TL_au - omega_au))
+                                  * np.sin(-2*np.pi/TL_au * (x - delta_t_au)
+                                        + omega_au * x + phi) )
+                           *np.exp(-1j*A0L*p_au /(4*(2*np.pi/TL_au + omega_au))
+                                  * np.sin(-2*np.pi/TL_au * (x - delta_t_au)
+                                        - omega_au * x - phi) )
+                           *np.exp(1j*A0L*p_au / omega_au
+                                  * np.sin(omega_au * x + phi) )
+                           )
+
+res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
+                           * IR_during(t2)
+
+if (integ == 'romberg'):
+    res_inner = lambda t1: ci.complex_romberg(res_inner_fun, t1, t_au)
+elif (integ == 'quadrature'):
+    res_inner = lambda t1: ci.complex.quadrature(res_inner_fun, t1, t_au)[0]
+elif (integ == 'analytic'):
+    res_inner = lambda t1: inner_prefac(t_au,t_au) * \
+                           (inner_int_part(t_au,t_au) - inner_int_part(t1,t1))
+
+
+res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
+                           * res_inner(t1)
+
 # after the pulse
 res_inner_after = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
                              * IR_after(t2)
 
 if (integ == 'romberg'):
-    res_inner_a = lambda t1: integrate.romberg(res_inner_after, t1, t_au)
+    res_inner_a = lambda t1: ci.complex_romberg(res_inner_after, t1, t_au)
 elif (integ == 'quadrature'):
-    res_inner_a = lambda t1: integrate.quad(res_inner_after, t1, t_au)[0]
-#elif (integ == 'analytic'):
-## analytic inner integral
-#    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)
-#                            * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2))
-#                              - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au) - np.pi * VEr_au**2)))
-#                            * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
-#                           )
+    res_inner_a = lambda t1: ci.complex_quadrature(res_inner_after, t1, t_au)[0]
+elif (integ == 'analytic'):
+    res_inner_a = lambda t1: inner_prefac(delta_t_au + TL_au/2,t_au) * \
+                           (inner_int_part(delta_t_au + TL_au/2,t_au) - inner_int_part(t1,t1))
 
 res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner_a(t1)
