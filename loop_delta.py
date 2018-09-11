@@ -198,18 +198,11 @@ IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
 #-------------------------------------------------------------------------
 # technical defintions of functions
 
-## probiere Umschreiben der Integrationsvariable
-#fun_t_1 = lambda tau: np.exp(-tau * res) * FX_t(tau)
-#fun_t_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_t(tau)
-#
-#fun_TX2_1 = lambda tau: np.exp(-tau * res) * FX_TX(tau)
-#fun_TX2_2 = lambda tau: np.exp(complex(0,E_kin_au) * tau) * FX_TX(tau)
-
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-                                   * np.exp(1j * E_kin_au * (t1-t_au))
+                                   * np.exp(1j * p_au**2/2 * (t1-t_au))
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-                                   * np.exp(1j * E_kin_au * (t1-TX_au/2))
+                                   * np.exp(1j * p_au**2/2 * (t1-TX_au/2))
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
