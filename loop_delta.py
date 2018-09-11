@@ -61,6 +61,10 @@ if (X_sinsq):
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
     TX_au     = 5 * sigma
+    print 'sigma = ', sciconv.atu_to_second(sigma)
+    print 'FWHM = ', sciconv.atu_to_second(FWHM)
+    outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
+    outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
 print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
 outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
@@ -125,7 +129,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 #
 #FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
 
-# functions for the norm
+# functions for the XUV pulse shape
 if (X_sinsq):
     print 'use sinsq function'
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
@@ -140,11 +144,6 @@ elif (X_gauss):
                        * np.exp(-t1**2 / (2*sigma**2)))
     fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
-## without norm
-#    f_t1  = lambda t1: ( 1.
-#                       * np.exp(-t1**2 / (2*sigma**2)))
-#    fp_t1 = lambda t1: ( -t1 / sigma
-#                       * np.exp(-t1**2 / (2*sigma**2)))
 else:
     print 'no pulse shape selected'
 
@@ -155,14 +154,14 @@ FX_t1 = lambda t1: (- A0X * np.cos(Omega_au * t1) * fp_t1(t1)
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
                       * np.cos(omega_au * t3 + phi)
-integ_IR = lambda t3: (p_au + A_IR(t3))**2
+#integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
-IR_during = lambda t1:  np.exp(-1j * E_kin_au * (t_au - t1)) \
+IR_during = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                         * np.exp( -1j * p_au * A0L / 4
                         * (np.sin(2*np.pi/TL_au * (t_au - delta_t_au) - omega_au * t_au
                                   - phi)
                             / (2*np.pi/TL_au - omega_au)
-                           + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+                           + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) + omega_au * t1
                                   + phi) 
                             / (2*np.pi/TL_au - omega_au)
                            + np.sin(2*np.pi/TL_au * (t_au - delta_t_au) + omega_au * t_au
@@ -176,15 +175,15 @@ IR_during = lambda t1:  np.exp(-1j * E_kin_au * (t_au - t1)) \
                           )
                        )
 
-IR_after = lambda t1:  np.exp(-1j * E_kin_au * (t_au - t1)) \
+IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                        * np.exp( -1j * p_au * A0L / 4
-                       * (np.sin(np.pi - omega_au * t_au
-                                 + phi)
+                       * (np.sin(np.pi - omega_au * (delta_t_au + TL_au/2)
+                                 - phi)
                            / (2*np.pi/TL_au - omega_au)
-                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
+                          + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) + omega_au * t1
                                  + phi) 
                            / (2*np.pi/TL_au - omega_au)
-                          + np.sin(np.pi + omega_au * t_au
+                          + np.sin(np.pi + omega_au * (delta_t_au + TL_au/2)
                                  + phi) 
                            / (2*np.pi/TL_au + omega_au)
                           + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
