@@ -78,15 +78,13 @@ A0X           = E0X / Omega_au
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 TL_au         = n_L * 2 * np.pi / omega_au
-#print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
-#print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
+print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
+print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
 outfile.write('start of IR pulse = ' + str( delta_t_s - sciconv.atu_to_second(TL_au/2))
               + '\n')
 outfile.write('end of IR pulse = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2))
               + '\n')
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
-#print 'I_L = ', I_L
-#print 'I_L_au = ', I_L_au
 outfile.write('I_L    = ' + str(I_L) + '\n')
 outfile.write('I_L_au = ' + str(I_L_au) + '\n')
 E0L           = np.sqrt(I_L_au)
@@ -138,7 +136,7 @@ fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_a
 
 FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
 
-# functions for the norm
+# functions for the XUV pulse shape
 if (X_sinsq):
     print 'use sinsq function'
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
