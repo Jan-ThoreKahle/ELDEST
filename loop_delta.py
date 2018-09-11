@@ -41,7 +41,7 @@ outfile.write("The results were obtained with loop_delta.py \n")
  omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
- integ
+ integ, integ_outer
  ) = in_out.read_input(infile, outfile)
 
 
@@ -325,15 +325,21 @@ while (delta_t_au <= TL_au/2 - TX_au/2):
         p_au = np.sqrt(2 * E_kin_au)
 
 # integral 1
-        I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
-        #I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
-        res_I = ci.complex_quadrature(res_outer_after, (-TX_au/2), TX_au/2)
+        if (integ_outer == "quadrature"):
+            I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(res_outer_after, (-TX_au/2), TX_au/2)
 
-        dir_J = prefac_dir * (I1[0]
-        #dir_J = prefac_dir * (I1
-                              )
-        res_J = prefac_res * res_I[0]
-        indir_J = prefac_indir * res_I[0]
+            dir_J = prefac_dir * I1[0]
+            res_J = prefac_res * res_I[0]
+            indir_J = prefac_indir * res_I[0]
+
+        elif (integ_outer == "romberg"):
+            I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
+
+            dir_J = prefac_dir * I1
+            res_J = prefac_res * res_I
+            indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J

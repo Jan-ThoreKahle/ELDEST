@@ -138,6 +138,18 @@ def read_input(inputfile, outfile):
                 print 'no integration scheme selected'
                 outfile.write('no integration scheme selected \n')
             
+        elif (words[0] == 'integ_outer'):
+            if (words[2] == 'romberg'):
+                integ_outer = 'romberg'
+                print 'Integration Scheme of the outer integral = Romberg'
+                outfile.write('Integration Scheme of the outer integral = Romberg \n')
+            elif (words[2] == 'quadrature'):
+                integ_outer = 'quadrature'
+                print 'Integration Scheme of the outer integral = Gaussian Quadrature'
+                outfile.write('Integration Scheme of the outer integral = Gaussian Quadrature \n')
+            else:
+                print 'no integration scheme selected'
+                outfile.write('no integration scheme selected \n')
     
     f.close()
     return (rdg_au,
@@ -146,7 +158,7 @@ def read_input(inputfile, outfile):
             omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV,
-            integ)
+            integ, integ_outer)
 
 #-------------------------------------------------------------------------
 def check_input(Er, E_fin, Gamma,
