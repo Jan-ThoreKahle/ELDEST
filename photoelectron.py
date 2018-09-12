@@ -31,6 +31,11 @@ pure_out = open('full.dat', mode='w')
 
 outfile.write("The results were obtained with photoelectron.py \n")
 #-------------------------------------------------------------------------
+# set some defaults
+Xshape = 'convoluted'
+
+
+#-------------------------------------------------------------------------
 # read inputfile
 (rdg_au, 
  Er_eV, E_fin_eV, tau_s,
