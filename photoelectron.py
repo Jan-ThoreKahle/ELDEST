@@ -114,27 +114,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
                    tmax_au, timestep_au, E_step_au)
 #-------------------------------------------------------------------------
 # physical defintions of functions
-# XUV pulse
-f_t  = lambda tau: 1./4 * ( np.exp(2j * np.pi * (t_au - tau) / TX_au)
-                      + 2
-                      + np.exp(-2j * np.pi * (t_au - tau) /TX_au) )
-
-fp_t = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t_au - tau)/TX_au)
-                                     + np.exp(-2j*np.pi* (t_au - tau) /TX_au) )
-
-FX_t = lambda tau: - A0X * np.cos(Omega_au * (t_au - tau)) * fp_t(tau) + A0X * Omega_au * np.sin(Omega_au * (t_au - tau)) * f_t(tau)
-
-#Variante mit TX
-f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
-                      + 2
-                      + np.exp(-2j * np.pi * (TX_au/2 - tau) /TX_au) )
-
-fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_au)
-                                     + np.exp(-2j*np.pi* (TX_au/2 - tau) /TX_au) )
-
-FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
-
-# functions for the norm
+# functions for the shape of the XUV pulse
 if (X_sinsq):
     print 'use sinsq function'
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
@@ -166,7 +146,8 @@ if (Xshape == 'convoluted'):
                           )
                        )
 elif (Xshape == 'infinite'):
-    FX_t1 = lambda t1: - A0X * np.sin(Omega_au * t1)
+    FX_t1 = lambda t1: + A0X * Omega_au * np.cos(Omega_au * t1)
+    #FX_t1 = lambda t1: - A0X * np.sin(Omega_au * t1)
                        
 
 # IR pulse
