@@ -165,7 +165,7 @@ if (Xshape == 'convoluted'):
                            * f_t1(t1)
                           )
                        )
-elif (Xshape == 'infinit'):
+elif (Xshape == 'infinite'):
     FX_t1 = lambda t1: - A0X * np.sin(Omega_au * t1)
                        
 
