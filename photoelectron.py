@@ -166,43 +166,8 @@ A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
 integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
 IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))# \
-#IR_during = lambda t2:  np.exp(-1j * E_kin_au * (- t2))# \
-                        #* np.exp( -1j * p_au * A0L / 4
-                        #* (np.sin(2*np.pi/TL_au * (t_au - delta_t_au) - omega_au * t_au
-                        #          - phi)
-                        #    / (2*np.pi/TL_au - omega_au)
-                        #   + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
-                        #          + phi)
-                        #    / (2*np.pi/TL_au - omega_au)
-                        #   + np.sin(2*np.pi/TL_au * (t_au - delta_t_au) + omega_au * t_au
-                        #          + phi)
-                        #    / (2*np.pi/TL_au + omega_au)
-                        #   + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
-                        #          - phi)
-                        #    / (2*np.pi/TL_au + omega_au)
-                        #   + 4./omega_au * np.sin(omega_au * t_au + phi)
-                        #   - 4./omega_au * np.sin(omega_au * t2 + phi)
-                        #   )
-                        # )
 
 IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
-                       #* np.exp( -1j * p_au * A0L / 4
-                       #* (np.sin(np.pi - omega_au * t_au
-                       #          + phi)
-                       #    / (2*np.pi/TL_au - omega_au)
-                       #   + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
-                       #          + phi)
-                       #    / (2*np.pi/TL_au - omega_au)
-                       #   + np.sin(np.pi + omega_au * t_au
-                       #          + phi)
-                       #    / (2*np.pi/TL_au + omega_au)
-                       #   + np.sin(-2*np.pi/TL_au * (t2 - delta_t_au) - omega_au * t2
-                       #          - phi)
-                       #    / (2*np.pi/TL_au + omega_au)
-                       #   + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
-                       #   - 4./omega_au * np.sin(omega_au * t2 + phi)
-                       #   )
-                       #)
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
