@@ -34,7 +34,7 @@ outfile.write("The results were obtained with photoelectron.py \n")
 # read inputfile
 (rdg_au, 
  Er_eV, E_fin_eV, tau_s,
- Omega_eV, n_X, I_X, X_sinsq, X_gauss,
+ Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
@@ -147,18 +147,22 @@ elif (X_gauss):
 else:
     print 'no pulse shape selected'
 
-FX_t1 = lambda t1: (
-                    0
-                    - (A0X
-                       * np.cos(Omega_au * t1)
-                       * fp_t1(t1)
-                      )
-                    + (A0X
-                       * Omega_au
-                       * np.sin(Omega_au * (t1))
-                       * f_t1(t1)
-                      )
-                   )
+if (Xshape == 'convoluted'):
+    FX_t1 = lambda t1: (
+                        0
+                        - (A0X
+                           * np.cos(Omega_au * t1)
+                           * fp_t1(t1)
+                          )
+                        + (A0X
+                           * Omega_au
+                           * np.sin(Omega_au * (t1))
+                           * f_t1(t1)
+                          )
+                       )
+elif (Xshape == 'infinit'):
+    FX_t1 = lambda t1: - A0X * np.sin(Omega_au * t1)
+                       
 
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \

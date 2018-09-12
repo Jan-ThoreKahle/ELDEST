@@ -67,6 +67,13 @@ def read_input(inputfile, outfile):
             else:
                 print 'no XUV pulse shape selected'
                 outfile.write('no XUV pulse shape selected \n')
+        elif (words[0] == 'Xshape'):
+            if (words[2] == 'infinite'):
+                Xshape = 'infinite'
+                outfile.write('Infinite XUV pulse selected \n')
+            elif (words[2] == 'convoluted'):
+                Xshape = 'convoluted'
+                outfile.write('Convoluted XUV pulse selected \n')
     
     # dressing laser parameters
         elif (words[0] == 'omega_eV'):
@@ -154,7 +161,7 @@ def read_input(inputfile, outfile):
     f.close()
     return (rdg_au,
             Er_eV, E_fin_eV, tau_s,
-            Omega_eV, n_X, I_X, X_sinsq, X_gauss,
+            Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
             omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV,
