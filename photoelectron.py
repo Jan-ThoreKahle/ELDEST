@@ -18,6 +18,7 @@ from scipy.signal import argrelextrema
 import numpy as np
 import sciconv
 import complex_integration as ci
+import pulses
 import in_out
 import sys
 
@@ -232,9 +233,15 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
+        p_au = np.sqrt(2*E_kin_au)
 
 # integral 1
         I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+        #I = ci.complex_quadrature(pulses.fun_t_dir_1(t_au=t_au, p_au=p_au,
+        #    E_fin_au=E_fin_au, sigma=sigma, A0X=A0X, Omega_au=Omega_au), (-TX_au/2), t_au)
+        #I = ci.complex_quadrature(pulses.fun_t_dir_1, (-TX_au/2), t_au,
+        #                   args=(t_au=t_au, p_au=p_au, E_fin_au=E_fin_au,
+        #                         sigma=sigma, A0X=A0X, Omega_au=Omega_au))
         res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
         dir_J = prefac_dir * I[0]
