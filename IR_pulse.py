@@ -349,10 +349,10 @@ p_au = np.sqrt(2 * E_kin_au)
 t_au = tmax_au
 
 t1 = -TX_au / 2
-while (t1 <= TX_au/2):
+while (t1 <= TL_au/2 - TX_au/2):
     
-    #t_point = IR_after(t1)
-    t_point = pulses.IR_after(t1, p_au, A0L, omega_au, delta_t_au, TL_au, phi)
+    t_point = IR_after(t1)
+    #t_point = pulses.IR_after(t1, p_au, A0L, omega_au, delta_t_au, TL_au, phi)
     t1 = t1 + shift_step_au
 
     string = in_out.prep_output_t(t_point, t1)
