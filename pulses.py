@@ -42,9 +42,23 @@ import numpy as np
 #else:
 #    print 'no pulse shape selected'
 #
-#FX_t1 = lambda t1: (- A0X * np.cos(Omega_au * t1) * fp_t1(t1)
-#                    + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1)
-#                   )
+
+def f_t1(t1, sigma):
+    func = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
+                       * np.exp(-t1**2 / (2*sigma**2)))
+    return func
+
+def fp_t1(t1, sigma):
+    func = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
+                       * np.exp(-t1**2 / (2*sigma**2)))
+
+def FX_t1(t1,
+          A0X, Omega_au,
+          sigma):
+    func = lambda t1: (- A0X * np.cos(Omega_au * t1) * fp_t1(t1, sigma)
+                       + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1, sigma)
+                      )
+    return func
 
 ## IR pulse
 ##-------------------------------------------------------------------------
@@ -133,12 +147,16 @@ def IR_after(t1, p_au,
                  )
     return IR_after
 
-###-------------------------------------------------------------------------
-### technical defintions of functions
-##
-###direct ionization
-##fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-##                                   * np.exp(1j * p_au**2/2 * (t1-t_au))
+##-------------------------------------------------------------------------
+## technical defintions of functions
+#
+##direct ionization
+def fun_t_dir_1(t1, t_au,
+                p_au, E_fin_au, sigma,
+                A0X, Omega_au):
+    func = lambda t1: FX_t1(t1, A0X, Omega_au, sigma) * np.exp(1j * E_fin_au * t1) \
+                                                      * np.exp(1j * p_au**2/2 * (t1-t_au))
+    return func
 ##fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
 ##                                   * np.exp(1j * p_au**2/2 * (t1-TX_au/2))
 ##
