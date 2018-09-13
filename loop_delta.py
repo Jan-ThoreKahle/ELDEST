@@ -77,6 +77,7 @@ A0X           = E0X / Omega_au
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 TL_au         = n_L * 2 * np.pi / omega_au
+print 'TL_s = ', sciconv.atu_to_second(TL_au)
 print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
 print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
 outfile.write('start of IR pulse = ' + str( delta_t_s - sciconv.atu_to_second(TL_au/2))
