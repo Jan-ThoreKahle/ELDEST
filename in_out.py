@@ -195,6 +195,15 @@ def prep_output(I, Omega_au, t_au):
     string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(I, '.15e')
     return string
 
+def prep_output_t(point, time_au):
+    time_s = sciconv.atu_to_second(time_au)
+    point_R = np.real(point)
+    point_I = np.imag(point)
+    #print point_R
+    #print point_I
+    string = format(time_s, '.18f') + '   ' + str(point_I)
+    return string
+
 def prep_output_int(I, Omega_au, integer):
 #    square = np.absolute(I)**2
     #print I
