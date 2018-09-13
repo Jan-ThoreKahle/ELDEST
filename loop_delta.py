@@ -342,16 +342,16 @@ while (delta_t_au <= TL_au/2 - TX_au/2):
 
         elif (integ_outer == "romberg"):
             I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
-            #res_I = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
 
             dir_J = prefac_dir * I1
-            #res_J = prefac_res * res_I
-            #indir_J = prefac_indir * res_I
+            res_J = prefac_res * res_I
+            indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J
-             #+ res_J
-             #+ indir_J
+             + res_J
+             + indir_J
              )
 
         square = np.absolute(J)**2
