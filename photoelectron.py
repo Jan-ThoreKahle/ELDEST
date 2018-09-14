@@ -348,8 +348,8 @@ print 'Writing the time-independent limit'
 limit = open('limit.dat', mode='w')
 limit.write('\n')
 outlines = []
-FWHM_E = 1./(2*FWHM)
-print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
+#FWHM_E = 1./(2*FWHM)
+#print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
 
 t_limit = lambda x: rdg_au**2 * VEr_au**2 / ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2) \
                    + (2 * rdg_au**2 * (x + E_fin_au - Er_au)
@@ -367,18 +367,19 @@ t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.p
                    - 2 * np.sqrt(np.pi**2*Omega_au/3) * cdg_au \
                      / (x + E_fin_au - Omega_au - 1j*FWHM_E) \
                      * np.sin(TX_au*(x+E_fin_au-Omega_au-1j*FWHM_E))
-envelope = lambda x: 1./2 * np.exp(-sigma**2 * (Omega_au - E_fin_au - x)**2 )
-#envelope = lambda x: 1./2 * np.exp(-sigma**2/2 * (Omega_au - E_fin_au - x)**2 ) \
-#                          * np.exp(-sigma**2/2
-#                                   * (1j*(Omega_au - Er_au) + np.pi*VEr_au**2)**2 )
-#envelope = lambda x: 2 * np.sqrt(np.log(2)) / np.sqrt(np.pi) / FWHM_E \
-#                     * np.exp(-4 * (Omega_au - E_fin_au - x)**2 / FWHM_E**2)
 
-#t_ampl = lambda x: (prefac_res / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
-#                   + (prefac_indir * (x + E_fin_au - Er_au)
-#                      / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
-#                   + prefac_dir / 10 / (x + E_fin_au - Omega_au) * np.sin(TX_au*(x+E_fin_au-Omega_au))
-#                      
+if (X_sinsq):
+    print 'use sinsq function'
+    envelope = lambda x: abs(-A0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
+                          * (-1./(2*np.pi/TX_au - Omega_au + E_fin_au + x)
+                             +2./(Omega_au - E_fin_au - x)
+                             +1./(2*np.pi/TX_au + Omega_au - E_fin_au - x) ))**2
+elif (X_gauss):
+    print 'use gauss function'
+    envelope = lambda x: 1./2 * np.exp(-sigma**2 * (Omega_au - E_fin_au - x)**2 )
+else:
+    print 'no pulse shape selected'
+
 
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
