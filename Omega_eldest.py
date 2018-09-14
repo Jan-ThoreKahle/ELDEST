@@ -23,6 +23,11 @@ import res_anal_integ as aires
 import dir_anal_integ as aidir
 import in_out
 import sys
+import warnings
+
+# don't print warnings unless python -W ... is used
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
 
 infile = sys.argv[1]
 print infile
