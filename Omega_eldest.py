@@ -177,8 +177,8 @@ IR_during = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                            + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
                                   - phi) 
                             / (2*np.pi/TL_au + omega_au)
-                           + 4./omega_au * np.sin(omega_au * t_au + phi)
-                           - 4./omega_au * np.sin(omega_au * t1 + phi)
+                           + 2./omega_au * np.sin(omega_au * t_au + phi)
+                           - 2./omega_au * np.sin(omega_au * t1 + phi)
                           )
                        )
 
@@ -196,8 +196,8 @@ IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                           + np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
                                  - phi) 
                            / (2*np.pi/TL_au + omega_au)
-                          + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
-                          - 4./omega_au * np.sin(omega_au * t1 + phi)
+                          + 2./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
+                          - 2./omega_au * np.sin(omega_au * t1 + phi)
                          )
                       )
 
