@@ -107,11 +107,9 @@ E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
-#print 'VEr_au = ', VEr_au
 
 cdg_au = rdg_au / ( q * np.pi * VEr_au)
 #cdg_au = 0
-#print 'cdg_au = ', cdg_au
 
 
 #-------------------------------------------------------------------------
@@ -122,25 +120,17 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # XUV pulse
-#f_t  = lambda tau: 1./4 * ( np.exp(2j * np.pi * (t_au - tau) / TX_au)
+
+##Variante mit TX
+#f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
 #                      + 2
-#                      + np.exp(-2j * np.pi * (t_au - tau) /TX_au) )
+#                      + np.exp(-2j * np.pi * (TX_au/2 - tau) /TX_au) )
 #
-#fp_t = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t_au - tau)/TX_au)
-#                                     + np.exp(-2j*np.pi* (t_au - tau) /TX_au) )
+#fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_au)
+#                                     + np.exp(-2j*np.pi* (TX_au/2 - tau) /TX_au) )
 #
-#FX_t = lambda tau: - A0X * np.cos(Omega_au * (t_au - tau)) * fp_t(tau) + A0X * Omega_au * np.sin(Omega_au * (t_au - tau)) * f_t(tau)
-
-#Variante mit TX
-f_TX = lambda tau: 1./4 * ( np.exp(2j * np.pi * (TX_au/2 - tau) / TX_au)
-                      + 2
-                      + np.exp(-2j * np.pi * (TX_au/2 - tau) /TX_au) )
-
-fp_TX = lambda tau: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (TX_au/2 - tau)/TX_au)
-                                     + np.exp(-2j*np.pi* (TX_au/2 - tau) /TX_au) )
-
-FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
-
+#FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0X * Omega_au * np.sin(Omega_au * (TX_au/2 - tau)) * f_TX(tau)
+#
 # functions for the XUV pulse shape
 if (X_sinsq):
     print 'use sinsq function'
@@ -206,13 +196,6 @@ IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                          )
                       )
 
-#IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
-#                       * np.exp( -1j * p_au * A0L / 4
-#                       * (
-#                          + 4./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
-#                          - 4./omega_au * np.sin(omega_au * t1 + phi)
-#                         )
-#                      )
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
@@ -319,9 +302,6 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-res     = complex(Gamma_au/2,Er_au)
-print 'res = ', res
-
 prefac_res = VEr_au * rdg_au
 prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
 #prefac_indir = 0
@@ -503,33 +483,3 @@ while (t_au >= (delta_t_au + TL_au/2)
 
 outfile.close
 pure_out.close
-
-
-##---------------------------------------------------------------------------------
-## write the time-independent limit at tmax_s into a file to be plotted together with the td result
-#print 'Writing the time-independent limit'
-#limit = open('limit.dat', mode='w')
-#limit.write('\n')
-#outlines = []
-#FWHM_E = 1./(2*FWHM)
-#print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
-#
-#E_kin_au = E_min_au
-#while (E_kin_au <= E_max_au):
-#    p_au = np.sqrt(2 * E_kin_au)
-#
-#    I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-#    dir_J = prefac_dir * I1[0]
-#    square = np.absolute(dir_J)**2
-#
-#    bessel_sq = special.jv(1,p_au * A0X / omega_au)**2
-#
-#    point = square * bessel_sq
-#    string = in_out.prep_output(point, E_kin_au, tmax_au)
-#    outlines.append(string)
-#
-#    E_kin_au = E_kin_au + E_step_au
-#
-#in_out.doout_1f(limit,outlines)
-#
-#limit.close()
