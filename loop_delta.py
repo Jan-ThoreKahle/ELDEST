@@ -297,7 +297,7 @@ res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_a
 # initialization
 t_au = delta_t_s + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
-delta_t_au = -TL_au/(2 + 3)
+delta_t_au = -TL_au/10
 
 # construct list of energy points
 Ekins = []
@@ -318,7 +318,7 @@ prefac_dir = 1j * cdg_au
 #-------------------------------------------------------------------------
 # loop over the delta between pulses
 #while (delta_t_au <= TL_au/2 - TX_au/2):
-while (delta_t_au <= TL_au/(2 + 3)):
+while (delta_t_au <= TL_au/(8)):
 #-------------------------------------------------------------------------
     outfile.write('after both pulses \n')
     print 'after both pulses'
