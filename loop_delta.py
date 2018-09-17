@@ -166,39 +166,37 @@ A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
 
 IR_during = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                         * np.exp(-1j * p_au * A0L / 4
-                        * (np.sin(2*np.pi/TL_au * (t_au - delta_t_au) - omega_au * t_au
-                                  - phi)
+                        * (np.sin(2*np.pi/TL_au * (t_au - delta_t_au)
+                                  - omega_au * (t_au - delta_t_au) - phi)
                             / (2*np.pi/TL_au - omega_au)
-                           - np.sin(2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
-                                  - phi) 
+                           - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                  - omega_au * (t1 - delta_t_au) - phi)
                             / (2*np.pi/TL_au - omega_au)
-                           + np.sin(2*np.pi/TL_au * (t_au - delta_t_au) + omega_au * t_au
-                                  + phi) 
+                           + np.sin(2*np.pi/TL_au * (t_au - delta_t_au)
+                                  + omega_au * (t_au - delta_t_au) + phi)
                             / (2*np.pi/TL_au + omega_au)
-                           - np.sin(-2*np.pi/TL_au * (t1 - delta_t_au) + omega_au * t1
-                                  + phi) 
+                           - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                  + omega_au * (t1 - delta_t_au) + phi)
                             / (2*np.pi/TL_au + omega_au)
-                           - 2./omega_au * np.sin(omega_au * t_au + phi)
-                           + 2./omega_au * np.sin(omega_au * t1 + phi)
+                           + 2./omega_au * np.sin(omega_au * (t_au - delta_t_au) + phi)
+                           - 2./omega_au * np.sin(omega_au * (t1 - delta_t_au) + phi)
                           )
                        )
 
 IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                        * np.exp(-1j * p_au * A0L / 4
-                       * (np.sin(np.pi - omega_au * (delta_t_au + TL_au/2)
-                                 - phi)
+                       * (np.sin(np.pi - omega_au * TL_au/2 - phi)
                            / (2*np.pi/TL_au - omega_au)
-                          - np.sin(2*np.pi/TL_au * (t1 - delta_t_au) - omega_au * t1
-                                 - phi) 
+                          - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                 - omega_au * (t1 - delta_t_au) - phi)
                            / (2*np.pi/TL_au - omega_au)
-                          + np.sin(np.pi + omega_au * (delta_t_au + TL_au/2)
-                                 + phi) 
+                          + np.sin(np.pi + omega_au * TL_au/2 + phi)
                            / (2*np.pi/TL_au + omega_au)
-                          - np.sin(2*np.pi/TL_au * (t1 - delta_t_au) + omega_au * t1
-                                 + phi) 
+                          - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                 + omega_au * (t1 - delta_t_au) + phi)
                            / (2*np.pi/TL_au + omega_au)
-                          - 2./omega_au * np.sin(omega_au * (delta_t_au + TL_au/2) + phi)
-                          + 2./omega_au * np.sin(omega_au * t1 + phi)
+                          + 2./omega_au * np.sin(omega_au * TL_au/2 + phi)
+                          - 2./omega_au * np.sin(omega_au * (t1 - delta_t_au) + phi)
                          )
                       )
 
