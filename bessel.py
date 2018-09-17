@@ -31,7 +31,7 @@ print infile
 outfile = open("eldest.out", mode='w')
 #-------------------------------------------------------------------------
 # read inputfile
-(rdg_au,
+(rdg_au, cdg_au,
  Er_eV, E_fin_eV, tau_s,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
