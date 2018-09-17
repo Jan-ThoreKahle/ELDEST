@@ -126,12 +126,12 @@ FX_TX = lambda tau: - A0X * np.cos(Omega_au * (TX_au/2 - tau)) * fp_TX(tau) + A0
 # functions for the norm
 if (X_sinsq):
     print 'use sinsq function'
-    f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * t1 / TX_au)
+    f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
                           + 2
-                          + np.exp(-2j * np.pi * t1 /TX_au) )
-    
-    fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* t1/TX_au)
-                                         + np.exp(-2j*np.pi* t1 /TX_au) )
+                          + np.exp(-2j * np.pi * (t1 + TX_au/2) /TX_au) )
+
+    fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)
+                                         + np.exp(-2j*np.pi* (t1 + TX_au/2) / TX_au) )
 elif (X_gauss):
     print 'use gauss function'
     f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
