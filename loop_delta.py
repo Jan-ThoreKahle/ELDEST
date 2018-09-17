@@ -41,7 +41,7 @@ outfile.write("The results were obtained with loop_delta.py \n")
 
 #-------------------------------------------------------------------------
 # read inputfile
-(rdg_au, 
+(rdg_au, cdg_au,
  Er_eV, E_fin_eV, tau_s,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
@@ -108,7 +108,9 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 
-cdg_au = rdg_au / ( q * np.pi * VEr_au)
+#cdg_au = rdg_au / ( q * np.pi * VEr_au)
+rdg_au = cdg_au * ( q * np.pi * VEr_au)
+print "rdg_au = ", rdg_au
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_fin_au, Gamma_au,

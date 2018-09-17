@@ -25,6 +25,10 @@ def read_input(inputfile, outfile):
             rdg_au = float(words[2])
             print 'rdg_au = ', rdg_au
             outfile.write('rdg_au = ' + str(rdg_au) + '\n')
+        elif (words[0] == 'cdg_au'):
+            cdg_au = float(words[2])
+            print 'cdg_au = ', cdg_au
+            outfile.write('cdg_au = ' + str(cdg_au) + '\n')
     
     # energy parameters of the system
         elif (words[0] == 'Er_eV'):
@@ -161,7 +165,7 @@ def read_input(inputfile, outfile):
                 outfile.write('no integration scheme selected \n')
     
     f.close()
-    return (rdg_au,
+    return (rdg_au, cdg_au,
             Er_eV, E_fin_eV, tau_s,
             Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
             omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
