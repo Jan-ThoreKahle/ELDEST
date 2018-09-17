@@ -296,7 +296,8 @@ res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_a
 #-------------------------------------------------------------------------
 # initialization
 t_au = delta_t_s + TL_au
-delta_t_au = -TL_au/2 + TX_au/2
+#delta_t_au = -TL_au/2 + TX_au/2
+delta_t_au = -TL_au/(2 + 3)
 
 # construct list of energy points
 Ekins = []
@@ -316,7 +317,8 @@ prefac_dir = 1j * cdg_au
 
 #-------------------------------------------------------------------------
 # loop over the delta between pulses
-while (delta_t_au <= TL_au/2 - TX_au/2):
+#while (delta_t_au <= TL_au/2 - TX_au/2):
+while (delta_t_au <= TL_au/(2 + 3)):
 #-------------------------------------------------------------------------
     outfile.write('after both pulses \n')
     print 'after both pulses'
@@ -342,16 +344,16 @@ while (delta_t_au <= TL_au/2 - TX_au/2):
 
         elif (integ_outer == "romberg"):
             I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
-#            res_I = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
 
             dir_J = prefac_dir * I1
-#            res_J = prefac_res * res_I
-#            indir_J = prefac_indir * res_I
+            res_J = prefac_res * res_I
+            indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J
-#             + res_J
-#             + indir_J
+             + res_J
+             + indir_J
              )
 
         square = np.absolute(J)**2
