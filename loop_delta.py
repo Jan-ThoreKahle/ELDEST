@@ -67,9 +67,9 @@ if (X_sinsq):
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
     FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
-    #TX_au     = 5 * sigma
+    TX_au     = 5 * sigma
     #TX_au     = sigma
-    TX_au     = sigma / np.sqrt(2)
+    #TX_au     = sigma / np.sqrt(2)
     print 'sigma = ', sciconv.atu_to_second(sigma)
     print 'FWHM = ', sciconv.atu_to_second(FWHM)
     outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
@@ -299,7 +299,7 @@ res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_a
 # initialization
 t_au = delta_t_s + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
-delta_t_au = -TL_au/10
+delta_t_au = -TL_au/n_L
 
 # construct list of energy points
 Ekins = []
@@ -320,7 +320,7 @@ prefac_dir = 1j * cdg_au
 #-------------------------------------------------------------------------
 # loop over the delta between pulses
 #while (delta_t_au <= TL_au/2 - TX_au/2):
-while (delta_t_au <= TL_au/(8)):
+while (delta_t_au <= 2*TL_au/n_L):
 #-------------------------------------------------------------------------
     outfile.write('after both pulses \n')
     print 'after both pulses'
