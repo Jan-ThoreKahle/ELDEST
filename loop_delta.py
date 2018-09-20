@@ -320,7 +320,7 @@ prefac_dir = 1j * cdg_au
 #-------------------------------------------------------------------------
 # loop over the delta between pulses
 #while (delta_t_au <= TL_au/2 - TX_au/2):
-while (delta_t_au <= 2*TL_au/n_L):
+while (delta_t_au <= TL_au/n_L):
 #-------------------------------------------------------------------------
     outfile.write('after both pulses \n')
     print 'after both pulses'
