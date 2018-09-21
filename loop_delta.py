@@ -239,30 +239,32 @@ fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
 inner_prefac = lambda x,y:  np.exp(-1j * y * (p_au**2/2 + E_fin_au)) \
                         * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au - omega_au))
                                  *np.sin(2*np.pi/TL_au * (x - delta_t_au)
-                                         - omega_au * x - phi) ) \
+                                         - omega_au * (x - delta_t_au) - phi) ) \
                         * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au + omega_au))
                                  *np.sin(2*np.pi/TL_au * (x - delta_t_au)
-                                         + omega_au * x + phi) ) \
-                        * np.exp(-1j * p_au * A0L / omega_au
-                                 *np.sin(omega_au * x + phi) )
+                                         + omega_au * (x + delta_t_au) + phi) ) \
+                        * np.exp(-1j * p_au * A0L / (2*omega_au)
+                                 *np.sin(omega_au * (x - delta_t_au) + phi) )
 
 inner_int_part = lambda x,y: 1./(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)
                               +1j*p_au*A0L/4
-                                 * np.cos(-2*np.pi/TL_au * (x-delta_t_au) + omega_au * x + phi)
+                                 * np.cos(2*np.pi/TL_au * (x-delta_t_au)
+                                          + omega_au * (x-delta_t_au) + phi)
                               +1j*p_au*A0L/4
-                                 * np.cos(-2*np.pi/TL_au * (x-delta_t_au) - omega_au * x - phi)
-                              +1j*A0L*p_au
-                                 * np.cos(omega_au * x + phi)
+                                 * np.cos(2*np.pi/TL_au * (x-delta_t_au)
+                                          - omega_au * (x-delta_t_au) - phi)
+                              +1j*A0L*p_au / 2
+                                 * np.cos(omega_au * (x-delta_t_au) + phi)
                               ) \
                            *(np.exp(y*(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)))
-                           *np.exp(-1j*A0L*p_au /(4*(2*np.pi/TL_au - omega_au))
-                                  * np.sin(-2*np.pi/TL_au * (x - delta_t_au)
-                                        + omega_au * x + phi) )
-                           *np.exp(-1j*A0L*p_au /(4*(2*np.pi/TL_au + omega_au))
-                                  * np.sin(-2*np.pi/TL_au * (x - delta_t_au)
-                                        - omega_au * x - phi) )
-                           *np.exp(1j*A0L*p_au / omega_au
-                                  * np.sin(omega_au * x + phi) )
+                           *np.exp(1j*A0L*p_au /(4*(2*np.pi/TL_au - omega_au))
+                                  * np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                        - omega_au * (x-delta_t_au) - phi) )
+                           *np.exp(1j*A0L*p_au /(4*(2*np.pi/TL_au + omega_au))
+                                  * np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                        + omega_au * (x-delta_t_au) + phi) )
+                           *np.exp(1j*A0L*p_au / (2 * omega_au)
+                                  * np.sin(omega_au * (x-delta_t_au) + phi) )
                            )
 
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
