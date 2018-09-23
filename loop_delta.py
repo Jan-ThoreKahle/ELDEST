@@ -190,6 +190,7 @@ if (Lshape == "sinsq"):
                               - 2./omega_au * np.sin(omega_au * (t1 - delta_t_au) + phi)
                              )
                           )
+
 elif (Lshape == "gauss"):
     IR_during = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                            * np.exp(-A0L * p_au / 4 * np.exp(1j*phi)
