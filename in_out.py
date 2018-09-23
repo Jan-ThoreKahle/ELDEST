@@ -94,6 +94,15 @@ def read_input(inputfile, outfile):
             I_L = float(words[2])
             print 'I_L = ', I_L
             outfile.write('I_L = ' + str(I_L) + '\n')
+        elif (words[0] == 'Lshape'):
+            if (words[2] == 'gauss'):
+                Lshape = 'gauss'
+                outfile.write('Gaussian shaped IR pulse selected \n')
+                print 'Gaussian shaped IR pulse selected'
+            elif (words[2] == 'sinsq'):
+                Lshape = 'sinsq'
+                outfile.write('Sinsq shaped IR pulse selected \n')
+                print 'Sinsq shaped IR pulse selected'
         elif (words[0] == 'delta_t_s'):
             delta_t_s = float(words[2])
             print 'delta_t_s = ', delta_t_s
@@ -168,7 +177,7 @@ def read_input(inputfile, outfile):
     return (rdg_au, cdg_au,
             Er_eV, E_fin_eV, tau_s,
             Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
-            omega_eV, n_L, I_L, delta_t_s, shift_step_s, phi, q,
+            omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV,
             integ, integ_outer)
