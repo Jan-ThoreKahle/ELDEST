@@ -41,7 +41,7 @@ outfile.write("The results were obtained with loop_delta.py \n")
 #-------------------------------------------------------------------------
 # read inputfile
 (rdg_au, cdg_au,
- Er_eV, E_fin_eV, tau_s,
+ Er_eV, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
@@ -156,6 +156,7 @@ A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
 
 if (Lshape == "sinsq"):
     IR_during = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                            * np.exp(-1j * E_fin_au * (t_au - t1)) \
                             * np.exp(-1j * p_au * A0L / 4
                             * (np.sin(2*np.pi/TL_au * (t_au - delta_t_au)
                                       - omega_au * (t_au - delta_t_au) - phi)
@@ -175,6 +176,7 @@ if (Lshape == "sinsq"):
                            )
     
     IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                                  *np.exp(-1j * E_fin_au * (t_au - t1)) \
                            * np.exp(-1j * p_au * A0L / 4
                            * (np.sin(np.pi - omega_au * TL_au/2 - phi)
                                / (2*np.pi/TL_au - omega_au)
@@ -193,6 +195,7 @@ if (Lshape == "sinsq"):
 
 elif (Lshape == "gauss"):
     IR_during = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                           *np.exp(-1j * E_fin_au * (t_au - t1)) \
                            * np.exp(-A0L * p_au / 4 * np.exp(1j*phi)
                                                     * np.exp(-sigma_L**2 * omega_au**2 / 2)
                                     * (erf((t_au - delta_t_au - 1j*sigma_L**2 * omega_au)
@@ -211,6 +214,7 @@ elif (Lshape == "gauss"):
                                    )
 
     IR_after = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                          *np.exp(-1j * E_fin_au * (t_au - t1)) \
                           * np.exp(-A0L * p_au / 4 * np.exp(1j*phi)
                                                    * np.exp(-sigma_L**2 * omega_au**2 / 2)
                                    * (erf((TL_au/2 - 1j*sigma_L**2 * omega_au)
@@ -248,14 +252,12 @@ dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))
 #                              * dress_after(t1)
 #                             )
 fun_dress_after = lambda t1: (FX_t1(t1)
-                              * np.exp(1j * E_fin_au * (t1-t_au)) \
                               * IR_after(t1)
                              )
 
 #fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 #                                  * dress(t1)
-fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                  * IR_during(t1)
+fun_IR_dir = lambda t1: FX_t1(t1) * IR_during(t1)
 
 #-------------------------------------------------------------------------
 # resonant state functions
@@ -356,7 +358,8 @@ elif (integ == 'quadrature'):
     res_inner_a = lambda t1: ci.complex_quadrature(res_inner_after, t1, t_au)[0]
 elif (integ == 'analytic'):
     res_inner_a = lambda t1: inner_prefac(delta_t_au + TL_au/2,t_au) * \
-                           (inner_int_part(delta_t_au + TL_au/2,t_au) - inner_int_part(t1,t1))
+                           (inner_int_part(delta_t_au + TL_au/2,t_au)
+                            - inner_int_part(t1,t1))
 
 res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner_a(t1)
