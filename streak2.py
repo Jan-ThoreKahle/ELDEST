@@ -59,6 +59,13 @@ E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 tau_au         = sciconv.second_to_atu(tau_s)
 Gamma_au       = 1. / tau_au
 
+# the second final state
+E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
+
+tau_au_2         = sciconv.second_to_atu(tau_s_2)
+Gamma_au_2       = 1. / tau_au_2
+
+
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
 if (X_sinsq):
@@ -115,10 +122,12 @@ E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
+WEr_au        = np.sqrt(Gamma_au_2/ (2*np.pi))
 
-#cdg_au = rdg_au / ( q * np.pi * VEr_au)
-rdg_au = cdg_au * ( q * np.pi * VEr_au)
-print "rdg_au = ", rdg_au
+cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
+cdg_au_W = rdg_au / ( q * np.pi * WEr_au)
+#rdg_au = cdg_au * ( q * np.pi * VEr_au)
+#print "rdg_au = ", rdg_au
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_fin_au, Gamma_au,
