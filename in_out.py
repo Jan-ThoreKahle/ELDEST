@@ -25,6 +25,8 @@ def read_input(inputfile, outfile):
     Er_eV         =  150.0        # resonance energy in eV
     E_fin_eV      =  70.0         # final state energy in eV
     tau_s         =  2.5E-15      # lifetime
+    E_fin_eV_2    =  0.0
+    tau_s_2       =  0.0
     #
     # laser parameters
     Omega_eV      = 150.0         #
@@ -82,6 +84,14 @@ def read_input(inputfile, outfile):
             tau_s = float(words[2])
             print 'tau_s = ', tau_s
             outfile.write('tau_s = ' + str(tau_s) + '\n')
+        elif (words[0] == 'E_fin_eV_2'):
+            E_fin_eV_2 = float(words[2])
+            print 'E_fin_eV_2 = ', E_fin_eV_2
+            outfile.write('E_fin_eV_2 = ' + str(E_fin_eV_2) + '\n')
+        elif (words[0] == 'tau_s_2'):
+            tau_s_2 = float(words[2])
+            print 'tau_s_2 = ', tau_s_2
+            outfile.write('tau_s_2 = ' + str(tau_s_2) + '\n')
     
     # exciting laser parameters
         elif (words[0] == 'Omega_eV'):
