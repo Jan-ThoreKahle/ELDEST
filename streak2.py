@@ -54,7 +54,7 @@ outfile.write("The results were obtained with loop_delta.py \n")
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
 Er_au          = sciconv.ev_to_hartree(Er_eV)
-E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
+E_fin_au_1       = sciconv.ev_to_hartree(E_fin_eV)
 
 tau_au         = sciconv.second_to_atu(tau_s)
 Gamma_au       = 1. / tau_au
@@ -123,6 +123,8 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 WEr_au        = np.sqrt(Gamma_au_2/ (2*np.pi))
+
+VEr_au_1      = VEr_au
 
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 cdg_au_W = rdg_au / ( q * np.pi * WEr_au)
@@ -391,10 +393,15 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-prefac_res = VEr_au * rdg_au
-prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
+aV = 1./np.sqrt(2)
+aW = 1./np.sqrt(2)
+prefac_res1 = aV * VEr_au * rdg_au
+prefac_res1 = aW * WEr_au * rdg_au
+prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
+prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
 #prefac_indir = 0
-prefac_dir = 1j * cdg_au
+prefac_dir1 = 1j * aV * cdg_au_V
+prefac_dir2 = 1j * aW * cdg_au_W
 
 
 #-------------------------------------------------------------------------
@@ -417,25 +424,51 @@ while (delta_t_au <= delta_t_max):
 
 # integral 1
         if (integ_outer == "quadrature"):
-            #I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
+            VEr_au = VEr_au_1
+            E_fin_au = E_fin_au_1
+
+            I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_after, (-TX_au/2), TX_au/2)
 
-            #dir_J = prefac_dir * I1[0]
-            res_J = prefac_res * res_I[0]
-            indir_J = prefac_indir * res_I[0]
+            dir_J1 = prefac_dir1 * I1[0]
+            res_J1 = prefac_res1 * res_I[0]
+            indir_J1 = prefac_indir1 * res_I[0]
+
+            VEr_au = WEr_au
+            E_fin_au = E_fin_au_2
+
+            I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(res_outer_after, (-TX_au/2), TX_au/2)
+
+            dir_J2 = prefac_dir2 * I1[0]
+            res_J2 = prefac_res2 * res_I[0]
+            indir_J2 = prefac_indir2 * res_I[0]
 
         elif (integ_outer == "romberg"):
-            #I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
+            VEr_au = VEr_au_1
+            E_fin_au = E_fin_au_1
+
+            I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
 
-            #dir_J = prefac_dir * I1
-            res_J = prefac_res * res_I
-            indir_J = prefac_indir * res_I
+            dir_J1 = prefac_dir1 * I1
+            res_J1 = prefac_res1 * res_I
+            indir_J1 = prefac_indir1 * res_I
+
+            VEr_au = WEr_au
+            E_fin_au = E_fin_au_2
+
+            I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
+
+            dir_J2 = prefac_dir2 * I1
+            res_J2 = prefac_res2 * res_I
+            indir_J2 = prefac_indir2 * res_I
 
         J = (0
-             #+ dir_J
-             + res_J
-             #+ indir_J
+             + dir_J1 + dir_J2
+             + res_J1 + res_J2
+             + indir_J1 + indir_J2
              )
 
         square = np.absolute(J)**2
