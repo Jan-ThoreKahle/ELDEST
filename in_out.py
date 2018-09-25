@@ -15,6 +15,45 @@ from sys import exit
 #-------------------------------------------------------------------------
 #   input
 def read_input(inputfile, outfile):
+#-------------------------------------------------------------------------
+    # define default parameters
+    rdg_au       = 0.3
+    cdg_au       = 0.9
+    q            = 1
+    # parameters of the investigated system
+    # the ground state energy is being defined as Eg = 0
+    Er_eV         =  150.0        # resonance energy in eV
+    E_fin_eV      =  70.0         # final state energy in eV
+    tau_s         =  2.5E-15      # lifetime
+    #
+    # laser parameters
+    Omega_eV      = 150.0         #
+    n_X           = 5
+    I_X           = 1.0E12        # intensity of the XUV pulse in W/cm^2
+    X_shape       = "gauss"       # options: gauss, sinsq
+    Xshape        = "convoluted"
+    #
+    # dressing laser parameters
+    omega_eV      = 1.6           # IR pulse
+    n_L           = 10
+    I_L           = 1.0E12        # intensity of the IR pulse in W/cm^2
+    Lshape        = "sinsq"
+    delta_t_s     = 0.0E-18       # time difference between the maxima of the two pulses
+    shift_step_s  = 500.0E-18
+    phi           = 0
+    #
+    # parameters of the simulation
+    tmax_s        = 2.5E-15       # simulate until time tmax in seconds
+    timestep_s    = 0.5E-16     # evaluate expression every timestep_s seconds 
+    E_step_eV     = 1.00          # energy difference between different evaluated Omegas
+    #
+    E_min_eV      =  30.0
+    E_max_eV      =  50.0
+    #
+    integ         = "analytic"
+    integ_outer   = "romberg"
+#-------------------------------------------------------------------------
+
     f = open(inputfile, 'r')
     
     lines = f.readlines()
