@@ -282,7 +282,8 @@ if (Lshape == "sinsq"):
                             * np.exp(-1j * p_au * A0L / (2*omega_au)
                                      *np.sin(omega_au * (x - delta_t_au) + phi) )
     
-    inner_int_part = lambda x,y: 1./(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)
+    inner_int_part = lambda x,y: 1./(complex(-np.pi * (VEr_au**2 + WEr_au**2),
+                                             p_au**2/2 + E_fin_au - Er_au)
                                   +1j*p_au*A0L/4
                                      * np.cos(2*np.pi/TL_au * (x-delta_t_au)
                                               + omega_au * (x-delta_t_au) + phi)
@@ -292,7 +293,8 @@ if (Lshape == "sinsq"):
                                   +1j*A0L*p_au / 2
                                      * np.cos(omega_au * (x-delta_t_au) + phi)
                                   ) \
-                               *(np.exp(y*(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)))
+                               *(np.exp(y*(complex(-np.pi * (VEr_au**2 + WEr_au**2),
+                                                   p_au**2/2 + E_fin_au - Er_au)))
                                *np.exp(1j*A0L*p_au /(4*(2*np.pi/TL_au - omega_au))
                                       * np.sin(2*np.pi/TL_au * (x - delta_t_au)
                                             - omega_au * (x-delta_t_au) - phi) )
@@ -318,7 +320,8 @@ elif (Lshape == "gauss"):
                                                       )
                                     )
 
-    inner_int_part = lambda x,y: 1./(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)
+    inner_int_part = lambda x,y: 1./(complex(-np.pi * (VEr_au**2 + WEr_au**2),
+                                             p_au**2/2 + E_fin_au - Er_au)
                                   +1j*p_au*A0L/2 / np.sqrt(np.pi) * np.exp(1j*phi)
                                      * np.exp(-sigma_L**2 * omega_au**2 / 2)
                                      * np.exp(-(x - delta_t_au - 1j*sigma_L**2 * omega_au)**2
@@ -330,7 +333,8 @@ elif (Lshape == "gauss"):
                                                 / (2*sigma_L**2)
                                              )
                                   ) \
-                               *(np.exp(y*(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)))
+                               *(np.exp(y*(complex(-np.pi * (VEr_au**2 + WEr_au**2),
+                                                   p_au**2/2 + E_fin_au - Er_au)))
                                *np.exp(1j*A0L*p_au /4 * np.exp(1j*phi)
                                                       * np.exp(-sigma_L**2 * omega_au**2 / 2)
                                        * erf((x-delta_t_au-1j*sigma_L**2*omega_au)
@@ -343,7 +347,7 @@ elif (Lshape == "gauss"):
                                       )
                                )
 
-res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
+res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * (VEr_au**2 + WEr_au**2) + 1j*(Er_au))) \
                            * IR_during(t2)
 
 if (integ == 'romberg'):
@@ -355,11 +359,11 @@ elif (integ == 'analytic'):
                            (inner_int_part(t_au,t_au) - inner_int_part(t1,t1))
 
 
-res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
+res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* (VEr_au**2 + WEr_au**2) + 1j*Er_au)) \
                            * res_inner(t1)
 
 # after the pulse
-res_inner_after = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
+res_inner_after = lambda t2: np.exp(-t2 * (np.pi * (VEr_au**2 + WEr_au**2) + 1j*(Er_au))) \
                              * IR_after(t2)
 
 if (integ == 'romberg'):
@@ -370,7 +374,7 @@ elif (integ == 'analytic'):
     res_inner_a = lambda t1: inner_prefac(delta_t_au + TL_au/2,t_au) * \
                            (inner_int_part(delta_t_au + TL_au/2,t_au) - inner_int_part(t1,t1))
 
-res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
+res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* (VEr_au**2 + WEr_au**2) + 1j*Er_au)) \
                            * res_inner_a(t1)
 
 #-------------------------------------------------------------------------
@@ -405,6 +409,7 @@ prefac_dir1 = 1j * aV * cdg_au_V
 prefac_dir2 = 1j * aW * cdg_au_W
 
 
+
 #-------------------------------------------------------------------------
 # loop over the delta between pulses
 #while (delta_t_au <= TL_au/2 - TX_au/2):
@@ -425,7 +430,6 @@ while (delta_t_au <= delta_t_max):
 
 # integral 1
         if (integ_outer == "quadrature"):
-            VEr_au = VEr_au_1
             E_fin_au = E_fin_au_1
 
             I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
@@ -435,7 +439,6 @@ while (delta_t_au <= delta_t_max):
             res_J1 = prefac_res1 * res_I[0]
             indir_J1 = prefac_indir1 * res_I[0]
 
-            VEr_au = WEr_au
             E_fin_au = E_fin_au_2
 
             I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
@@ -446,7 +449,6 @@ while (delta_t_au <= delta_t_max):
             indir_J2 = prefac_indir2 * res_I[0]
 
         elif (integ_outer == "romberg"):
-            VEr_au = VEr_au_1
             E_fin_au = E_fin_au_1
 
             I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
@@ -456,7 +458,6 @@ while (delta_t_au <= delta_t_max):
             res_J1 = prefac_res1 * res_I
             indir_J1 = prefac_indir1 * res_I
 
-            VEr_au = WEr_au
             E_fin_au = E_fin_au_2
 
             I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
