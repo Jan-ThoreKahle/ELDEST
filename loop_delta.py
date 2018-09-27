@@ -66,7 +66,7 @@ if (X_sinsq):
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
     FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
-    FWHM_I    = np.sqrt(2) * 2 * np.sqrt( 2 * np.log(2)) * sigma
+    FWHM_I    = 2 * np.sqrt( 2 * np.log(2)) * sigma / np.sqrt(2)
     TX_au     = 5 * sigma
     print 'sigma = ', sciconv.atu_to_second(sigma)
     print 'FWHM = ', sciconv.atu_to_second(FWHM)
