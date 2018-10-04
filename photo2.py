@@ -313,19 +313,21 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
 
 # integral 1
-        I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+        if (integ_outer == "quadrature"):
+            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
-        dir_J = prefac_dir * I1[0]
-        res_J = prefac_res * res_I[0]
-        indir_J = prefac_indir * res_I[0]
+            dir_J = prefac_dir * I1[0]
+            res_J = prefac_res * res_I[0]
+            indir_J = prefac_indir * res_I[0]
         
-#        I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-#        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-#
-#        dir_J = prefac_dir * I1
-#        res_J = prefac_res * res_I
-#        indir_J = prefac_indir * res_I
+        elif (integ_outer == "romberg"):
+            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+            dir_J = prefac_dir * I1
+            res_J = prefac_res * res_I
+            indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J
