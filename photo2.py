@@ -233,9 +233,16 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-prefac_res = VEr_au * rdg_au
-prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
-prefac_dir = 1j * cdg_au
+aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
+aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
+
+prefac_res1 = aV * VEr_au * rdg_au
+prefac_res2 = aW * WEr_au * rdg_au
+prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
+prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
+#prefac_indir = 0
+prefac_dir1 = 1j * aV * cdg_au_V
+prefac_dir2 = 1j * aW * cdg_au_W
 
 
 #-------------------------------------------------------------------------
