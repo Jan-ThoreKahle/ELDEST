@@ -301,8 +301,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
 while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
-    outfile.write('between the pulses \n')
-    print 'between the pulses'
+    outfile.write('after the XUV pulse \n')
+    print 'after the XUV pulse'
 
     outlines = []
     squares = np.array([])
@@ -314,25 +314,47 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 
 # integral 1
         if (integ_outer == "quadrature"):
+            E_fin_au = E_fin_au_1
+
             I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
-            dir_J = prefac_dir * I1[0]
-            res_J = prefac_res * res_I[0]
-            indir_J = prefac_indir * res_I[0]
+            dir_J1 = prefac_dir1 * I1[0]
+            res_J1 = prefac_res1 * res_I[0]
+            indir_J1 = prefac_indir1 * res_I[0]
+
+            E_fin_au = E_fin_au_2
+
+            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+
+            dir_J2 = prefac_dir2 * I1[0]
+            res_J2 = prefac_res2 * res_I[0]
+            indir_J2 = prefac_indir2 * res_I[0]
         
         elif (integ_outer == "romberg"):
+            E_fin_au = E_fin_au_1
+
             I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
     
-            dir_J = prefac_dir * I1
-            res_J = prefac_res * res_I
-            indir_J = prefac_indir * res_I
+            dir_J1 = prefac_dir1 * I1
+            res_J1 = prefac_res1 * res_I
+            indir_J1 = prefac_indir1 * res_I
+
+            E_fin_au = E_fin_au_2
+
+            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+            dir_J2 = prefac_dir2 * I1
+            res_J2 = prefac_res2 * res_I
+            indir_J2 = prefac_indir2 * res_I
 
         J = (0
-             + dir_J
-             + res_J
-             + indir_J
+             + dir_J1 + dir_J2
+             + res_J1 + dir_J2
+             + indir_J1 + indir_J2
              )
 
         square = np.absolute(J)**2
