@@ -21,7 +21,7 @@ import complex_integration as ci
 import pulses
 import in_out
 import sys
-from scipy.special import erf
+import warnings
 
 
 # don't print warnings unless python -W ... is used
@@ -210,13 +210,14 @@ elif (integ == 'analytic'):
     res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                                     - np.pi * (VEr_au**2 + WEr_au**2))
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                  - np.pi * (VEr_au**2 + WEr_au**2))
+                                                  - np.pi * (VEr_au**2 + WEr_au**2)))
                               - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                 - np.pi * (VEr_au**2 + WEr_au**2)))
+                                                 - np.pi * (VEr_au**2 + WEr_au**2))))
                             * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                            )
 
-res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* (VEr_au**2 + WEr_au**2) + 1j*Er_au)) \
+res_outer_fun = lambda t1: FX_t1(t1) \
+                           * np.exp(t1 * (np.pi* (VEr_au**2 + WEr_au**2) + 1j*Er_au)) \
                            * res_inner(t1)
 
 #-------------------------------------------------------------------------
@@ -264,7 +265,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
 
-            I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
             dir_J1 = prefac_dir1 * I1[0]
@@ -281,7 +282,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             indir_J2 = prefac_indir2 * res_I[0]
 
         elif (integ_outer == "romberg"):
-            I = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
     
             dir_J1 = prefac_dir1 * I1
