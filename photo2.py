@@ -179,10 +179,10 @@ IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
 # technical defintions of functions
 
 #direct ionization
-fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                   * np.exp(1j * E_kin_au * (t1-t_au))
+fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
+                                     * np.exp(1j * E_kin_au * (t1-t_au))
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                   * np.exp(1j * E_kin_au * (t1-t_au))
+                                     * np.exp(1j * E_kin_au * (t1-t_au))
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
@@ -212,7 +212,7 @@ elif (integ == 'analytic'):
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
                                                   - np.pi * (VEr_au**2 + WEr_au**2)))
                               - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                 - np.pi * (VEr_au**2 + WEr_au**2))))
+                                                  - np.pi * (VEr_au**2 + WEr_au**2))))
                             * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                            )
 
