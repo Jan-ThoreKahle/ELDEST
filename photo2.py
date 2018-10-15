@@ -282,6 +282,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             indir_J2 = prefac_indir2 * res_I[0]
 
         elif (integ_outer == "romberg"):
+            E_fin_au = E_fin_au_1
+
             I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
     
@@ -339,6 +341,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
+        p_au = np.sqrt(2*E_kin_au)
 
 # integral 1
         if (integ_outer == "quadrature"):
