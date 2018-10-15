@@ -265,19 +265,19 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
 
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+#            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
-            dir_J1 = prefac_dir1 * I1[0]
+#            dir_J1 = prefac_dir1 * I1[0]
             res_J1 = prefac_res1 * res_I[0]
             indir_J1 = prefac_indir1 * res_I[0]
 
             E_fin_au = E_fin_au_2
 
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
+#            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
-            dir_J2 = prefac_dir2 * I1[0]
+#            dir_J2 = prefac_dir2 * I1[0]
             res_J2 = prefac_res2 * res_I[0]
             indir_J2 = prefac_indir2 * res_I[0]
 
@@ -301,7 +301,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             indir_J2 = prefac_indir2 * res_I
 
         J = (0
-             + dir_J1 + dir_J2
+#             + dir_J1 + dir_J2
              + res_J1 + res_J2
              + indir_J1 + indir_J2
              )
@@ -347,19 +347,19 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
 
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+#            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
-            dir_J1 = prefac_dir1 * I1[0]
+#            dir_J1 = prefac_dir1 * I1[0]
             res_J1 = prefac_res1 * res_I[0]
             indir_J1 = prefac_indir1 * res_I[0]
 
             E_fin_au = E_fin_au_2
 
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+#            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
-            dir_J2 = prefac_dir2 * I1[0]
+#            dir_J2 = prefac_dir2 * I1[0]
             res_J2 = prefac_res2 * res_I[0]
             indir_J2 = prefac_indir2 * res_I[0]
         
@@ -383,8 +383,8 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             indir_J2 = prefac_indir2 * res_I
 
         J = (0
-             + dir_J1 + dir_J2
-             + res_J1 + dir_J2
+#             + dir_J1 + dir_J2
+             + res_J1 + res_J2
              + indir_J1 + indir_J2
              )
 
@@ -412,55 +412,55 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 outfile.close
 pure_out.close
 
-#---------------------------------------------------------------------------------
-# write the time-independent limit at tmax_s into a file to be plotted together with the td result
-print 'Writing the time-independent limit'
-limit = open('limit.dat', mode='w')
-limit.write('\n')
-outlines = []
-#FWHM_E = 1./(2*FWHM)
-#print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
-
-t_limit = lambda x: rdg_au**2 * VEr_au**2 / ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2) \
-                   + (2 * rdg_au**2 * (x + E_fin_au - Er_au)
-                     / (q * np.pi* ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
-                   + (rdg_au**2 * (x + E_fin_au - Er_au)**2
-                     / (q**2 * np.pi**2 * VEr_au**2
-                        * ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
-
-t_limit_q = lambda x: (q + (x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2 \
-                      / (1.0 + ((x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2)
-
-t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
-                   - (cdg_au * (x + E_fin_au - Er_au)
-                      / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
-                   - 2 * np.sqrt(np.pi**2*Omega_au/3) * cdg_au \
-                     / (x + E_fin_au - Omega_au - 1j*FWHM_E) \
-                     * np.sin(TX_au*(x+E_fin_au-Omega_au-1j*FWHM_E))
-
-if (X_sinsq):
-    print 'use sinsq function'
-    envelope = lambda x: abs(A0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
-                          * (+1./(2*np.pi/TX_au - Omega_au + E_fin_au + x)
-                             +2./(Omega_au - E_fin_au - x)
-                             -1./(2*np.pi/TX_au + Omega_au - E_fin_au - x) ))**2
-elif (X_gauss):
-    print 'use gauss function'
-    envelope = lambda x: 1./2 * np.exp(-sigma**2 * (Omega_au - E_fin_au - x)**2 )
-else:
-    print 'no pulse shape selected'
-
-
-E_kin_au = E_min_au
-while (E_kin_au <= E_max_au):
-    #point = A0X**2 * np.abs(t_limit_q(E_kin_au))
-    point = t_limit_q(E_kin_au) * envelope(E_kin_au)
-    #point = t_limit_q(E_kin_au)
-    string = in_out.prep_output(point, E_kin_au, tmax_au)
-    outlines.append(string)
-
-    E_kin_au = E_kin_au + E_step_au
-
-in_out.doout_1f(limit,outlines)
-
-limit.close()
+##---------------------------------------------------------------------------------
+## write the time-independent limit at tmax_s into a file to be plotted together with the td result
+#print 'Writing the time-independent limit'
+#limit = open('limit.dat', mode='w')
+#limit.write('\n')
+#outlines = []
+##FWHM_E = 1./(2*FWHM)
+##print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
+#
+#t_limit = lambda x: rdg_au**2 * VEr_au**2 / ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2) \
+#                   + (2 * rdg_au**2 * (x + E_fin_au - Er_au)
+#                     / (q * np.pi* ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
+#                   + (rdg_au**2 * (x + E_fin_au - Er_au)**2
+#                     / (q**2 * np.pi**2 * VEr_au**2
+#                        * ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
+#
+#t_limit_q = lambda x: (q + (x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2 \
+#                      / (1.0 + ((x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2)
+#
+#t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
+#                   - (cdg_au * (x + E_fin_au - Er_au)
+#                      / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
+#                   - 2 * np.sqrt(np.pi**2*Omega_au/3) * cdg_au \
+#                     / (x + E_fin_au - Omega_au - 1j*FWHM_E) \
+#                     * np.sin(TX_au*(x+E_fin_au-Omega_au-1j*FWHM_E))
+#
+#if (X_sinsq):
+#    print 'use sinsq function'
+#    envelope = lambda x: abs(A0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
+#                          * (+1./(2*np.pi/TX_au - Omega_au + E_fin_au + x)
+#                             +2./(Omega_au - E_fin_au - x)
+#                             -1./(2*np.pi/TX_au + Omega_au - E_fin_au - x) ))**2
+#elif (X_gauss):
+#    print 'use gauss function'
+#    envelope = lambda x: 1./2 * np.exp(-sigma**2 * (Omega_au - E_fin_au - x)**2 )
+#else:
+#    print 'no pulse shape selected'
+#
+#
+#E_kin_au = E_min_au
+#while (E_kin_au <= E_max_au):
+#    #point = A0X**2 * np.abs(t_limit_q(E_kin_au))
+#    point = t_limit_q(E_kin_au) * envelope(E_kin_au)
+#    #point = t_limit_q(E_kin_au)
+#    string = in_out.prep_output(point, E_kin_au, tmax_au)
+#    outlines.append(string)
+#
+#    E_kin_au = E_kin_au + E_step_au
+#
+#in_out.doout_1f(limit,outlines)
+#
+#limit.close()
