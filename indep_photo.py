@@ -198,7 +198,7 @@ fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 
 
 
-res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * (VEr_au**2 + WEr_au**2) + 1j*(Er_au))) \
+res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * (VEr_au**2) + 1j*(Er_au))) \
                            * IR_during(t2)
 
 if (integ == 'romberg'):
@@ -208,17 +208,17 @@ elif (integ == 'quadrature'):
 elif (integ == 'analytic'):
 # analytic inner integral
     res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
-                                    - np.pi * (VEr_au**2 + WEr_au**2))
+                                    - np.pi * (VEr_au**2))
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                  - np.pi * (VEr_au**2 + WEr_au**2)))
+                                                  - np.pi * (VEr_au**2)))
                               - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                  - np.pi * (VEr_au**2 + WEr_au**2))))
+                                                  - np.pi * (VEr_au**2))))
                             * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                            )
 # check formula for res_inner!
 
 res_outer_fun = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * (np.pi* (VEr_au**2 + WEr_au**2) + 1j*Er_au)) \
+                           * np.exp(t1 * (np.pi* (VEr_au**2) + 1j*Er_au)) \
                            * res_inner(t1)
 
 #-------------------------------------------------------------------------
@@ -240,8 +240,8 @@ aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 
 prefac_res1 = aV * VEr_au * rdg_au
 prefac_res2 = aW * WEr_au * rdg_au
-prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
-prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
+prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au) * cdg_au_V
+prefac_indir2 = -1j * np.pi * WEr_au * (WEr_au) * cdg_au_W
 #prefac_indir = 0
 prefac_dir1 = 1j * aV * cdg_au_V
 prefac_dir2 = 1j * aW * cdg_au_W
@@ -265,6 +265,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 # integral 1
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
@@ -274,6 +275,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             indir_J1 = prefac_indir1 * res_I[0]
 
             E_fin_au = E_fin_au_2
+            VEr_au = WEr_au
 
             I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -284,6 +286,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
@@ -293,6 +296,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             indir_J1 = prefac_indir1 * res_I
 
             E_fin_au = E_fin_au_2
+            VEr_au = WEr_au
 
             I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -301,13 +305,15 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_J2 = prefac_res2 * res_I
             indir_J2 = prefac_indir2 * res_I
 
-        J = (0
-             + dir_J1 + dir_J2
-             + res_J1 + res_J2
-             + indir_J1 + indir_J2
-             )
+        #J = (0
+        #     + dir_J1 + dir_J2
+        #     + res_J1 + res_J2
+        #     + indir_J1 + indir_J2
+        #     )
+        J1 = dir_J1 + res_J1 + indir_J1
+        J2 = dir_J2 + res_J2 + indir_J2
 
-        square = np.absolute(J)**2
+        square = np.absolute(J1)**2 + np.absolute(J2)**2
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
@@ -347,6 +353,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 # integral 1
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -356,6 +363,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             indir_J1 = prefac_indir1 * res_I[0]
 
             E_fin_au = E_fin_au_2
+            VEr_au = WEr_au
 
             I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -366,6 +374,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
         
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -375,6 +384,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             indir_J1 = prefac_indir1 * res_I
 
             E_fin_au = E_fin_au_2
+            VEr_au = WEr_au
 
             I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -383,13 +393,16 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             res_J2 = prefac_res2 * res_I
             indir_J2 = prefac_indir2 * res_I
 
-        J = (0
-             + dir_J1 + dir_J2
-             + res_J1 + res_J2
-             + indir_J1 + indir_J2
-             )
+        #J = (0
+        #     + dir_J1 + dir_J2
+        #     + res_J1 + res_J2
+        #     + indir_J1 + indir_J2
+        #     )
 
-        square = np.absolute(J)**2
+        J1 = dir_J1 + res_J1 + indir_J1
+        J2 = dir_J2 + res_J2 + indir_J2
+
+        square = np.absolute(J1)**2 + np.absolute(J2)**2
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
