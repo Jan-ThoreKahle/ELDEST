@@ -360,9 +360,9 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
-            dir_J2 = 2 * prefac_dir2 * I1[0]
-            res_J2 = 2 * prefac_res2 * res_I[0]
-            indir_J2 = 2 * prefac_indir2 * res_I[0]
+            dir_J2   = prefac_dir2 * I1[0]
+            res_J2   = prefac_res2 * res_I[0]
+            indir_J2 = prefac_indir2 * res_I[0]
         
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
@@ -379,9 +379,9 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
     
-            dir_J2 = 2 * prefac_dir2 * I1
-            res_J2 = 2 * prefac_res2 * res_I
-            indir_J2 = 2 * prefac_indir2 * res_I
+            dir_J2   = prefac_dir2 * I1
+            res_J2   = prefac_res2 * res_I
+            indir_J2 = prefac_indir2 * res_I
 
         J = (0
              + dir_J1 + dir_J2
