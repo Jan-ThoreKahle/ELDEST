@@ -280,8 +280,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             E_fin_au = E_fin_au_2
             VEr_au = WEr_au
 
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
             dir_J2 = prefac_dir2 * I1[0]
             res_J2 = prefac_res2 * res_I[0]
@@ -301,8 +301,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             E_fin_au = E_fin_au_2
             VEr_au = WEr_au
 
-            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
     
             dir_J2 = prefac_dir2 * I1
             res_J2 = prefac_res2 * res_I
