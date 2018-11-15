@@ -275,6 +275,38 @@ E3 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
 E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
      - np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 np.sin(phi1/2)
 
+prefacI1 = 1j * cdg_au
+prefacI2 = (  V_plus**3 * (E3-E_minus)**2 * rdg_au
+            + V_plus**2 * V_minus * (E3 - E_plus) * (E3 - E_minus) * rdg_au
+            + np.pi * V_plus**3 * (E3 - E_plus) * (E3 - E_minus)**2 * cdg_au
+            + V_plus * V_minus**2 * (E3 - E_plus) * (E3 - E_minus) * rdg_au
+            + V_minus**3 * (E3 - E_plus)**2 * rdg_au
+            + np.pi * V_minus**3 * (E3 - E_plus)**2 * (E3 - E_minus) * cdg_au) \
+           * 2 * np.pi * np.exp(1j*phi/2) \
+           / (np.sqrt(r1) * (np.pi* (V_plus**2 + V_minus**2) + np.sqrt(r1) * np.sin(phi1/2))
+              * (np.sqrt(r1) * np.cos(phi1/2) - 1j*np.pi * (V_plus**2 + V_minus**2))
+             )
+prefacI3a = (  V_plus**3 * (E4-E_minus)**2 * rdg_au
+             + V_plus**2 * V_minus * (E4 - E_plus) * (E4 - E_minus) * rdg_au
+             + np.pi * V_plus**3 * (E4 - E_plus) * (E4 - E_minus)**2 * cdg_au
+             + V_plus * V_minus**2 * (E4 - E_plus) * (E4 - E_minus) * rdg_au
+             + V_minus**3 * (E4 - E_plus)**2 * rdg_au
+             + np.pi * V_minus**3 * (E4 - E_plus)**2 * (E4 - E_minus) * cdg_au) \
+            * 2 * np.pi * np.exp(1j*phi/2) \
+            / (np.sqrt(r1) * (np.pi* (V_plus**2 + V_minus**2) - np.sqrt(r1) * np.sin(phi1/2))
+               * (np.sqrt(r1) * np.cos(phi1/2) + 1j*np.pi * (V_plus**2 + V_minus**2))
+              )
+prefacI3b = (  V_plus**3 * (E2-E_minus)**2 * rdg_au
+             + V_plus**2 * V_minus * (E2 - E_plus) * (E2 - E_minus) * rdg_au
+             + np.pi * V_plus**3 * (E2 - E_plus) * (E2 - E_minus)**2 * cdg_au
+             + V_plus * V_minus**2 * (E2 - E_plus) * (E2 - E_minus) * rdg_au
+             + V_minus**3 * (E2 - E_plus)**2 * rdg_au
+             + np.pi * V_minus**3 * (E2 - E_plus)**2 * (E2 - E_minus) * cdg_au) \
+            * 2 * np.pi * np.exp(-1j*phi/2) \
+            / (np.sqrt(r1) * (np.pi* (V_plus**2 + V_minus**2) - np.sqrt(r1) * np.sin(phi1/2))
+               * (-np.sqrt(r1) * np.cos(phi1/2) + 1j*np.pi * (V_plus**2 + V_minus**2))
+              )
+
 #aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #
