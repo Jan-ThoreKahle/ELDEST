@@ -262,6 +262,11 @@ A_b_minus =  (1 /
 V_plus  = VEr_a_au * A_a_plus + VEr_b_au * A_b_plus
 V_minus = VEr_a_au * A_a_minus + VEr_b_au * A_b_minus
 
+r1 = np.sqrt(((E_plus - E_minus)**2 - (np.pi*V_plus**2 + np.pi*V_minus**2)**2)**2
+             + 4*np.pi**2 * (E_plus - E_minus)**2 * (V_plus**2 + V_minus**2)**2)
+phi1 = np.arctan(2*np.pi * (E_plus - E_minus) * (V_plus**2 - V_minus**2)
+                / ((E_plus - E_minus)**2 - np.pi**2 * (V_plus**2 + V_minus**2)))
+
 #aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #
