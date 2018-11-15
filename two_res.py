@@ -242,16 +242,32 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
-aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
-
-prefac_res1 = aV * VEr_au * rdg_au
-prefac_res2 = aW * WEr_au * rdg_au
-prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
-prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
-#prefac_indir = 0
-prefac_dir1 = 1j * aV * cdg_au_V
-prefac_dir2 = 1j * aW * cdg_au_W
+# diagonalized properties
+E_plus  = (Er_a_au + Er_b_au) / 2 + np.sqrt( (Er_a_au - Er_b_au)**2/4 + interact_au )
+E_minus = (Er_a_au + Er_b_au) / 2 - np.sqrt( (Er_a_au - Er_b_au)**2/4 + interact_au )
+# transformation matrix
+A_a_plus  = - ((Er_a_au - E_plus + interact_au) /
+              (np.sqrt((Er_a_au - E_plus + interact_au)**2
+                     + (Er_b_au - E_plus + interact_au)**2) ))
+A_b_plus  =  (1 /
+             (np.sqrt(1 + (Er_b_au - E_plus + interact_au)**2
+                        / (Er_a_au - E_plus + interact_au)**2) ))
+A_a_minus = - ((Er_b_au - E_minus + interact_au) /
+             (np.sqrt((Er_a_au - E_minus + interact_au)**2
+                    + (Er_b_au - E_minus + interact_au)**2) ))
+A_b_minus =  (1 /
+            (np.sqrt(1 + (Er_b_au - E_minus + interact_au)**2
+                       / (Er_a_au - E_minus + interact_au)**2) ))
+#aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
+#aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
+#
+#prefac_res1 = aV * VEr_au * rdg_au
+#prefac_res2 = aW * WEr_au * rdg_au
+#prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
+#prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
+##prefac_indir = 0
+#prefac_dir1 = 1j * aV * cdg_au_V
+#prefac_dir2 = 1j * aW * cdg_au_W
 
 
 #-------------------------------------------------------------------------
