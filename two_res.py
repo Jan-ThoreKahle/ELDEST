@@ -267,6 +267,14 @@ r1 = np.sqrt(((E_plus - E_minus)**2 - (np.pi*V_plus**2 + np.pi*V_minus**2)**2)**
 phi1 = np.arctan(2*np.pi * (E_plus - E_minus) * (V_plus**2 - V_minus**2)
                 / ((E_plus - E_minus)**2 - np.pi**2 * (V_plus**2 + V_minus**2)))
 
+# auxiliary energies
+E2 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+     - np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 np.sin(phi1/2)
+E2 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+     + np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 np.sin(phi1/2)
+E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+     - np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 np.sin(phi1/2)
+
 #aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #
