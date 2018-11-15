@@ -205,7 +205,7 @@ fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
 
 
 
-res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * (VEr_au**2 + WEr_au**2) + 1j*(Er_au))) \
+res_inner_fun = lambda t2: np.exp(-t2 * 1j*(Er_au)) \
                            * IR_during(t2)
 
 if (integ == 'romberg'):
@@ -214,18 +214,17 @@ elif (integ == 'quadrature'):
     res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
 elif (integ == 'analytic'):
 # analytic inner integral
-    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
-                                    - np.pi * (VEr_au**2 + WEr_au**2))
+    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au))
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                  - np.pi * (VEr_au**2 + WEr_au**2)))
+                                                  ))
                               - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                  - np.pi * (VEr_au**2 + WEr_au**2))))
+                                                  )))
                             * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                            )
 # check formula for res_inner!
 
 res_outer_fun = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * (np.pi* (VEr_au**2 + WEr_au**2) + 1j*Er_au)) \
+                           * np.exp(t1 * Er_au) \
                            * res_inner(t1)
 
 #-------------------------------------------------------------------------
