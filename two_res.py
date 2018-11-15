@@ -258,6 +258,10 @@ A_a_minus = - ((Er_b_au - E_minus + interact_au) /
 A_b_minus =  (1 /
             (np.sqrt(1 + (Er_b_au - E_minus + interact_au)**2
                        / (Er_a_au - E_minus + interact_au)**2) ))
+#diagonalized lifetimes
+V_plus  = VEr_a_au * A_a_plus + VEr_b_au * A_b_plus
+V_minus = VEr_a_au * A_a_minus + VEr_b_au * A_b_minus
+
 #aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 #
