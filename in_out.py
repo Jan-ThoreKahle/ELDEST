@@ -22,9 +22,12 @@ def read_input(inputfile, outfile):
     q            = 1
     # parameters of the investigated system
     # the ground state energy is being defined as Eg = 0
-    Er_eV         =  150.0        # resonance energy in eV
+    Er_a_eV       =  150.0        # resonance energy in eV
+    Er_b_eV       =    0.0
+    tau_a_s       =  0.0
+    tau_b_s       =  0.0
     E_fin_eV      =  70.0         # final state energy in eV
-    tau_s         =  2.5E-15      # lifetime
+    tau_s         =  0.0      # lifetime
     E_fin_eV_2    =  0.0
     tau_s_2       =  0.0
     #
@@ -72,10 +75,14 @@ def read_input(inputfile, outfile):
             outfile.write('cdg_au = ' + str(cdg_au) + '\n')
     
     # energy parameters of the system
-        elif (words[0] == 'Er_eV'):
-            Er_eV = float(words[2])
-            print 'Er_eV = ', Er_eV
-            outfile.write('Er_eV = ' + str(Er_eV) + '\n')
+        elif (words[0] == 'Er_a_eV'):
+            Er_a_eV = float(words[2])
+            print 'Er_a_eV = ', Er_a_eV
+            outfile.write('Er_a_eV = ' + str(Er_a_eV) + '\n')
+        elif (words[0] == 'Er_b_eV'):
+            Er_b_eV = float(words[2])
+            print 'Er_b_eV = ', Er_b_eV
+            outfile.write('Er_b_eV = ' + str(Er_b_eV) + '\n')
         elif (words[0] == 'E_fin_eV'):
             E_fin_eV = float(words[2])
             print 'E_fin_eV = ', E_fin_eV
@@ -88,10 +95,22 @@ def read_input(inputfile, outfile):
             E_fin_eV_2 = float(words[2])
             print 'E_fin_eV_2 = ', E_fin_eV_2
             outfile.write('E_fin_eV_2 = ' + str(E_fin_eV_2) + '\n')
+        elif (words[0] == 'tau_a_s'):
+            tau_a_s = float(words[2])
+            print 'tau_a_s = ', tau_a_s
+            outfile.write('tau_a_s = ' + str(tau_a_s) + '\n')
+        elif (words[0] == 'tau_b_s'):
+            tau_b_s = float(words[2])
+            print 'tau_b_s = ', tau_b_s
+            outfile.write('tau_b_s = ' + str(tau_b_s) + '\n')
         elif (words[0] == 'tau_s_2'):
             tau_s_2 = float(words[2])
             print 'tau_s_2 = ', tau_s_2
             outfile.write('tau_s_2 = ' + str(tau_s_2) + '\n')
+        elif (words[0] == 'interact_eV'):
+            interact_eV = float(words[2])
+            print 'interact_eV = ', interact_eV
+            outfile.write('interact_eV = ' + str(interact_eV) + '\n')
     
     # exciting laser parameters
         elif (words[0] == 'Omega_eV'):
@@ -224,7 +243,8 @@ def read_input(inputfile, outfile):
     
     f.close()
     return (rdg_au, cdg_au,
-            Er_eV, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+            Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+            interact_eV,
             Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
             omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
             tmax_s, timestep_s, E_step_eV,
