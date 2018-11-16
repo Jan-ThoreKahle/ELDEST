@@ -439,8 +439,6 @@ if (np.imag(E4 > 0):
             outlines.append(string)
             
             E_kin_au = E_kin_au + E_step_au
-    
-        
         
         in_out.doout_1f(pure_out,outlines)
         max_pos = argrelextrema(squares, np.greater)[0]
@@ -451,6 +449,137 @@ if (np.imag(E4 > 0):
     
         t_au = t_au + timestep_au
 
+elif (np.imag(E2 > 0):
+
+#-------------------------------------------------------------------------
+    while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
+#-------------------------------------------------------------------------
+        outfile.write('during the first pulse \n')
+        print 'during the first pulse'
+    
+        outlines = []
+        squares = np.array([])
+        E_kin_au = E_min_au
+        
+        print 't_s = ', sciconv.atu_to_second(t_au)
+        outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+        while (E_kin_au <= E_max_au):
+            p_au = np.sqrt(2*E_kin_au)
+    
+# integral 1
+            if (integ_outer == "quadrature"):
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                dir_J1 = prefacI1 * I1[0]
+
+                Er_au = E3
+                I2 = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+                res_J2 = prefacI2 * I2[0]
+
+                Er_au = E2
+                I3b = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+                res_J3b = prefacI3b * I3b[0]
+    
+            elif (integ_outer == "romberg"):
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                dir_J1 = prefacI1 * I1[0]
+
+                Er_au = E3
+                I2 = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                res_J2 = prefacI2 * I2[0]
+
+                Er_au = E2
+                I3b = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                res_J3b = prefacI3b * I3b[0]
+    
+            J = (0
+                 + dir_J1
+                 + res_J2
+                 + res_J3b
+                 )
+    
+            square = np.absolute(J)**2
+            squares = np.append(squares, square)
+    
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
+            
+            E_kin_au = E_kin_au + E_step_au
+        
+        
+        in_out.doout_1f(pure_out, outlines)
+        max_pos = argrelextrema(squares, np.greater)[0]
+        if (len(max_pos > 0)):
+            for i in range (0, len(max_pos)):
+                print Ekins[max_pos[i]], squares[max_pos[i]]
+                outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+        
+    
+        t_au = t_au + timestep_au
+
+
+
+
+#-------------------------------------------------------------------------
+    while (t_au >= TX_au/2 and (t_au <= tmax_au)):
+#-------------------------------------------------------------------------
+        outfile.write('after the XUV pulse \n')
+        print 'after the XUV pulse'
+    
+        outlines = []
+        squares = np.array([])
+        E_kin_au = E_min_au
+        
+        print 't_s = ', sciconv.atu_to_second(t_au)
+        outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+        while (E_kin_au <= E_max_au):
+            p_au = np.sqrt(2*E_kin_au)
+    
+            if (integ_outer == "quadrature"):
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefacI1 * I1[0]
+
+                Er_au = E3
+                I2 = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+                res_J2 = prefacI2 * I2[0]
+
+                Er_au = E2
+                I3b = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+                res_J3b = prefacI3b * I3b[0]
+    
+            elif (integ_outer == "romberg"):
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefacI1 * I1[0]
+
+                Er_au = E3
+                I2 = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+                res_J2 = prefacI2 * I2[0]
+
+                Er_au = E2
+                I3b = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+                res_J3b = prefacI3b * I3b[0]
+    
+            J = (0
+                 + dir_J1
+                 + res_J2
+                 + res_J3b
+                 )
+    
+            square = np.absolute(J)**2
+            squares = np.append(squares, square)
+    
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
+            
+            E_kin_au = E_kin_au + E_step_au
+        
+        in_out.doout_1f(pure_out,outlines)
+        max_pos = argrelextrema(squares, np.greater)[0]
+        if (len(max_pos > 0)):
+            for i in range (0, len(max_pos)):
+                print Ekins[max_pos[i]], squares[max_pos[i]]
+                outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+    
+        t_au = t_au + timestep_au
 
 
 outfile.close
