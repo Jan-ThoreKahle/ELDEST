@@ -317,7 +317,7 @@ prefacI3b = (  V_plus**3 * (E2-E_minus)**2 * rdg_au
 #prefac_dir1 = 1j * aV * cdg_au_V
 #prefac_dir2 = 1j * aW * cdg_au_W
 
-if (np.imag(E4 > 0):
+if (np.imag(E4) > 0):
 
 #-------------------------------------------------------------------------
     while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
@@ -449,7 +449,7 @@ if (np.imag(E4 > 0):
     
         t_au = t_au + timestep_au
 
-elif (np.imag(E2 > 0):
+elif (np.imag(E2) > 0):
 
 #-------------------------------------------------------------------------
     while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
