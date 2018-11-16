@@ -131,10 +131,10 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_a_au)
 
 
 #-------------------------------------------------------------------------
-in_out.check_input(Er_au, E_fin_au, Gamma_au,
-                   Omega_au, TX_au, n_X, A0X,
-                   omega_au, TL_au, A0L, delta_t_au,
-                   tmax_au, timestep_au, E_step_au)
+#in_out.check_input(Er_au, E_fin_au, Gamma_au,
+#                   Omega_au, TX_au, n_X, A0X,
+#                   omega_au, TL_au, A0L, delta_t_au,
+#                   tmax_au, timestep_au, E_step_au)
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # functions for the shape of the XUV pulse
@@ -268,11 +268,11 @@ phi1 = np.arctan(2*np.pi * (E_plus - E_minus) * (V_plus**2 - V_minus**2)
 
 # auxiliary energies
 E2 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     - np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 np.sin(phi1/2)
+     - np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 * np.sin(phi1/2)
 E3 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     + np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 np.sin(phi1/2)
+     + np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 * np.sin(phi1/2)
 E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     - np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 np.sin(phi1/2)
+     - np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 * np.sin(phi1/2)
 
 prefacI1 = 1j * cdg_au
 prefacI2 = (  V_plus**3 * (E3-E_minus)**2 * rdg_au
@@ -306,16 +306,6 @@ prefacI3b = (  V_plus**3 * (E2-E_minus)**2 * rdg_au
                * (-np.sqrt(r1) * np.cos(phi1/2) + 1j*np.pi * (V_plus**2 + V_minus**2))
               )
 
-#aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
-#aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
-#
-#prefac_res1 = aV * VEr_au * rdg_au
-#prefac_res2 = aW * WEr_au * rdg_au
-#prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
-#prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
-##prefac_indir = 0
-#prefac_dir1 = 1j * aV * cdg_au_V
-#prefac_dir2 = 1j * aW * cdg_au_W
 
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
