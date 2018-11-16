@@ -27,9 +27,9 @@ def read_input(inputfile, outfile):
     tau_a_s       =  0.0
     tau_b_s       =  0.0
     E_fin_eV      =  70.0         # final state energy in eV
-    tau_s         =  0.0      # lifetime
+    tau_s         =  4.0E-16      # lifetime
     E_fin_eV_2    =  0.0
-    tau_s_2       =  0.0
+    tau_s_2       =  4.0E-16
     #
     # laser parameters
     Omega_eV      = 150.0         #
