@@ -244,6 +244,10 @@ while (E_kin_au <= E_max_au):
 # diagonalized properties
 E_plus  = (Er_a_au + Er_b_au) / 2 + np.sqrt( (Er_a_au - Er_b_au)**2/4 + interact_au )
 E_minus = (Er_a_au + Er_b_au) / 2 - np.sqrt( (Er_a_au - Er_b_au)**2/4 + interact_au )
+print "E_plus = ", sciconv.hartree_to_ev(E_plus)
+print "E_minus = ", sciconv.hartree_to_ev(E_minus)
+outfile.write('E_plus = ' + str(sciconv.hartree_to_ev(E_plus)) + '\n')
+outfile.write('E_minus = ' + str(sciconv.hartree_to_ev(E_minus)) + '\n')
 # transformation matrix
 A_a_plus  = - ((Er_a_au - E_plus + interact_au) /
               (np.sqrt((Er_a_au - E_plus + interact_au)**2
@@ -273,6 +277,9 @@ E3 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
      + np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 * np.sin(phi1/2)
 E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
      - np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 * np.sin(phi1/2)
+print "E2 = ", sciconv.hartree_to_ev(np.real(E2)), sciconv.hartree_to_ev(np.imag(E2))
+print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag(E3))
+print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
 
 prefacI1 = 1j * cdg_au
 prefacI2 = (  V_plus**3 * (E3-E_minus)**2 * rdg_au
@@ -310,7 +317,7 @@ prefacI3b = (  V_plus**3 * (E2-E_minus)**2 * rdg_au
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
-if (np.imag(E4) > 0):
+if (np.imag(E4) < 0):
     outfile.write('pole of E4 \n')
     print 'pole of E4'
 #-------------------------------------------------------------------------
@@ -422,8 +429,8 @@ if (np.imag(E4) > 0):
     
             J = (0
                  + dir_J1
-                 + res_J2
-                 + res_J3a
+                 #+ res_J2
+                 #+ res_J3a
                  )
     
             square = np.absolute(J)**2
@@ -446,7 +453,7 @@ if (np.imag(E4) > 0):
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
-elif (np.imag(E2) > 0):
+elif (np.imag(E2) < 0):
     outfile.write('pole of E2 \n')
     print 'pole of E2'
 #-------------------------------------------------------------------------
