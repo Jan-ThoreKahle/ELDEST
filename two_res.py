@@ -127,7 +127,6 @@ VEr_b_au      = np.sqrt(Gamma_b_au/ (2*np.pi))
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_a_au)
-#cdg_au_W = rdg_au / ( q * np.pi * WEr_au)
 
 
 #-------------------------------------------------------------------------
@@ -249,10 +248,10 @@ print "E_minus = ", sciconv.hartree_to_ev(E_minus)
 outfile.write('E_plus = ' + str(sciconv.hartree_to_ev(E_plus)) + '\n')
 outfile.write('E_minus = ' + str(sciconv.hartree_to_ev(E_minus)) + '\n')
 # transformation matrix
-A_a_plus  = - ((Er_a_au - E_plus + interact_au) /
-              (np.sqrt((Er_a_au - E_plus + interact_au)**2
+A_a_plus  =  ((Er_a_au - E_plus + interact_au) /
+             (np.sqrt((Er_a_au - E_plus + interact_au)**2
                      + (Er_b_au - E_plus + interact_au)**2) ))
-A_b_plus  =  (1 /
+A_b_plus  = -(1 /
              (np.sqrt(1 + (Er_b_au - E_plus + interact_au)**2
                         / (Er_a_au - E_plus + interact_au)**2) ))
 A_a_minus = - ((Er_b_au - E_minus + interact_au) /
