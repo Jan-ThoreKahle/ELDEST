@@ -289,7 +289,7 @@ print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag
 print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
 
 prefacI1 = 1j * cdg_au
-prefacE1 = (  V_plus**3 * (E1-E_minus)**2 * plusdg
+prefacE1 = -(  V_plus**3 * (E1-E_minus)**2 * plusdg
             + V_plus**2 * V_minus * (E1 - E_plus) * (E1 - E_minus) * minusdg
             + np.pi * V_plus**3 * (E1 - E_plus) * (E1 - E_minus)**2 * cdg_au
             + V_plus * V_minus**2 * (E1 - E_plus) * (E1 - E_minus) * plusdg
@@ -297,7 +297,7 @@ prefacE1 = (  V_plus**3 * (E1-E_minus)**2 * plusdg
             + np.pi * V_minus**3 * (E1 - E_plus)**2 * (E1 - E_minus) * cdg_au) \
            * 2j * np.pi \
            / ( (E1-E2) * (E1-E3) * (E1-E4) )
-prefacE2 = (  V_plus**3 * (E2-E_minus)**2 * plusdg
+prefacE2 = -(  V_plus**3 * (E2-E_minus)**2 * plusdg
             + V_plus**2 * V_minus * (E2 - E_plus) * (E2 - E_minus) * minusdg
             + np.pi * V_plus**3 * (E2 - E_plus) * (E2 - E_minus)**2 * cdg_au
             + V_plus * V_minus**2 * (E2 - E_plus) * (E2 - E_minus) * plusdg
@@ -305,7 +305,7 @@ prefacE2 = (  V_plus**3 * (E2-E_minus)**2 * plusdg
             + np.pi * V_minus**3 * (E2 - E_plus)**2 * (E2 - E_minus) * cdg_au) \
            * 2j * np.pi \
            / ( (E2-E1) * (E2-E3) * (E2-E4) )
-prefacE3 = (  V_plus**3 * (E3-E_minus)**2 * plusdg
+prefacE3 = -(  V_plus**3 * (E3-E_minus)**2 * plusdg
             + V_plus**2 * V_minus * (E3 - E_plus) * (E3 - E_minus) * minusdg
             + np.pi * V_plus**3 * (E3 - E_plus) * (E3 - E_minus)**2 * cdg_au
             + V_plus * V_minus**2 * (E3 - E_plus) * (E3 - E_minus) * plusdg
@@ -313,7 +313,7 @@ prefacE3 = (  V_plus**3 * (E3-E_minus)**2 * plusdg
             + np.pi * V_minus**3 * (E3 - E_plus)**2 * (E3 - E_minus) * cdg_au) \
            * 2j * np.pi \
            / ( (E3-E1) * (E3-E2) * (E3-E4) )
-prefacE4 = (  V_plus**3 * (E4-E_minus)**2 * plusdg
+prefacE4 = -(  V_plus**3 * (E4-E_minus)**2 * plusdg
             + V_plus**2 * V_minus * (E4 - E_plus) * (E4 - E_minus) * minusdg
             + np.pi * V_plus**3 * (E4 - E_plus) * (E4 - E_minus)**2 * cdg_au
             + V_plus * V_minus**2 * (E4 - E_plus) * (E4 - E_minus) * plusdg
@@ -369,7 +369,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
             dir_J1 = prefacI1 * I1[0]
 
-            Er_au = E3
+            Er_au = E_res1
             I2 = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
             res_J2 = prefacI2 * I2[0]
 
@@ -381,11 +381,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
             dir_J1 = prefacI1 * I1[0]
 
-            Er_au = E3
+            Er_au = E_res1
             I2 = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
             res_J2 = prefacI2 * I2[0]
 
-            Er_au = E4
+            Er_au = E_res2
             I3 = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
             res_J3 = prefacI3 * I3[0]
 
@@ -436,7 +436,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
             dir_J1 = prefacI1 * I1[0]
 
-            Er_au = E3
+            Er_au = E_res1
             I2 = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
             res_J2 = prefacI2 * I2[0]
 
@@ -448,7 +448,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
             dir_J1 = prefacI1 * I1[0]
 
-            Er_au = E3
+            Er_au = E_res1
             I2 = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
             res_J2 = prefacI2 * I2[0]
 
