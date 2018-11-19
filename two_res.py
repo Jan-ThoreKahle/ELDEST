@@ -224,7 +224,7 @@ elif (integ == 'analytic'):
 # check formula for res_inner!
 
 res_outer_fun = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * Er_au) \
+                           * np.exp(t1 * 1j*Er_au) \
                            * res_inner(t1)
 
 #-------------------------------------------------------------------------
