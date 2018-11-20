@@ -70,6 +70,10 @@ tau_au         = sciconv.second_to_atu(tau_s)
 
 Gamma_a_au       = 1. / tau_a_au
 Gamma_b_au       = 1. / tau_b_au
+print 'Gamma_a_eV = ', sciconv.hartree_to_ev(Gamma_a_au)
+print 'Gamma_b_eV = ', sciconv.hartree_to_ev(Gamma_b_au)
+outfile.write('Gamma_a_eV = ' + str(sciconv.hartree_to_ev(Gamma_a_au)) + '\n')
+outfile.write('Gamma_b_eV = ' + str(sciconv.hartree_to_ev(Gamma_b_au)) + '\n')
 
 Gamma_au       = 1. / tau_au
 Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
@@ -122,6 +126,7 @@ E_step_au = sciconv.ev_to_hartree(E_step_eV)
 E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
+VEr_au        = np.sqrt(Gamma_a_au/ (2*np.pi))
 VEr_a_au      = np.sqrt(Gamma_a_au/ (2*np.pi))
 VEr_b_au      = np.sqrt(Gamma_b_au/ (2*np.pi))
 
@@ -239,6 +244,8 @@ while (E_kin_au <= E_max_au):
 
 
 #-------------------------------------------------------------------------
+print '-------------------------------------------------------'
+outfile.write('-------------------------------------------------------\n')
 # constants / prefactors
 # diagonalized properties
 E_plus  = (Er_a_au + Er_b_au) / 2 + np.sqrt( (Er_a_au - Er_b_au)**2/4 + interact_au )
@@ -248,7 +255,7 @@ print "E_minus = ", sciconv.hartree_to_ev(E_minus)
 outfile.write('E_plus = ' + str(sciconv.hartree_to_ev(E_plus)) + '\n')
 outfile.write('E_minus = ' + str(sciconv.hartree_to_ev(E_minus)) + '\n')
 # transformation matrix
-A_a_plus  =  ((Er_a_au - E_plus + interact_au) /
+A_a_plus  =  ((Er_b_au - E_plus + interact_au) /
              (np.sqrt((Er_a_au - E_plus + interact_au)**2
                      + (Er_b_au - E_plus + interact_au)**2) ))
 A_b_plus  = -(1 /
@@ -263,6 +270,10 @@ A_b_minus =  (1 /
 #diagonalized lifetimes
 V_plus  = VEr_a_au * A_a_plus + VEr_b_au * A_b_plus
 V_minus = VEr_a_au * A_a_minus + VEr_b_au * A_b_minus
+print "V_plus = ", V_plus
+print "V_minus = ", V_minus
+print "VEr_a_au =", VEr_a_au
+print "VEr_b_au =", VEr_b_au
 
 r1 = np.sqrt(((E_plus - E_minus)**2 - (np.pi*V_plus**2 + np.pi*V_minus**2)**2)**2
              + 4*np.pi**2 * (E_plus - E_minus)**2 * (V_plus**2 + V_minus**2)**2)
@@ -272,6 +283,8 @@ phi1 = np.arctan(2*np.pi * (E_plus - E_minus) * (V_plus**2 - V_minus**2)
 # transition dipole moments
 plusdg  = A_a_plus * rdg_au + A_b_plus * rdg_au
 minusdg = A_a_minus * rdg_au + A_b_minus * rdg_au
+print "plusdg = ", plusdg
+print "minusdg = ", minusdg
 
 # auxiliary energies
 E1 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
@@ -287,7 +300,7 @@ print "E2 = ", sciconv.hartree_to_ev(np.real(E2)), sciconv.hartree_to_ev(np.imag
 print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag(E3))
 print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
 
-prefacI1 = 1j * cdg_au
+prefacI1 = 1j * cdg_au_V
 prefacE1 = -(  V_plus**3 * (E1-E_minus)**2 * plusdg
             + V_plus**2 * V_minus * (E1 - E_plus) * (E1 - E_minus) * minusdg
             + np.pi * V_plus**3 * (E1 - E_plus) * (E1 - E_minus)**2 * cdg_au
@@ -312,14 +325,22 @@ prefacE3 = -(  V_plus**3 * (E3-E_minus)**2 * plusdg
             + np.pi * V_minus**3 * (E3 - E_plus)**2 * (E3 - E_minus) * cdg_au) \
            * 2j * np.pi \
            / ( (E3-E1) * (E3-E2) * (E3-E4) )
-prefacE4 = -(  V_plus**3 * (E4-E_minus)**2 * plusdg
+prefacE4 = -( 0
+            + V_plus**3 * (E4-E_minus)**2 * plusdg
             + V_plus**2 * V_minus * (E4 - E_plus) * (E4 - E_minus) * minusdg
             + np.pi * V_plus**3 * (E4 - E_plus) * (E4 - E_minus)**2 * cdg_au
             + V_plus * V_minus**2 * (E4 - E_plus) * (E4 - E_minus) * plusdg
             + V_minus**3 * (E4 - E_plus)**2 * minusdg
-            + np.pi * V_minus**3 * (E4 - E_plus)**2 * (E4 - E_minus) * cdg_au) \
+            + np.pi * V_minus**3 * (E4 - E_plus)**2 * (E4 - E_minus) * cdg_au
+            ) \
            * 2j * np.pi \
            / ( (E4-E1) * (E4-E2) * (E4-E3) )
+
+#print "prefacI1 = ", prefacI1
+#print "prefacE1 = ", prefacE1
+#print "prefacE2 = ", prefacE2
+#print "prefacE3 = ", prefacE3
+#print "prefacE4 = ", prefacE4
 
 #-------------------------------------------------------------------------
 # chosing auxiliary energies with negative imaginary part
