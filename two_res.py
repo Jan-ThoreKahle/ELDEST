@@ -282,15 +282,6 @@ r1 = np.sqrt(((E_plus - E_minus)**2 - (np.pi*V_plus**2 + np.pi*V_minus**2)**2)**
 phi1 = np.arctan(2*np.pi * (E_plus - E_minus) * (V_plus**2 - V_minus**2)
                 / ((E_plus - E_minus)**2 - np.pi**2 * (V_plus**2 + V_minus**2)**2))
 
-print 'sqrt(r1) * cos(phi1/2) / 2', sciconv.hartree_to_ev(np.sqrt(r1) * np.cos(phi1/2) / 2)
-print 'sqrt(r1) * cos(phi1/2)', np.sqrt(r1) * np.cos(phi1/2)
-print 'sqrt(r1) * sin(phi1/2)', np.sqrt(r1) * np.sin(phi1/2)
-print 'np.pi/2 * (V_plus**2 + V_minus**2) = ', sciconv.hartree_to_ev(np.pi/2 * (V_plus**2 + V_minus**2))
-print "(e+ - e-)^2 = ", (E_plus - E_minus)**2
-print "pi^2 (V+^2 + V-^2)^2", np.pi**2 * (V_plus**2 + V_minus**2)**2
-print "Grenzwert = ", (E_plus - E_minus)**2 - np.pi**2 * (V_plus**2 + V_minus**2)**2
-print "Wurzel 1 = ", np.sqrt((E_plus - E_minus)**2 - np.pi**2 * (V_plus**2 + V_minus**2)**2)
-print "Wurzel 2 = ", np.sqrt((E_plus - E_minus)**2)
 
 # transition dipole moments
 plusdg  = A_a_plus * rdg_au + A_b_plus * rdg_au
@@ -308,22 +299,22 @@ root2 = np.sqrt( (E_minus - E_plus + 1j*np.pi*V_plus**2)**2
                )
 
 # auxiliary energies
-E1 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     + np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 * np.sin(phi1/2)
-E2 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     - np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 * np.sin(phi1/2)
-E3 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     + np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 * np.sin(phi1/2)
-E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     - np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 * np.sin(phi1/2)
-print "E1 = ", sciconv.hartree_to_ev(np.real(E1)), sciconv.hartree_to_ev(np.imag(E1))
-print "E2 = ", sciconv.hartree_to_ev(np.real(E2)), sciconv.hartree_to_ev(np.imag(E2))
-print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag(E3))
-print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
-outfile.write("E1 = "+str(sciconv.hartree_to_ev(np.real(E1)))+' '+str(sciconv.hartree_to_ev(np.imag(E1))) + '\n')
-outfile.write("E2 = "+str(sciconv.hartree_to_ev(np.real(E2)))+' '+str(sciconv.hartree_to_ev(np.imag(E2))) + '\n')
-outfile.write("E3 = "+str(sciconv.hartree_to_ev(np.real(E3)))+' '+str(sciconv.hartree_to_ev(np.imag(E3))) + '\n')
-outfile.write("E4 = "+str(sciconv.hartree_to_ev(np.real(E4)))+' '+str(sciconv.hartree_to_ev(np.imag(E4))) + '\n\n')
+#E1 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     + np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 * np.sin(phi1/2)
+#E2 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     - np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 * np.sin(phi1/2)
+#E3 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     + np.sqrt(r1)/2 * np.cos(phi1/2) - 1j*np.pi/2 * np.sin(phi1/2)
+#E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     - np.sqrt(r1)/2 * np.cos(phi1/2) + 1j*np.pi/2 * np.sin(phi1/2)
+#print "E1 = ", sciconv.hartree_to_ev(np.real(E1)), sciconv.hartree_to_ev(np.imag(E1))
+#print "E2 = ", sciconv.hartree_to_ev(np.real(E2)), sciconv.hartree_to_ev(np.imag(E2))
+#print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag(E3))
+#print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
+#outfile.write("E1 = "+str(sciconv.hartree_to_ev(np.real(E1)))+' '+str(sciconv.hartree_to_ev(np.imag(E1))) + '\n')
+#outfile.write("E2 = "+str(sciconv.hartree_to_ev(np.real(E2)))+' '+str(sciconv.hartree_to_ev(np.imag(E2))) + '\n')
+#outfile.write("E3 = "+str(sciconv.hartree_to_ev(np.real(E3)))+' '+str(sciconv.hartree_to_ev(np.imag(E3))) + '\n')
+#outfile.write("E4 = "+str(sciconv.hartree_to_ev(np.real(E4)))+' '+str(sciconv.hartree_to_ev(np.imag(E4))) + '\n\n')
 
 E1 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
      - root1 / 2
