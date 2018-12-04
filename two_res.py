@@ -274,6 +274,8 @@ print "V_plus = ", V_plus
 print "V_minus = ", V_minus
 print "VEr_a_au =", VEr_a_au
 print "VEr_b_au =", VEr_b_au
+outfile.write("Gamma_plus = " + str(sciconv.hartree_to_ev(2*np.pi*V_plus**2)) + '\n')
+outfile.write("Gamma_minus = " + str(sciconv.hartree_to_ev(2*np.pi*V_minus**2)) + '\n')
 
 r1 = np.sqrt(((E_plus - E_minus)**2 - (np.pi*V_plus**2 + np.pi*V_minus**2)**2)**2
              + 4*np.pi**2 * (E_plus - E_minus)**2 * (V_plus**2 - V_minus**2)**2)
@@ -318,19 +320,23 @@ print "E1 = ", sciconv.hartree_to_ev(np.real(E1)), sciconv.hartree_to_ev(np.imag
 print "E2 = ", sciconv.hartree_to_ev(np.real(E2)), sciconv.hartree_to_ev(np.imag(E2))
 print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag(E3))
 print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
+outfile.write("E1 = "+str(sciconv.hartree_to_ev(np.real(E1)))+' '+str(sciconv.hartree_to_ev(np.imag(E1))) + '\n')
+outfile.write("E2 = "+str(sciconv.hartree_to_ev(np.real(E2)))+' '+str(sciconv.hartree_to_ev(np.imag(E2))) + '\n')
+outfile.write("E3 = "+str(sciconv.hartree_to_ev(np.real(E3)))+' '+str(sciconv.hartree_to_ev(np.imag(E3))) + '\n')
+outfile.write("E4 = "+str(sciconv.hartree_to_ev(np.real(E4)))+' '+str(sciconv.hartree_to_ev(np.imag(E4))) + '\n')
 
-E1 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     - root1 / 2
-E2 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     + root1 / 2
-E3 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     - root1 / 2
-E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
-     + root1 / 2
-print "E1 = ", sciconv.hartree_to_ev(np.real(E1)), sciconv.hartree_to_ev(np.imag(E1))
-print "E2 = ", sciconv.hartree_to_ev(np.real(E2)), sciconv.hartree_to_ev(np.imag(E2))
-print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag(E3))
-print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
+#E1 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     - root1 / 2
+#E2 = (E_plus + E_minus)/2 + 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     + root1 / 2
+#E3 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     - root1 / 2
+#E4 = (E_plus + E_minus)/2 - 1j * np.pi/2 * (V_plus**2 + V_minus**2) \
+#     + root1 / 2
+#print "E1 = ", sciconv.hartree_to_ev(np.real(E1)), sciconv.hartree_to_ev(np.imag(E1))
+#print "E2 = ", sciconv.hartree_to_ev(np.real(E2)), sciconv.hartree_to_ev(np.imag(E2))
+#print "E3 = ", sciconv.hartree_to_ev(np.real(E3)), sciconv.hartree_to_ev(np.imag(E3))
+#print "E4 = ", sciconv.hartree_to_ev(np.real(E4)), sciconv.hartree_to_ev(np.imag(E4))
 
 prefacI1 = 1j * cdg_au_V
 prefacE1 = -(  V_plus**3 * (E1-E_minus)**2 * plusdg
@@ -368,11 +374,16 @@ prefacE4 = -( 0
            * 2j * np.pi \
            / ( (E4-E1) * (E4-E2) * (E4-E3) )
 
-#print "prefacI1 = ", prefacI1
-#print "prefacE1 = ", prefacE1
-#print "prefacE2 = ", prefacE2
-#print "prefacE3 = ", prefacE3
-#print "prefacE4 = ", prefacE4
+print "prefacI1 = ", prefacI1
+print "prefacE1 = ", prefacE1
+print "prefacE2 = ", prefacE2
+print "prefacE3 = ", prefacE3
+print "prefacE4 = ", prefacE4
+outfile.write("prefacI1 = " + str(prefacI1) + '\n')
+outfile.write("prefacE1 = " + str(prefacE1) + '\n')
+outfile.write("prefacE2 = " + str(prefacE2) + '\n')
+outfile.write("prefacE3 = " + str(prefacE3) + '\n')
+outfile.write("prefacE4 = " + str(prefacE4) + '\n')
 
 #-------------------------------------------------------------------------
 # chosing auxiliary energies with negative imaginary part
@@ -380,10 +391,12 @@ if (np.imag(E3) < 0):
     E_res1 = E3
     prefacI2 = prefacE3
     print "pole of E3"
+    outfile.write("pole of E3 \n")
 elif (np.imag(E1) < 0):
     E_res1 = E1
     prefacI2 = prefacE1
     print "pole of E1"
+    outfile.write("pole of E1 \n")
 elif (np.imag(E1) == np.imag(E3)):
     E_res1 = E3
     prefacI2 = 0
@@ -392,10 +405,12 @@ if (np.imag(E2) < 0):
     E_res2 = E2
     prefacI3 = prefacE2
     print "pole of E2"
+    outfile.write("pole of E2 \n")
 elif (np.imag(E4) < 0):
     E_res2 = E4
     prefacI3 = prefacE4
     print "pole of E4"
+    outfile.write("pole of E4 \n")
 elif (np.imag(E2) == np.imag(E4)):
     E_res2 = E2
     prefacI3 = 0
