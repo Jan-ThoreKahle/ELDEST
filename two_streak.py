@@ -121,6 +121,7 @@ delta_t_au    = sciconv.second_to_atu(delta_t_s)
 # parameters of the simulation
 tmax_au       = sciconv.second_to_atu(tmax_s)
 timestep_au   = sciconv.second_to_atu(timestep_s)
+shift_step_au   = sciconv.second_to_atu(shift_step_s)
 E_step_au = sciconv.ev_to_hartree(E_step_eV)
 
 E_min_au = sciconv.ev_to_hartree(E_min_eV)
@@ -561,11 +562,11 @@ elif (np.imag(E2) == np.imag(E4)):
 
 #-------------------------------------------------------------------------
 # initialization
-#t_au = delta_t_s + TL_au
+t_au = delta_t_au + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
-    delta_t_au = -TL_au/n_L
-    delta_t_max = TL_au/n_L
+    delta_t_au = -4*TL_au/n_L
+    delta_t_max = 6*TL_au/n_L
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
@@ -630,7 +631,7 @@ while (delta_t_au <= delta_t_max):
         square = np.absolute(J)**2
         squares = np.append(squares, square)
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
+        string = in_out.prep_output(square, E_kin_au, delta_t_au)
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
