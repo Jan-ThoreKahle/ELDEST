@@ -182,9 +182,79 @@ A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
                       * np.cos(omega_au * t3 + phi)
 integ_IR = lambda t3: (p_au + A_IR(t3))**2
 
-IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))# \
+if (Lshape == "sinsq"):
+    IR_during = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                            * np.exp(-1j * p_au * A0L / 4
+                            * (np.sin(2*np.pi/TL_au * (t_au - delta_t_au)
+                                      - omega_au * (t_au - delta_t_au) - phi)
+                                / (2*np.pi/TL_au - omega_au)
+                               - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                      - omega_au * (t1 - delta_t_au) - phi)
+                                / (2*np.pi/TL_au - omega_au)
+                               + np.sin(2*np.pi/TL_au * (t_au - delta_t_au)
+                                      + omega_au * (t_au - delta_t_au) + phi)
+                                / (2*np.pi/TL_au + omega_au)
+                               - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                      + omega_au * (t1 - delta_t_au) + phi)
+                                / (2*np.pi/TL_au + omega_au)
+                               + 2./omega_au * np.sin(omega_au * (t_au - delta_t_au) + phi)
+                               - 2./omega_au * np.sin(omega_au * (t1 - delta_t_au) + phi)
+                              )
+                           )
 
-IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
+    IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                           * np.exp(-1j * p_au * A0L / 4
+                           * (np.sin(np.pi - omega_au * TL_au/2 - phi)
+                               / (2*np.pi/TL_au - omega_au)
+                              - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                     - omega_au * (t1 - delta_t_au) - phi)
+                               / (2*np.pi/TL_au - omega_au)
+                              + np.sin(np.pi + omega_au * TL_au/2 + phi)
+                               / (2*np.pi/TL_au + omega_au)
+                              - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
+                                     + omega_au * (t1 - delta_t_au) + phi)
+                               / (2*np.pi/TL_au + omega_au)
+                              + 2./omega_au * np.sin(omega_au * TL_au/2 + phi)
+                              - 2./omega_au * np.sin(omega_au * (t1 - delta_t_au) + phi)
+                             )
+                          )
+
+elif (Lshape == "gauss"):
+    IR_during = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                           * np.exp(-A0L * p_au / 4 * np.exp(1j*phi)
+                                                    * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                    * (erf((t_au - delta_t_au - 1j*sigma_L**2 * omega_au)
+                                            / np.sqrt(2) / sigma_L)
+                                       -erf((t1 - delta_t_au - 1j*sigma_L**2 * omega_au)
+                                            / np.sqrt(2) / sigma_L)
+                                      )
+                                   ) \
+                           * np.exp(-A0L * p_au / 4 * np.exp(-1j*phi)
+                                                    * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                    * (erf((t_au - delta_t_au + 1j*sigma_L**2 * omega_au)
+                                            / np.sqrt(2) / sigma_L)
+                                       -erf((t1 - delta_t_au + 1j*sigma_L**2 * omega_au)
+                                            / np.sqrt(2) / sigma_L)
+                                      )
+                                   )
+
+    IR_after = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+                          * np.exp(-A0L * p_au / 4 * np.exp(1j*phi)
+                                                   * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                   * (erf((TL_au/2 - 1j*sigma_L**2 * omega_au)
+                                           / np.sqrt(2) / sigma_L)
+                                      -erf((t1 - delta_t_au - 1j*sigma_L**2 * omega_au)
+                                           / np.sqrt(2) / sigma_L)
+                                     )
+                                  ) \
+                          * np.exp(-A0L * p_au / 4 * np.exp(-1j*phi)
+                                                   * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                   * (erf((TL_au/2 + 1j*sigma_L**2 * omega_au)
+                                           / np.sqrt(2) / sigma_L)
+                                      -erf((t1 - delta_t_au + 1j*sigma_L**2 * omega_au)
+                                           / np.sqrt(2) / sigma_L)
+                                     )
+                                  )
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
@@ -192,22 +262,98 @@ IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
                                      * np.exp(1j * E_kin_au * (t1-t_au))
-fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                     * np.exp(1j * E_kin_au * (t1-t_au))
+#fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
+#                                     * np.exp(1j * E_kin_au * (t1-t_au))
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
 
 dress_I_after = lambda t1: integrate.quad(integ_IR,t1,(delta_t_au + TL_au/2))[0]
 dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))
-fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-                              * np.exp(1j * E_kin_au * ((delta_t_au + TL_au/2)-t_au)) \
-                              * dress_after(t1)
+
+fun_dress_after = lambda t1: (FX_t1(t1)
+                              * np.exp(1j * E_fin_au * (t1-t_au)) \
+                              * IR_after(t1)
+                             )
 
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                                   * dress(t1)
 
 
+#-------------------------------------------------------------------------
+# resonant state functions
+if (Lshape == "sinsq"):
+    inner_prefac = lambda x,y:  np.exp(-1j * y * (p_au**2/2 + E_fin_au)) \
+                            * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au - omega_au))
+                                     *np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                             - omega_au * (x - delta_t_au) - phi) ) \
+                            * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au + omega_au))
+                                     *np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                             + omega_au * (x + delta_t_au) + phi) ) \
+                            * np.exp(-1j * p_au * A0L / (2*omega_au)
+                                     *np.sin(omega_au * (x - delta_t_au) + phi) )
+
+    inner_int_part = lambda x,y: 1./(1j*(p_au**2/2 + E_fin_au - Er_au)
+                                  +1j*p_au*A0L/4
+                                     * np.cos(2*np.pi/TL_au * (x-delta_t_au)
+                                              + omega_au * (x-delta_t_au) + phi)
+                                  +1j*p_au*A0L/4
+                                     * np.cos(2*np.pi/TL_au * (x-delta_t_au)
+                                              - omega_au * (x-delta_t_au) - phi)
+                                  +1j*A0L*p_au / 2
+                                     * np.cos(omega_au * (x-delta_t_au) + phi)
+                                  ) \
+                               *(np.exp(1j*y*(p_au**2/2 + E_fin_au - Er_au))
+                               *np.exp(1j*A0L*p_au /(4*(2*np.pi/TL_au - omega_au))
+                                      * np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                            - omega_au * (x-delta_t_au) - phi) )
+                               *np.exp(1j*A0L*p_au /(4*(2*np.pi/TL_au + omega_au))
+                                      * np.sin(2*np.pi/TL_au * (x - delta_t_au)
+                                            + omega_au * (x-delta_t_au) + phi) )
+                               *np.exp(1j*A0L*p_au / (2 * omega_au)
+                                      * np.sin(omega_au * (x-delta_t_au) + phi) )
+                               )
+
+
+elif (Lshape == "gauss"):
+    inner_prefac = lambda x,y:  np.exp(-1j * y * (p_au**2/2 + E_fin_au)) \
+                            * np.exp(-1j*A0L*p_au/4 * np.exp(1j*phi)
+                                                 * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                                 * erf((x - delta_t_au - 1j*sigma_L**2 * omega_au)
+                                                       / (np.sqrt(2) * sigma_L)
+                                                      )
+                                    ) \
+                            * np.exp(-1j*A0L*p_au/4 * np.exp(-1j*phi)
+                                                 * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                                 * erf((x - delta_t_au + 1j*sigma_L**2 * omega_au)
+                                                       / (np.sqrt(2) * sigma_L)
+                                                      )
+                                    )
+
+    inner_int_part = lambda x,y: 1./(1j*(p_au**2/2 + E_fin_au - Er_au)
+                                  +1j*p_au*A0L/2 / np.sqrt(np.pi) * np.exp(1j*phi)
+                                     * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                     * np.exp(-(x - delta_t_au - 1j*sigma_L**2 * omega_au)**2
+                                                / (2*sigma_L**2)
+                                             )
+                                  +1j*p_au*A0L/2 / np.sqrt(np.pi) * np.exp(-1j*phi)
+                                     * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                     * np.exp(-(x - delta_t_au + 1j*sigma_L**2 * omega_au)**2
+                                                / (2*sigma_L**2)
+                                             )
+                                  ) \
+                               *(np.exp(y*1j*(p_au**2/2 + E_fin_au - Er_au))
+                               *np.exp(1j*A0L*p_au /4 * np.exp(1j*phi)
+                                                      * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                       * erf((x-delta_t_au-1j*sigma_L**2*omega_au)
+                                             / (np.sqrt(2) * sigma_L))
+                                      )
+                               *np.exp(1j*A0L*p_au /4 * np.exp(-1j*phi)
+                                                      * np.exp(-sigma_L**2 * omega_au**2 / 2)
+                                       * erf((x-delta_t_au+1j*sigma_L**2*omega_au)
+                                             / (np.sqrt(2) * sigma_L))
+                                      )
+                               )
 
 res_inner_fun = lambda t2: np.exp(-t2 * 1j*(Er_au)) \
                            * IR_during(t2)
@@ -231,17 +377,20 @@ res_outer_fun = lambda t1: FX_t1(t1) \
                            * np.exp(t1 * 1j*Er_au) \
                            * res_inner(t1)
 
-#-------------------------------------------------------------------------
-# initialization
-t_au = -TX_au/2
+# after the pulse
+res_inner_after = lambda t2: np.exp(-t2 * 1j*(Er_au)) \
+                             * IR_after(t2)
 
-# construct list of energy points
-Ekins = []
-E_kin_au = E_min_au
-while (E_kin_au <= E_max_au):
-    Ekins.append(sciconv.hartree_to_ev(E_kin_au))
-    E_kin_au = E_kin_au + E_step_au
+if (integ == 'romberg'):
+    res_inner_a = lambda t1: ci.complex_romberg(res_inner_after, t1, t_au)
+elif (integ == 'quadrature'):
+    res_inner_a = lambda t1: ci.complex_quadrature(res_inner_after, t1, t_au)[0]
+elif (integ == 'analytic'):
+    res_inner_a = lambda t1: inner_prefac(delta_t_au + TL_au/2,t_au) * \
+                           (inner_int_part(delta_t_au + TL_au/2,t_au) - inner_int_part(t1,t1))
 
+res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * 1j*Er_au) \
+                           * res_inner_a(t1)
 
 #-------------------------------------------------------------------------
 print '-------------------------------------------------------'
@@ -411,9 +560,29 @@ elif (np.imag(E2) == np.imag(E4)):
     prefacI3 = 0
 
 #-------------------------------------------------------------------------
+# initialization
+#t_au = delta_t_s + TL_au
+#delta_t_au = -TL_au/2 + TX_au/2
+if (Lshape == "sinsq"):
+    delta_t_au = -TL_au/n_L
+    delta_t_max = TL_au/n_L
+elif (Lshape == "gauss"):
+    delta_t_au = - 3*np.pi / omega_au
+    delta_t_max = 3*np.pi / omega_au
+
+# construct list of energy points
+Ekins = []
+E_kin_au = E_min_au
+while (E_kin_au <= E_max_au):
+    Ekins.append(sciconv.hartree_to_ev(E_kin_au))
+    E_kin_au = E_kin_au + E_step_au
+
+#-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
 #----------------------------------------------------------------------
-while (t_au >= TX_au/2 and (t_au <= tmax_au)):
+# loop over the delta between pulses
+#while (delta_t_au <= TL_au/2 - TX_au/2):
+while (delta_t_au <= delta_t_max):
 #----------------------------------------------------------------------
     outfile.write('after the XUV pulse \n')
     print 'after the XUV pulse'
@@ -421,34 +590,35 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     outlines = []
     squares = np.array([])
     E_kin_au = E_min_au
+
+    print 'delta_t_s = ', sciconv.atu_to_second(delta_t_au)
+    outfile.write('delta_t_s = ' + str(sciconv.atu_to_second(delta_t_au)) + '\n')
     
-    print 't_s = ', sciconv.atu_to_second(t_au)
-    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
         if (integ_outer == "quadrature"):
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
+            I1 = ci.complex_quadrature(fun_dress_after, (-TX_au/2), TX_au/2)
             dir_J1 = prefacI1 * I1[0]
 
             Er_au = E_res1
-            I2 = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+            I2 = ci.complex_quadrature(res_outer_after, (-TX_au/2), TX_au/2)
             res_J2 = prefacI2 * I2[0]
 
             Er_au = E_res2
-            I3 = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+            I3 = ci.complex_quadrature(res_outer_after, (-TX_au/2), TX_au/2)
             res_J3 = prefacI3 * I3[0]
 
         elif (integ_outer == "romberg"):
-            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
+            I1 = ci.complex_romberg(fun_dress_after, (-TX_au/2), TX_au/2)
             dir_J1 = prefacI1 * I1[0]
 
             Er_au = E_res1
-            I2 = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+            I2 = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
             res_J2 = prefacI2 * I2[0]
 
             Er_au = E_res2
-            I3 = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+            I3 = ci.complex_romberg(res_outer_after, (-TX_au/2), TX_au/2)
             res_J3 = prefacI3 * I3[0]
 
         J = (0
@@ -472,7 +642,8 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             print Ekins[max_pos[i]], squares[max_pos[i]]
             outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
-    t_au = t_au + timestep_au
+    delta_t_au = delta_t_au + shift_step_au
+    outfile.write('\n')
 
 
 outfile.close
