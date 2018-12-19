@@ -57,6 +57,7 @@ E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 tau_au         = sciconv.second_to_atu(tau_s)
 Gamma_au       = 1. / tau_au
 Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
+print "Gamma_eV = ", Gamma_eV
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 
 # laser parameters
