@@ -30,6 +30,7 @@ def read_input(inputfile, outfile):
     tau_s         =  4.0E-16      # lifetime
     E_fin_eV_2    =  0.0
     tau_s_2       =  4.0E-16
+    interact_eV   =  0.0
     #
     # laser parameters
     Omega_eV      = 150.0         #
