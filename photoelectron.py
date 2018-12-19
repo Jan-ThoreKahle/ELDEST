@@ -39,7 +39,8 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # read inputfile
 (rdg_au, cdg_au,
- Er_eV, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+ Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+ interact_eV,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
@@ -50,7 +51,7 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
-Er_au          = sciconv.ev_to_hartree(Er_eV)
+Er_au          = sciconv.ev_to_hartree(Er_a_eV)
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 
 tau_au         = sciconv.second_to_atu(tau_s)
