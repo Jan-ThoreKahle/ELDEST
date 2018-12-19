@@ -282,7 +282,6 @@ r1 = np.sqrt(((E_plus - E_minus)**2 - (np.pi*V_plus**2 + np.pi*V_minus**2)**2)**
 phi1 = np.arctan(2*np.pi * (E_plus - E_minus) * (V_plus**2 - V_minus**2)
                 / ((E_plus - E_minus)**2 - np.pi**2 * (V_plus**2 + V_minus**2)**2))
 
-
 # transition dipole moments
 plusdg  = A_a_plus * rdg_au + A_b_plus * rdg_au
 minusdg = A_a_minus * rdg_au + A_b_minus * rdg_au
