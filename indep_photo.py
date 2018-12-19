@@ -45,7 +45,8 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # read inputfile
 (rdg_au, cdg_au,
- Er_eV, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+ Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+ interact_eV,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
@@ -56,7 +57,7 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
-Er_au          = sciconv.ev_to_hartree(Er_eV)
+Er_au          = sciconv.ev_to_hartree(Er_a_eV)
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)
 
@@ -274,6 +275,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
             dir_J1 = prefac_dir1 * I1[0]
+            #dir_J1 = 0
             res_J1 = prefac_res1 * res_I[0]
             indir_J1 = prefac_indir1 * res_I[0]
 
@@ -284,6 +286,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
             dir_J2 = prefac_dir2 * I1[0]
+            #dir_J2 = 0
             res_J2 = prefac_res2 * res_I[0]
             indir_J2 = prefac_indir2 * res_I[0]
 
@@ -294,6 +297,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
     
+            dir_J1 = 0
             dir_J1 = prefac_dir1 * I1
             res_J1 = prefac_res1 * res_I
             indir_J1 = prefac_indir1 * res_I
@@ -305,6 +309,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
     
             dir_J2 = prefac_dir2 * I1
+            #dir_J2 = 0
             res_J2 = prefac_res2 * res_I
             indir_J2 = prefac_indir2 * res_I
 
@@ -362,6 +367,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
             dir_J1 = prefac_dir1 * I1[0]
+            #dir_J1 = 0
             res_J1 = prefac_res1 * res_I[0]
             indir_J1 = prefac_indir1 * res_I[0]
 
@@ -372,6 +378,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
             dir_J2 = prefac_dir2 * I1[0]
+            #dir_J2 = 0
             res_J2 = prefac_res2 * res_I[0]
             indir_J2 = prefac_indir2 * res_I[0]
         
