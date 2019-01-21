@@ -278,6 +278,14 @@ def prep_output(I, Omega_au, t_au):
     string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(I, '.15e')
     return string
 
+def prep_output_comp(I, I2, Omega_au, t_au):
+#    square = np.absolute(I)**2
+    #print I
+    Omega_eV = sciconv.hartree_to_ev(Omega_au)
+    t_s = sciconv.atu_to_second(t_au)
+    string = str(Omega_eV) + '   ' + format(t_s, '.18f') + '   ' + format(I, '.15e') + '   ' + format(I2, '.15e')
+    return string
+
 def prep_output_t(point, time_au):
     time_s = sciconv.atu_to_second(time_au)
     point_R = np.real(point)
