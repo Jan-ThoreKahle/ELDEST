@@ -36,7 +36,7 @@ print infile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 
-outfile.write("The results were obtained with photoelectron.py \n")
+outfile.write("The results were obtained with two_streak.py \n")
 #-------------------------------------------------------------------------
 # set some defaults
 Xshape = 'convoluted'
@@ -565,8 +565,8 @@ elif (np.imag(E2) == np.imag(E4)):
 t_au = delta_t_au + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
-    delta_t_au = -4*TL_au/n_L
-    delta_t_max = 6*TL_au/n_L
+    delta_t_au = -2*TL_au/n_L
+    delta_t_max = 3*TL_au/n_L
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
