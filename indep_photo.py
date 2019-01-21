@@ -320,6 +320,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         #     )
         J1 = dir_J1 + res_J1 + indir_J1
         J2 = dir_J2 + res_J2 + indir_J2
+        #J2 = 0
 
         square = np.absolute(J1)**2 + np.absolute(J2)**2
         squares = np.append(squares, square)
@@ -411,6 +412,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 
         J1 = dir_J1 + res_J1 + indir_J1
         J2 = dir_J2 + res_J2 + indir_J2
+        #J2 = 0
 
         square = np.absolute(J1)**2 + np.absolute(J2)**2
         squares = np.append(squares, square)
