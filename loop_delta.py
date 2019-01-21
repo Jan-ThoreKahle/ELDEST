@@ -41,7 +41,8 @@ outfile.write("The results were obtained with loop_delta.py \n")
 #-------------------------------------------------------------------------
 # read inputfile
 (rdg_au, cdg_au,
- Er_eV, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+ Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+ interact_eV,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
  tmax_s, timestep_s, E_step_eV,
@@ -53,10 +54,10 @@ outfile.write("The results were obtained with loop_delta.py \n")
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
-Er_au          = sciconv.ev_to_hartree(Er_eV)
+Er_au          = sciconv.ev_to_hartree(Er_a_eV)
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 
-tau_au         = sciconv.second_to_atu(tau_s)
+tau_au         = sciconv.second_to_atu(tau_a_s)
 Gamma_au       = 1. / tau_au
 
 # laser parameters
@@ -372,8 +373,8 @@ res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_a
 t_au = delta_t_s + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
-    delta_t_au = -TL_au/n_L
-    delta_t_max = TL_au/n_L
+    delta_t_au = -TL_au/n_L /2
+    delta_t_max = TL_au/n_L /2
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
@@ -411,6 +412,7 @@ while (delta_t_au <= delta_t_max):
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
+        #p_au = -A_IR(t_au) + np.sqrt(A_IR(t_au)**2 + 2 * E_kin_au) # only relevant when looking at times during the pulse
 
 # integral 1
         if (integ_outer == "quadrature"):
@@ -436,9 +438,10 @@ while (delta_t_au <= delta_t_max):
              )
 
         square = np.absolute(J)**2
+        dir_term = np.absolute(dir_J)**2
         squares = np.append(squares, square)
 
-        string = in_out.prep_output(square, E_kin_au, delta_t_au)
+        string = in_out.prep_output_comp(square, dir_term, E_kin_au, delta_t_au)
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
