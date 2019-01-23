@@ -311,34 +311,34 @@ if (Lshape == "sinsq"):
                                               - omega_au * (x-delta_t_au) - phi)
                                   +1j*A0L*p_au / 2
                                      * np.cos(omega_au * (x-delta_t_au) + phi)
-                                  -1j*A0L**2 / 128 / (2*np.pi/TL_au + omega_au)#first term A**2
+                                  +1j*A0L**2 / 128 / (2*np.pi/TL_au + omega_au)#first term A**2
                                      * (4*np.pi /TL_au + 2*omega_au)
                                      * np.cos(4*np.pi * (x-delta_t_au) / TL_au
                                               + 2* (omega_au*x + phi)
                                              )
-                                  -1j*A0L**2 / 32 / (np.pi/TL_au + omega_au)
+                                  +1j*A0L**2 / 32 / (np.pi/TL_au + omega_au)
                                      * (2*np.pi /TL_au + 2*omega_au)
                                      * np.cos(2*np.pi * (x-delta_t_au) / TL_au
                                               + 2* (omega_au*x + phi)
                                              )
-                                  -3j*A0L**2 / 16
+                                  +3j*A0L**2 / 16
                                      * np.cos(2* (omega_au*x + phi)
                                              )
-                                  -1j*A0L**2 / 32 / (np.pi/TL_au - omega_au)
+                                  +1j*A0L**2 / 32 / (np.pi/TL_au - omega_au)
                                      * (2*np.pi /TL_au - 2*omega_au)
                                      * np.cos(2*np.pi * (x-delta_t_au) / TL_au
                                               - 2* (omega_au*x + phi)
                                              )
-                                  -3j*A0L**2 / 16
-                                  -1j*A0L**2 / 128 / (2*np.pi/TL_au - omega_au)
+                                  +3j*A0L**2 / 16
+                                  +1j*A0L**2 / 128 / (2*np.pi/TL_au - omega_au)
                                      * (4*np.pi /TL_au - 2*omega_au)
                                      * np.cos(4*np.pi * (x-delta_t_au) / TL_au
                                               - 2* (omega_au*x + phi)
                                              )
-                                  -1j*A0L**2 *np.pi / 16
+                                  +1j*A0L**2 *np.pi / 16
                                      * np.cos(4*np.pi * (x-delta_t_au) / TL_au
                                              )
-                                  -1j*A0L**2 *np.pi / 8
+                                  +1j*A0L**2 *np.pi / 8
                                      * np.cos(2*np.pi * (x-delta_t_au) / TL_au
                                              )
                                   ) \
@@ -351,37 +351,37 @@ if (Lshape == "sinsq"):
                                             + omega_au * (x-delta_t_au) + phi) )
                                *np.exp(1j*A0L*p_au / (2 * omega_au)
                                       * np.sin(omega_au * (x-delta_t_au) + phi) )
-                               *np.exp(-1j*A0L**2/128 / (2*np.pi/TL_au + omega_au)
+                               *np.exp(1j*A0L**2/128 / (2*np.pi/TL_au + omega_au)
                                        * np.sin(4*np.pi * (x-delta_t_au) / TL_au
                                                 + 2* (omega_au*x + phi)
                                                )
                                       )#first A**2 term
-                               *np.exp(-1j*A0L**2/32 / (np.pi/TL_au + omega_au)
+                               *np.exp(1j*A0L**2/32 / (np.pi/TL_au + omega_au)
                                        * np.sin(2*np.pi * (x-delta_t_au) / TL_au
                                                 + 2* (omega_au*x + phi)
                                                )
                                       )
-                               *np.exp(-3j*A0L**2/32 / omega_au
+                               *np.exp(3j*A0L**2/32 / omega_au
                                        * np.sin(2* (omega_au*x + phi)
                                                )
                                       )
-                               *np.exp(-1j*A0L**2/32 / (np.pi/TL_au - omega_au)
+                               *np.exp(1j*A0L**2/32 / (np.pi/TL_au - omega_au)
                                        * np.sin(2*np.pi * (x-delta_t_au) / TL_au
                                                 - 2* (omega_au*x + phi)
                                                )
                                       )
-                               *np.exp(-1j*A0L**2/128 / (2*np.pi/TL_au - omega_au)
+                               *np.exp(1j*A0L**2/128 / (2*np.pi/TL_au - omega_au)
                                        * np.sin(4*np.pi * (x-delta_t_au) / TL_au
                                                 - 2* (omega_au*x + phi)
                                                )
                                       )
-                               *np.exp(-3j*A0L**2/16 * x
+                               *np.exp(3j*A0L**2/16 * x
                                       )
-                               *np.exp(-1j*A0L**2/64 * TL_au
+                               *np.exp(1j*A0L**2/64 * TL_au
                                        * np.sin(4*np.pi * (x-delta_t_au) / TL_au
                                                )
                                       )
-                               *np.exp(-1j*A0L**2/8 * TL_au
+                               *np.exp(1j*A0L**2/8 * TL_au
                                        * np.sin(2*np.pi * (x-delta_t_au) / TL_au
                                                )
                                       )
