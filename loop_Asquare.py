@@ -181,7 +181,7 @@ if (Lshape == "sinsq"):
     
     IR_after = lambda t1:  np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                                   *np.exp(-1j * E_fin_au * (t_au - t1)) \
-                           * np.exp(-1j * p_au * A0L / 4
+                           * np.exp(-1j * p_au * A0L / 4 # A term
                            * (np.sin(np.pi - omega_au * TL_au/2 - phi)
                                / (2*np.pi/TL_au - omega_au)
                               - np.sin(2*np.pi/TL_au * (t1 - delta_t_au)
@@ -195,7 +195,53 @@ if (Lshape == "sinsq"):
                               + 2./omega_au * np.sin(omega_au * TL_au/2 + phi)
                               - 2./omega_au * np.sin(omega_au * (t1 - delta_t_au) + phi)
                              )
-                          )
+                            )\
+                           * np.exp(-1j*A0L**2 / 128 / (2*np.pi/TL_au + omega_au)
+                                    * (np.sin(2*np.pi
+                                              + 2*(omega_au*(delta_t_au + TL_au/2) + phi))
+                                       - np.sin(4*np.pi*(t1 - delta_t_au) / TL_au
+                                                + 2* (omega_au*t1 + phi)
+                                               )
+                                      )
+                                   )\
+                           * np.exp(-1j*A0L**2 / 32 / (np.pi/TL_au + omega_au)
+                                    * (np.sin(np.pi
+                                              + 2*(omega_au*(delta_t_au + TL_au/2) + phi))
+                                       - np.sin(2*np.pi*(t1 - delta_t_au) / TL_au
+                                                + 2* (omega_au*t1 + phi)
+                                               )
+                                      )
+                                   )\
+                           * np.exp(-3j*A0L**2 / 64 / omega_au
+                                    * (np.sin(2*(omega_au*(delta_t_au + TL_au/2) + phi))
+                                       - np.sin(2* (omega_au*t1 + phi)
+                                               )
+                                      )
+                                   )\
+                           * np.exp(-1j*A0L**2 / 32 / (np.pi/TL_au - omega_au)
+                                    * (np.sin(np.pi
+                                              - 2*(omega_au*(delta_t_au + TL_au/2) + phi))
+                                       - np.sin(2*np.pi*(t1 - delta_t_au) / TL_au
+                                                - 2* (omega_au*t1 + phi)
+                                               )
+                                      )
+                                   )\
+                           * np.exp(-1j*A0L**2 / 128 / (2*np.pi/TL_au - omega_au)
+                                    * (np.sin(2*np.pi
+                                              - 2*(omega_au*(delta_t_au + TL_au/2) + phi))
+                                       - np.sin(4*np.pi*(t1 - delta_t_au) / TL_au
+                                                - 2* (omega_au*t1 + phi)
+                                               )
+                                      )
+                                   )\
+                           * np.exp(-3j*A0L**2 / 32 * (delta_t_au * TL_au/2 - t1)
+                                   )\
+                           * np.exp(+1j*A0L**2 * TL_au / 128 / np.pi
+                                    * np.sin(4*np.pi*(t1 - delta_t_au) / TL_au )
+                                   )\
+                           * np.exp(+1j*A0L**2 * TL_au / 16 / np.pi
+                                    * np.sin(2*np.pi*(t1 - delta_t_au) / TL_au )
+                                   )
 
 elif (Lshape == "gauss"):
     IR_during = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
@@ -464,7 +510,7 @@ t_au = delta_t_s + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
     delta_t_au = -TL_au/n_L /2
-    delta_t_max = TL_au/n_L /2
+    delta_t_max = TL_au/n_L /8
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
