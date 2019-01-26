@@ -149,8 +149,8 @@ elif (X_gauss):
 else:
     print 'no pulse shape selected'
 
-FX_t1 = lambda t1: (- A0X * np.cos(Omega_au * t1) * fp_t1(t1)
-                    + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1)
+FX_t1 = lambda t1: (- E0X * np.cos(Omega_au * t1) * fp_t1(t1)
+                    + E0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1)
                    )
 
 # IR pulse

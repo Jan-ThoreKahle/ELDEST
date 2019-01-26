@@ -149,8 +149,11 @@ elif (X_gauss):
 else:
     print 'no pulse shape selected'
 
-FX_t1 = lambda t1: (- A0X * np.cos(Omega_au * t1) * fp_t1(t1)
-                    + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1)
+#FX_t1 = lambda t1: (- A0X * np.cos(Omega_au * t1) * fp_t1(t1)
+#                    + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1)
+#                   )
+FX_t1 = lambda t1: (- E0X * np.cos(Omega_au * t1) * fp_t1(t1)
+                    + E0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1)
                    )
 
 # IR pulse
@@ -509,8 +512,8 @@ res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_a
 t_au = delta_t_s + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
-    delta_t_au = -TL_au/n_L /2
-    delta_t_max = TL_au/n_L /8
+    delta_t_au = -TL_au/n_L /20
+    delta_t_max = TL_au/n_L /20
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
