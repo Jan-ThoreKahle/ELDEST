@@ -138,18 +138,18 @@ else:
 if (Xshape == 'convoluted'):
     FX_t1 = lambda t1: (
                         0
-                        - (A0X
+                        - (E0X
                            * np.cos(Omega_au * t1)
                            * fp_t1(t1)
                           )
-                        + (A0X
+                        + (E0X
                            * Omega_au
                            * np.sin(Omega_au * (t1))
                            * f_t1(t1)
                           )
                        )
 elif (Xshape == 'infinite'):
-    FX_t1 = lambda t1: + A0X * Omega_au * np.cos(Omega_au * t1)
+    FX_t1 = lambda t1: + E0X * Omega_au * np.cos(Omega_au * t1)
     #FX_t1 = lambda t1: - A0X * np.sin(Omega_au * t1)
                        
 
@@ -300,19 +300,21 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
 
 # integral 1
-        I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-
-        dir_J = prefac_dir * I1[0]
-        res_J = prefac_res * res_I[0]
-        indir_J = prefac_indir * res_I[0]
+        if (integ_outer == "quadrature"):
+            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+ 
+            dir_J = prefac_dir * I1[0]
+            res_J = prefac_res * res_I[0]
+            indir_J = prefac_indir * res_I[0]
         
-#        I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-#        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-#
-#        dir_J = prefac_dir * I1
-#        res_J = prefac_res * res_I
-#        indir_J = prefac_indir * res_I
+        elif (integ_outer == "romberg"):
+            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+            dir_J = prefac_dir * I1
+            res_J = prefac_res * res_I
+            indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J
@@ -321,9 +323,10 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
              )
 
         square = np.absolute(J)**2
+        dir_term = np.absolute(dir_J)**2
         squares = np.append(squares, square)
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
+        string = in_out.prep_output_comp(square, dir_term, E_kin_au, t_au)
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
@@ -372,7 +375,7 @@ t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.p
 
 if (X_sinsq):
     print 'use sinsq function'
-    envelope = lambda x: abs(A0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
+    envelope = lambda x: abs(E0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
                           * (+1./(2*np.pi/TX_au - Omega_au + E_fin_au + x)
                              +2./(Omega_au - E_fin_au - x)
                              -1./(2*np.pi/TX_au + Omega_au - E_fin_au - x) ))**2
