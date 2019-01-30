@@ -238,24 +238,26 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         p_au = np.sqrt(2*E_kin_au)
 
 # integral 1
-        I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-        #I = ci.complex_quadrature(pulses.fun_t_dir_1(t_au=t_au, p_au=p_au,
-        #    E_fin_au=E_fin_au, sigma=sigma, A0X=A0X, Omega_au=Omega_au), (-TX_au/2), t_au)
-        #I = ci.complex_quadrature(pulses.fun_t_dir_1, (-TX_au/2), t_au,
-        #                   args=(t_au=t_au, p_au=p_au, E_fin_au=E_fin_au,
-        #                         sigma=sigma, A0X=A0X, Omega_au=Omega_au))
-        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+        if (integ_outer == "quadrature"):
+            I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+            #I = ci.complex_quadrature(pulses.fun_t_dir_1(t_au=t_au, p_au=p_au,
+            #    E_fin_au=E_fin_au, sigma=sigma, A0X=A0X, Omega_au=Omega_au), (-TX_au/2), t_au)
+            #I = ci.complex_quadrature(pulses.fun_t_dir_1, (-TX_au/2), t_au,
+            #                   args=(t_au=t_au, p_au=p_au, E_fin_au=E_fin_au,
+            #                         sigma=sigma, A0X=A0X, Omega_au=Omega_au))
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
-        dir_J = prefac_dir * I[0]
-        res_J = prefac_res * res_I[0]
-        indir_J = prefac_indir * res_I[0]
+            dir_J = prefac_dir * I[0]
+            res_J = prefac_res * res_I[0]
+            indir_J = prefac_indir * res_I[0]
 
-#        I = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-#        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
-#
-#        dir_J = prefac_dir * I
-#        res_J = prefac_res * res_I
-#        indir_J = prefac_indir * res_I
+        elif (integ_outer == "romberg"):
+            I = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+
+            dir_J = prefac_dir * I
+            res_J = prefac_res * res_I
+            indir_J = prefac_indir * res_I
 
         J = (0
              + dir_J
@@ -264,9 +266,10 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
              )
 
         square = np.absolute(J)**2
+        dir_term = np.absolute(dir_J)**2
         squares = np.append(squares, square)
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
+        string = in_out.prep_output_comp(square, dir_term, E_kin_au, t_au)
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
