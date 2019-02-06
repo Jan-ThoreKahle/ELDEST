@@ -47,6 +47,7 @@ def read_input(inputfile, outfile):
     delta_t_s     = 0.0E-18       # time difference between the maxima of the two pulses
     shift_step_s  = 500.0E-18
     phi           = 0
+    sigma_L       = 500E-18
     #
     # parameters of the simulation
     tmax_s        = 2.5E-15       # simulate until time tmax in seconds
@@ -247,7 +248,7 @@ def read_input(inputfile, outfile):
             Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
             interact_eV,
             Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
-            omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
+            omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, sigma_L,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV,
             integ, integ_outer)
@@ -290,8 +291,6 @@ def prep_output_t(point, time_au):
     time_s = sciconv.atu_to_second(time_au)
     point_R = np.real(point)
     point_I = np.imag(point)
-    #print point_R
-    #print point_I
     string = format(time_s, '.18f') + '   ' + str(point_I)
     return string
 

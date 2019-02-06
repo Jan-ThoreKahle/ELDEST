@@ -42,7 +42,7 @@ Xshape = 'convoluted'
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
  interact_eV,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
- omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
+ omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, sigma_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
  integ, integ_outer) = in_out.read_input(infile, outfile)
@@ -138,18 +138,18 @@ else:
 if (Xshape == 'convoluted'):
     FX_t1 = lambda t1: (
                         0
-                        - (E0X
+                        - (A0X
                            * np.cos(Omega_au * t1)
                            * fp_t1(t1)
                           )
-                        + (E0X
+                        + (A0X
                            * Omega_au
                            * np.sin(Omega_au * (t1))
                            * f_t1(t1)
                           )
                        )
 elif (Xshape == 'infinite'):
-    FX_t1 = lambda t1: + E0X * Omega_au * np.cos(Omega_au * t1)
+    FX_t1 = lambda t1: + A0X * Omega_au * np.cos(Omega_au * t1)
     #FX_t1 = lambda t1: - A0X * np.sin(Omega_au * t1)
                        
 
@@ -378,7 +378,7 @@ t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.p
 
 if (X_sinsq):
     print 'use sinsq function'
-    envelope = lambda x: abs(E0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
+    envelope = lambda x: abs(A0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
                           * (+1./(2*np.pi/TX_au - Omega_au + E_fin_au + x)
                              +2./(Omega_au - E_fin_au - x)
                              -1./(2*np.pi/TX_au + Omega_au - E_fin_au - x) ))**2
