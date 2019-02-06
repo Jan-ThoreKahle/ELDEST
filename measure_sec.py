@@ -98,6 +98,7 @@ print 'A0X = ', A0X
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 sigma_L_au    = sciconv.second_to_atu(sigma_L)
+print  "sigma L = ", sigma_L
 a             = 5./2 * sigma_L_au
 TL_au         = n_L * 2 * np.pi / omega_au
 print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
@@ -425,12 +426,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
 
             E_fin_au = E_fin_au_2
 
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-
-            dir_J2   = prefac_dir2 * I1[0]
+            res_I = ci.complex_quadrature(second_outer_fun, (delta_t_au - a),
+                                                            (t_au))
             res_J2   = prefac_res2 * res_I[0]
-            indir_J2 = prefac_indir2 * res_I[0]
         
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
@@ -444,17 +442,14 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
 
             E_fin_au = E_fin_au_2
 
-            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-    
-            dir_J2   = prefac_dir2 * I1
+            res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a),
+                                                         (t_au))
             res_J2   = prefac_res2 * res_I
-            indir_J2 = prefac_indir2 * res_I
 
         J = (0
-             + dir_J1 + dir_J2
+             + dir_J1
              + res_J1 + res_J2
-             + indir_J1 + indir_J2
+             + indir_J1
              )
 
         square = np.absolute(J)**2
@@ -502,7 +497,6 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
 
             res_I = ci.complex_quadrature(second_outer_fun, (delta_t_au - a),
                                                             (delta_t_au+a))
-
             res_J2   = prefac_res2 * res_I[0]
         
         elif (integ_outer == "romberg"):
@@ -511,7 +505,6 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
 
             res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a),
                                                          (delta_t_au+a))
-    
             res_J2   = prefac_res2 * res_I
 
         J = (0
