@@ -47,7 +47,7 @@ def read_input(inputfile, outfile):
     delta_t_s     = 0.0E-18       # time difference between the maxima of the two pulses
     shift_step_s  = 500.0E-18
     phi           = 0
-    sigma_L       = 500E-18
+    FWHM_L       = 500E-18
     #
     # parameters of the simulation
     tmax_s        = 2.5E-15       # simulate until time tmax in seconds
@@ -181,10 +181,10 @@ def read_input(inputfile, outfile):
             shift_step_s = float(words[2])
             print 'shift_step_s = ', shift_step_s
             outfile.write('shift_step_s = ' + str(shift_step_s) + '\n')
-        elif (words[0] == 'sigma_L'):
-            sigma_L = float(words[2])
-            print 'sigma_L_s = ', sigma_L
-            outfile.write('sigma_L = ' + str(sigma_L) + '\n')
+        elif (words[0] == 'FWHM_L'):
+            FWHM_L = float(words[2])
+            print 'FWHM_L_s = ', FWHM_L
+            outfile.write('FWHM_L = ' + str(FWHM_L) + '\n')
         elif (words[0] == 'phi'):
             phi = float(words[2])
             print 'phi = ', phi
@@ -252,7 +252,7 @@ def read_input(inputfile, outfile):
             Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
             interact_eV,
             Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
-            omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, sigma_L,
+            omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV,
             integ, integ_outer)
