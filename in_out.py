@@ -181,6 +181,10 @@ def read_input(inputfile, outfile):
             shift_step_s = float(words[2])
             print 'shift_step_s = ', shift_step_s
             outfile.write('shift_step_s = ' + str(shift_step_s) + '\n')
+        elif (words[0] == 'sigma_L'):
+            sigma_L = float(words[2])
+            print 'sigma_L_s = ', sigma_L
+            outfile.write('sigma_L = ' + str(sigma_L) + '\n')
         elif (words[0] == 'phi'):
             phi = float(words[2])
             print 'phi = ', phi
