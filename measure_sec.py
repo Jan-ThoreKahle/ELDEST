@@ -58,8 +58,9 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
-Er_a_au          = sciconv.ev_to_hartree(Er_a_eV)
-Er_b_au          = sciconv.ev_to_hartree(Er_b_eV)
+Er_a_au        = sciconv.ev_to_hartree(Er_a_eV)
+Er_b_au        = sciconv.ev_to_hartree(Er_b_eV)
+Er_au          = Er_a_au
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)
 
@@ -182,8 +183,9 @@ IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))# \
 IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
 
 # population of the ICD initial state
-Mr = lambda t1: N0 * (1 - np.exp(-1./2 erf(-a/ np.sqrt(2) / sigma_L_au,
-                                           (t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)))
+Mr = lambda t1: N0 * (1
+                      - np.exp(-1./2 * (erf((t1 - delta_t_au) / np.sqrt(2) / sigma_L_au)
+                                       -erf(-a/ np.sqrt(2) / sigma_L_au))) )
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
@@ -231,6 +233,10 @@ res_outer_fun = lambda t1: FX_t1(t1) \
                            * np.exp(t1 * (np.pi* (VEr_au**2) + 1j*Er_au)) \
                            * res_inner(t1)
 
+second_outer_fun = lambda t1: np.sqrt(Mr(t1))\
+                              * np.exp((t1 - delta_t_au) * (np.pi* (VEr_au**2) + 1j*Er_au)) \
+                              * res_inner(t1-delta_t_au)
+
 #-------------------------------------------------------------------------
 # initialization
 t_au = -TX_au/2
@@ -248,8 +254,8 @@ while (E_kin_au <= E_max_au):
 aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 
-prefac_res1 = aV * VEr_au * rdg_au
-prefac_res2 = aW * WEr_au * rdg_au
+prefac_res1 = VEr_au * rdg_au
+prefac_res2 = WEr_au
 prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
 prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
 #prefac_indir = 0
@@ -399,8 +405,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     rdg_decay_au = np.sqrt(N0) \
-                   * np.exp(-1./4 * erf(-a/ np.sqrt(2) / sigma_L_au,
-                                        (t_au - delta_t_au) / np.sqrt(2) / sigma_L_au))
+                   * np.exp(-1./4 * (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
+                                    -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
+    prefac_res1 = VEr_au * rdg_decay_au
 
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
@@ -487,33 +494,28 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
+        res_J2 = 0
 # integral 1
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_2
             VEr_au = WEr_au
 
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(second_outer_fun, (delta_t_au - a),
+                                                            (delta_t_au+a))
 
-            dir_J2   = prefac_dir2 * I1[0]
             res_J2   = prefac_res2 * res_I[0]
-            indir_J2 = prefac_indir2 * res_I[0]
         
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_2
             VEr_au = WEr_au
 
-            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a),
+                                                         (delta_t_au+a))
     
-            dir_J2   = prefac_dir2 * I1
             res_J2   = prefac_res2 * res_I
-            indir_J2 = prefac_indir2 * res_I
 
         J = (0
-             + dir_J2
              + res_J2
-             + indir_J2
              )
 
         square = np.absolute(J)**2
