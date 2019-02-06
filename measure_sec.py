@@ -49,7 +49,7 @@ Xshape = 'convoluted'
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
  interact_eV,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
- omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, sigma_L,
+ omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
  integ, integ_outer) = in_out.read_input(infile, outfile)
@@ -97,9 +97,11 @@ A0X           = E0X / Omega_au
 print 'A0X = ', A0X
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
-sigma_L_au    = sciconv.second_to_atu(sigma_L)
-print  "sigma L = ", sigma_L
+FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
+sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))
 a             = 5./2 * sigma_L_au
+print "FWHM_L = ", sciconv.atu_to_second(FWHM_L_au)
+print "sigma_L = ", sciconv.atu_to_second(sigma_L_au)
 TL_au         = n_L * 2 * np.pi / omega_au
 print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
 print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
@@ -234,7 +236,7 @@ res_outer_fun = lambda t1: FX_t1(t1) \
                            * np.exp(t1 * (np.pi* (VEr_au**2) + 1j*Er_au)) \
                            * res_inner(t1)
 
-second_outer_fun = lambda t1: np.sqrt(Mr(t1))\
+second_outer_fun = lambda t1: A0X \
                               * np.exp((t1 - delta_t_au) * (np.pi* (VEr_au**2) + 1j*Er_au)) \
                               * res_inner(t1-delta_t_au)
 
@@ -257,13 +259,13 @@ aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 
 prefac_res1 = VEr_au * rdg_au
 prefac_res2 = WEr_au
-prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au + WEr_au) * cdg_au_V
-prefac_indir2 = -1j * np.pi * WEr_au * (VEr_au + WEr_au) * cdg_au_W
+prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
+prefac_indir2 = -1j * np.pi * WEr_au**2 * cdg_au_W
 #prefac_indir = 0
-prefac_dir1 = 1j * aV * cdg_au_V
-prefac_dir2 = 1j * aW * cdg_au_W
+prefac_dir1 = 1j * cdg_au_V
+prefac_dir2 = 1j * cdg_au_W
 
-N0 = A0X**2 / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
+N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
      * np.exp(-Gamma_au * (delta_t_au - a))
 
 #-------------------------------------------------------------------------
@@ -408,7 +410,17 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     rdg_decay_au = np.sqrt(N0) \
                    * np.exp(-1./4 * (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
                                     -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
+    #print "erf low = ", erf(-a/ np.sqrt(2) / sigma_L_au)
+    #print "erf high= ", erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
+    print "sqrt N0 = ", np.sqrt(N0)
+    print "rdg_decay_au = ", rdg_decay_au
     prefac_res1 = VEr_au * rdg_decay_au
+    prefac_dir1 = 1j * rdg_decay_au / q / np.pi / VEr_au
+    prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
+
+    prefac_res2 = WEr_au * (np.sqrt(N0) - rdg_decay_au)
+
+    print "Mr(t) = ", (np.sqrt(N0) - rdg_decay_au)
 
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
@@ -416,6 +428,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
 # integral 1
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -425,6 +439,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
             indir_J1 = prefac_indir1 * res_I[0]
 
             E_fin_au = E_fin_au_2
+            Er_au = Er_b_au
+            VEr_au = WEr_au
 
             res_I = ci.complex_quadrature(second_outer_fun, (delta_t_au - a),
                                                             (t_au))
@@ -432,6 +448,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
         
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -441,6 +459,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
             indir_J1 = prefac_indir1 * res_I
 
             E_fin_au = E_fin_au_2
+            Er_au = Er_b_au
+            VEr_au = WEr_au
 
             res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a),
                                                          (t_au))
@@ -493,6 +513,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
 # integral 1
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_2
+            Er_au = Er_b_au
             VEr_au = WEr_au
 
             res_I = ci.complex_quadrature(second_outer_fun, (delta_t_au - a),
@@ -501,6 +522,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
         
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_2
+            Er_au = Er_b_au
             VEr_au = WEr_au
 
             res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a),
