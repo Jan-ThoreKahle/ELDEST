@@ -15,6 +15,7 @@
 import scipy
 import scipy.integrate as integrate
 from scipy.signal import argrelextrema
+from scipy.special import erf
 import numpy as np
 import sciconv
 import complex_integration as ci
@@ -62,7 +63,8 @@ Er_b_au          = sciconv.ev_to_hartree(Er_b_eV)
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)
 
-tau_au         = sciconv.second_to_atu(tau_s)
+tau_au_1       = sciconv.second_to_atu(tau_s)
+tau_au         = tau_au_1
 Gamma_au       = 1. / tau_au
 Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
@@ -179,6 +181,10 @@ IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))# \
 
 IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
 
+# population of the ICD initial state
+Mr = lambda t1: N0 * (1 - np.exp(-1./2 erf(-a/ np.sqrt(2) / sigma_L_au,
+                                           (t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)))
+
 #-------------------------------------------------------------------------
 # technical defintions of functions
 
@@ -279,15 +285,6 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_J1 = prefac_res1 * res_I[0]
             indir_J1 = prefac_indir1 * res_I[0]
 
-            E_fin_au = E_fin_au_2
-
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
-
-            dir_J2   = prefac_dir2 * I1[0]
-            res_J2   = prefac_res2 * res_I[0]
-            indir_J2 = prefac_indir2 * res_I[0]
-
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
 
@@ -298,19 +295,10 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_J1 = prefac_res1 * res_I
             indir_J1 = prefac_indir1 * res_I
 
-            E_fin_au = E_fin_au_2
-
-            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
-    
-            dir_J2   = prefac_dir2 * I1
-            res_J2   = prefac_res2 * res_I
-            indir_J2 = prefac_indir2 * res_I
-
         J = (0
-             + dir_J1 + dir_J2
-             + res_J1 + res_J2
-             + indir_J1 + indir_J2
+             + dir_J1
+             + res_J1
+             + indir_J1
              )
 
         square = np.absolute(J)**2
@@ -336,7 +324,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 
 #-------------------------------------------------------------------------
-while (t_au >= TX_au/2 and (t_au <= tmax_au)):
+while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
     print 'between the pulses'
@@ -417,7 +405,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 
 
 #-------------------------------------------------------------------------
-while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a))):
+while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('during the second pulse \n')
     print 'during the second pulse'
@@ -428,6 +416,10 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a))):
     
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    rdg_decay_au = np.sqrt(N0) \
+                   * np.exp(-1./4 * erf(-a/ np.sqrt(2) / sigma_L_au,
+                                        (t_au - delta_t_au) / np.sqrt(2) / sigma_L_au))
+
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
