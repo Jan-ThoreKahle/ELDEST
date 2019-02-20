@@ -36,6 +36,7 @@ print infile
 # open outputfile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
+popfile = open("pop.dat", mode='w')
 
 outfile.write("The results were obtained with photoelectron.py \n")
 #-------------------------------------------------------------------------
@@ -241,6 +242,14 @@ second_outer_fun = lambda t1: A0X \
                               * res_inner(t1-delta_t_au)
 
 #-------------------------------------------------------------------------
+# population change by tunnel ionization
+Ip = sciconv.ev_to_hartree(1.5)
+konst = 1./16 
+popfun = lambda t1: np.exp(-2* np.sqrt(2*Ip)**3 / 3 / A0L
+                           * np.exp((t1-delta_t_au)**2 / 2 / sigma_L_au**2)) \
+                    * konst
+#-------------------------------------------------------------------------
+#-------------------------------------------------------------------------
 # initialization
 t_au = -TX_au/2
 
@@ -408,12 +417,14 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     rdg_decay_au = np.sqrt(N0) \
-                   * np.exp(-1./4 * (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
+                   * np.exp(-1./4 * 8* (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
                                     -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
-    #print "erf low = ", erf(-a/ np.sqrt(2) / sigma_L_au)
-    #print "erf high= ", erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
+    #popint = ci.integrate.quad(popfun, delta_t_au - a, t_au)
+    #rdg_decay_au = np.sqrt(N0) * np.exp(-1./2 * popint[0])
+
     print "sqrt N0 = ", np.sqrt(N0)
     print "rdg_decay_au = ", rdg_decay_au
+    Mrt = np.sqrt(N0) - rdg_decay_au
     prefac_res1 = VEr_au * rdg_decay_au
     prefac_dir1 = 1j * rdg_decay_au / q / np.pi / VEr_au
     prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
@@ -421,6 +432,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     prefac_res2 = WEr_au * (np.sqrt(N0) - rdg_decay_au)
 
     print "Mr(t) = ", (np.sqrt(N0) - rdg_decay_au)
+
+    popfile.write(str(sciconv.atu_to_second(t_au)) + '   ' + str(rdg_decay_au**2)
+                  + '   ' + str(Mrt**2) + '\n')
 
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
@@ -493,6 +507,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
 
 
 
+popfile.close
 
 #-------------------------------------------------------------------------
 while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
@@ -512,6 +527,14 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
         res_J2 = 0
 # integral 1
         if (integ_outer == "quadrature"):
+            E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
+
+            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+
+            dir_J1 = prefac_dir1 * I1[0]
+
             E_fin_au = E_fin_au_2
             Er_au = Er_b_au
             VEr_au = WEr_au
@@ -521,6 +544,14 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
             res_J2   = prefac_res2 * res_I[0]
         
         elif (integ_outer == "romberg"):
+            E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
+
+            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+
+            dir_J1 = prefac_dir1 * I1[0]
+
             E_fin_au = E_fin_au_2
             Er_au = Er_b_au
             VEr_au = WEr_au
@@ -530,6 +561,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
             res_J2   = prefac_res2 * res_I
 
         J = (0
+             + dir_J1
              + res_J2
              )
 
@@ -557,4 +589,3 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
 
 outfile.close
 pure_out.close
-
