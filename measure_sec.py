@@ -482,11 +482,11 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
 
         J = (0
              + dir_J1
-             + res_J1 + res_J2
+             + res_J1
              + indir_J1
              )
 
-        square = np.absolute(J)**2
+        square = np.absolute(J)**2 + np.absolute(res_J2)**2
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
@@ -565,7 +565,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
              + res_J2
              )
 
-        square = np.absolute(J)**2
+        square = np.absolute(dir_J1)**2 + np.absolute(res_J2)**2
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
