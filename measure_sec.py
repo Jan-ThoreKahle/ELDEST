@@ -295,6 +295,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 # integral 1
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
@@ -305,6 +307,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
@@ -359,6 +363,8 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 # integral 1
         if (integ_outer == "quadrature"):
             E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
@@ -369,6 +375,8 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
         
         elif (integ_outer == "romberg"):
             E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
 
             I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
