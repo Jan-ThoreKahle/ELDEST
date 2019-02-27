@@ -447,10 +447,11 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     print "rdg_decay_au = ", rdg_decay_au
     Mrt = np.sqrt(N0) - rdg_decay_au
     prefac_res1 = VEr_au * rdg_decay_au
-    prefac_dir1 = 1j * rdg_decay_au / q / np.pi / VEr_au
+    #prefac_dir1 = 1j * rdg_decay_au / q / np.pi / VEr_au
     prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
 
     prefac_res2 = WEr_au * (np.sqrt(N0) - rdg_decay_au)
+    #prefac_res2 = WEr_au * np.sqrt(N0)
 
     print "Mr(t) = ", (np.sqrt(N0) - rdg_decay_au)
 
@@ -600,7 +601,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     
                 I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
     
-                dir_J1 = prefac_dir1 * I1[0]
+                dir_J1 = prefac_dir1 * I1
     
             square = np.absolute(dir_J1)**2
         squares = np.append(squares, square)
