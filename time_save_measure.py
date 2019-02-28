@@ -38,7 +38,7 @@ outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 popfile = open("pop.dat", mode='w')
 
-outfile.write("The results were obtained with photoelectron.py \n")
+outfile.write("The results were obtained with time_save_measure.py \n")
 #-------------------------------------------------------------------------
 # set some defaults
 Xshape = 'convoluted'
@@ -247,8 +247,8 @@ res_outer_fun = lambda t1: FX_t1(t1) \
 
 second_outer_fun = lambda t1: A0X \
                               * np.exp((t1) * (np.pi* (VEr_au**2) + 1j*Er_au)) \
-                              * res_inner_sec(t1)# \
-                              #* np.exp(-(t1)**2 / 2 / sigma_L_au**2) \
+                              * res_inner_sec(t1) #\
+                              #* np.exp(-(t1 - delta_t_au)**2 / 2 / sigma_L_au**2)# \
                               #/ np.sqrt(2*np.pi * sigma_L_au**2)
 
 #-------------------------------------------------------------------------
@@ -450,6 +450,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     rdg_decay_au = np.sqrt(N0) \
                    * np.exp(-1./4 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
                                     -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
+    #rdg_decay_au = np.sqrt(N0) \
+    #               * np.exp(-1./4 *  (erf((t_au - delta_t_au))
+    #                                -erf(-a) ) )
     #popint = ci.integrate.quad(popfun, delta_t_au - a, t_au)
     #rdg_decay_au = np.sqrt(N0) * np.exp(-1./2 * popint[0])
 
@@ -461,7 +464,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
 
     prefac_res2 = WEr_au * (np.sqrt(N0) - rdg_decay_au)
-    #prefac_res2 = WEr_au
+    #prefac_res2 = WEr_au * np.sqrt(N0)
 
     print "Mr(t) = ", (np.sqrt(N0) - rdg_decay_au)
 
