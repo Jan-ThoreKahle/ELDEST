@@ -247,7 +247,9 @@ res_outer_fun = lambda t1: FX_t1(t1) \
 
 second_outer_fun = lambda t1: A0X \
                               * np.exp((t1) * (np.pi* (VEr_au**2) + 1j*Er_au)) \
-                              * res_inner_sec(t1)
+                              * res_inner_sec(t1)# \
+                              #* np.exp(-(t1)**2 / 2 / sigma_L_au**2) \
+                              #/ np.sqrt(2*np.pi * sigma_L_au**2)
 
 #-------------------------------------------------------------------------
 # population change by tunnel ionization
@@ -287,8 +289,8 @@ N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
 
 
 # test different energy areas
-lower_E_min = sciconv.ev_to_hartree(0.2)
-lower_E_max = sciconv.ev_to_hartree(0.9)
+lower_E_min = sciconv.ev_to_hartree(0.4)
+lower_E_max = sciconv.ev_to_hartree(0.8)
 upper_E_min = sciconv.ev_to_hartree(4.6)
 upper_E_max = E_max_au
 
@@ -446,7 +448,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     rdg_decay_au = np.sqrt(N0) \
-                   * np.exp(-1./4 * 8* (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
+                   * np.exp(-1./4 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
                                     -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
     #popint = ci.integrate.quad(popfun, delta_t_au - a, t_au)
     #rdg_decay_au = np.sqrt(N0) * np.exp(-1./2 * popint[0])
@@ -459,7 +461,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
 
     prefac_res2 = WEr_au * (np.sqrt(N0) - rdg_decay_au)
-    #prefac_res2 = WEr_au * np.sqrt(N0)
+    #prefac_res2 = WEr_au
 
     print "Mr(t) = ", (np.sqrt(N0) - rdg_decay_au)
 
@@ -551,6 +553,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
 
 popfile.close
 
+prefac_res2 = WEr_au * np.sqrt(N0)
 #-------------------------------------------------------------------------
 while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
