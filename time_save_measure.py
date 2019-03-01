@@ -289,8 +289,8 @@ N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
 
 
 # test different energy areas
-lower_E_min = sciconv.ev_to_hartree(0.4)
-lower_E_max = sciconv.ev_to_hartree(0.8)
+lower_E_min = sciconv.ev_to_hartree(0.45)
+lower_E_max = sciconv.ev_to_hartree(0.75)
 upper_E_min = sciconv.ev_to_hartree(4.6)
 upper_E_max = E_max_au
 
@@ -448,7 +448,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     rdg_decay_au = np.sqrt(N0) \
-                   * np.exp(-1./4 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
+                   * np.exp(-1./4 * 8 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
                                     -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
     #rdg_decay_au = np.sqrt(N0) \
     #               * np.exp(-1./4 *  (erf((t_au - delta_t_au))
