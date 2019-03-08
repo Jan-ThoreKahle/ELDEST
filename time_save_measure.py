@@ -265,10 +265,20 @@ popfun = lambda t1: np.exp(-2* np.sqrt(2*Ip)**3 / 3 / A0L
 t_au = -TX_au/2
 
 # construct list of energy points
-Ekins = []
+# test different energy areas
+lower_E_min = sciconv.ev_to_hartree(0.45)
+lower_E_max = sciconv.ev_to_hartree(0.75)
+upper_E_min = sciconv.ev_to_hartree(4.6)
+upper_E_max = E_max_au
+Ekins1 = []
+Ekins2 = []
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
-    Ekins.append(sciconv.hartree_to_ev(E_kin_au))
+    if (E_kin_au >= lower_E_min and E_kin_au <= lower_E_max):
+        Ekins2.append(sciconv.hartree_to_ev(E_kin_au))
+    elif (E_kin_au >= upper_E_min and E_kin_au <= upper_E_max):
+        Ekins1.append(sciconv.hartree_to_ev(E_kin_au))
+        Ekins2.append(sciconv.hartree_to_ev(E_kin_au))
     E_kin_au = E_kin_au + E_step_au
 
 
@@ -289,11 +299,6 @@ N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
      * np.exp(-Gamma_au * (delta_t_au - a))
 
 
-# test different energy areas
-lower_E_min = sciconv.ev_to_hartree(0.45)
-lower_E_max = sciconv.ev_to_hartree(0.75)
-upper_E_min = sciconv.ev_to_hartree(4.6)
-upper_E_max = E_max_au
 
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
@@ -361,8 +366,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+            print Ekins1[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins1[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     
 
     t_au = t_au + timestep_au
@@ -436,8 +441,8 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+            print Ekins1[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins1[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
 
@@ -559,8 +564,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+            print Ekins2[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
 
@@ -650,8 +655,8 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins[max_pos[i]], squares[max_pos[i]]
-            outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+            print Ekins2[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
 
