@@ -344,10 +344,10 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                  )
     
             square = np.absolute(J)**2
-        squares = np.append(squares, square)
+            squares = np.append(squares, square)
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
-        outlines.append(string)
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
     
@@ -415,10 +415,10 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                  )
     
             square = np.absolute(J)**2
-        squares = np.append(squares, square)
+            squares = np.append(squares, square)
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
-        outlines.append(string)
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
 
@@ -499,6 +499,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                 res_J2   = prefac_res2 * res_I
     
             square = np.absolute(res_J2)**2
+            squares = np.append(squares, square)
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
 
         elif (E_kin_au >= upper_E_min and E_kin_au <= upper_E_max):
 # integral 1
@@ -533,11 +536,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                  )
     
             square = np.absolute(J)**2
-
-        squares = np.append(squares, square)
-
-        string = in_out.prep_output(square, E_kin_au, t_au)
-        outlines.append(string)
+            squares = np.append(squares, square)
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
 
@@ -597,6 +598,10 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
                 res_J2   = prefac_res2 * res_I
     
             square = np.absolute(res_J2)**2
+            squares = np.append(squares, square)
+
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
         elif (E_kin_au >= upper_E_min and E_kin_au <= upper_E_max):
 # integral 1
             if (integ_outer == "quadrature"):
@@ -618,10 +623,10 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
                 dir_J1 = prefac_dir1 * I1
     
             square = np.absolute(dir_J1)**2
-        squares = np.append(squares, square)
+            squares = np.append(squares, square)
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
-        outlines.append(string)
+            string = in_out.prep_output(square, E_kin_au, t_au)
+            outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
 
