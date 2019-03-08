@@ -36,6 +36,7 @@ print infile
 # open outputfile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
+movie_out = open('movie.dat', mode='w')
 popfile = open("pop.dat", mode='w')
 
 outfile.write("The results were obtained with time_save_measure.py \n")
@@ -304,8 +305,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     squares = np.array([])
     E_kin_au = E_min_au
     
+    t_s = sciconv.atu_to_second(t_au)
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    t_s = sciconv.atu_to_second(t_au)
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
@@ -353,6 +357,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     
     
     in_out.doout_1f(pure_out, outlines)
+    in_out.doout_movie(movie_out, outlines)
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
@@ -375,6 +380,8 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     squares = np.array([])
     E_kin_au = E_min_au
     
+    t_s = sciconv.atu_to_second(t_au)
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
@@ -425,6 +432,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     
     
     in_out.doout_1f(pure_out,outlines)
+    in_out.doout_movie(movie_out, outlines)
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
@@ -445,6 +453,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     squares = np.array([])
     E_kin_au = E_min_au
     
+    t_s = sciconv.atu_to_second(t_au)
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     rdg_decay_au = np.sqrt(N0) \
@@ -545,6 +555,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     
     
     in_out.doout_1f(pure_out,outlines)
+    in_out.doout_movie(movie_out, outlines)
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
@@ -568,6 +579,8 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     squares = np.array([])
     E_kin_au = E_min_au
     
+    t_s = sciconv.atu_to_second(t_au)
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
@@ -633,6 +646,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     
     
     in_out.doout_1f(pure_out,outlines)
+    in_out.doout_movie(movie_out, outlines)
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
@@ -646,3 +660,4 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
 
 outfile.close
 pure_out.close
+movie_out.close
