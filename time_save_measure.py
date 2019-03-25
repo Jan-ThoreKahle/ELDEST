@@ -296,7 +296,7 @@ prefac_dir1 = 1j * cdg_au_V
 prefac_dir2 = 1j * cdg_au_W
 
 N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
-     * np.exp(-Gamma_au * (delta_t_au - a))
+     * np.exp(-Gamma_au/2 * (delta_t_au - a))
 
 
 
