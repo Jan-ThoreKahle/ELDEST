@@ -15,6 +15,7 @@
 import scipy
 import scipy.integrate as integrate
 from scipy.signal import argrelextrema
+from scipy.special import erf
 import numpy as np
 import sciconv
 import complex_integration as ci
@@ -51,7 +52,9 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
-Er_au          = sciconv.ev_to_hartree(Er_a_eV)
+Er_a_au        = sciconv.ev_to_hartree(Er_a_eV)
+Er_b_au        = sciconv.ev_to_hartree(Er_a_eV)
+Er_au          = Er_a_au + Er_b_au
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
 
 tau_au         = sciconv.second_to_atu(tau_s)
@@ -118,6 +121,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # functions for the shape of the XUV pulse
+# use RPA and assume very slowly varying pulse shape
 if (X_sinsq):
     print 'use sinsq function'
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
@@ -138,13 +142,9 @@ else:
 if (Xshape == 'convoluted'):
     FX_t1 = lambda t1: (
                         0
-                        - (A0X
-                           * np.cos(Omega_au * t1)
-                           * fp_t1(t1)
-                          )
-                        + (A0X
+                        - (A0X * 2j
                            * Omega_au
-                           * np.sin(Omega_au * (t1))
+                           * np.exp(-1j*Omega_au * (t1))
                            * f_t1(t1)
                           )
                        )
@@ -153,23 +153,18 @@ elif (Xshape == 'infinite'):
     #FX_t1 = lambda t1: - A0X * np.sin(Omega_au * t1)
                        
 
-# IR pulse
-A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
-                      * np.cos(omega_au * t3 + phi)
-integ_IR = lambda t3: (p_au + A_IR(t3))**2
-
-IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))# \
-
-IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
-
 #-------------------------------------------------------------------------
 # technical defintions of functions
 
 #direct ionization
-fun_t_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                   * np.exp(1j * E_kin_au * (t1-t_au))
-fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                   * np.exp(1j * E_kin_au * (t1-t_au))
+fun_t_dir = lambda t1: - np.exp(-1j*t_au * (E_kin_au + E_fin_au)) \
+                       * np.exp(-sigma**2/2 * (Er_a_au)**2) \
+                       * FX_t1(t1) * np.exp(-1j * t1 * (Er_a_au - E_kin_au - E_fin_au)) \
+                       * erf(1./sigma/np.sqrt(2) * (t1 - 1j * sigma**2 * (Er_a_au - Omega_au)))
+fun_TX2_dir = lambda t1: - np.exp(-1j*t_au * (E_kin_au + E_fin_au)) \
+                       * np.exp(-sigma**2/2 * (Er_a_au)**2) \
+                       * FX_t1(t1) * np.exp(-1j * t1 * (Er_a_au - E_kin_au - E_fin_au)) \
+                       * erf(1./sigma/np.sqrt(2) * (t1 - 1j * sigma**2 * (Er_a_au - Omega_au)))
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
@@ -217,9 +212,10 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-prefac_res = VEr_au * rdg_au
-prefac_indir = -1j * np.pi * VEr_au**2 * cdg_au
-prefac_dir = 1j * cdg_au
+# jdg is assumed to be 1
+prefac_res = -VEr_au * rdg_au / 2
+prefac_indir = 1j * np.pi * VEr_au**2 * cdg_au / 2
+prefac_dir = 1j * cdg_au / 2
 
 
 #-------------------------------------------------------------------------
@@ -234,28 +230,27 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
+        dir_const = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
+                    * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
+                    * erf(1./np.sqrt(2)/sigma * (t_au - 1j*sigma**2 * (Er_a_au - Omega_au)) )
 # integral 1
         if (integ_outer == "quadrature"):
-            I = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-            #I = ci.complex_quadrature(pulses.fun_t_dir_1(t_au=t_au, p_au=p_au,
-            #    E_fin_au=E_fin_au, sigma=sigma, A0X=A0X, Omega_au=Omega_au), (-TX_au/2), t_au)
-            #I = ci.complex_quadrature(pulses.fun_t_dir_1, (-TX_au/2), t_au,
-            #                   args=(t_au=t_au, p_au=p_au, E_fin_au=E_fin_au,
-            #                         sigma=sigma, A0X=A0X, Omega_au=Omega_au))
+            I = ci.complex_quadrature(fun_t_dir, (-TX_au/2), t_au)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
-            dir_J = prefac_dir * I[0]
+            dir_J = prefac_dir * (I[0] + dir_const)
             res_J = prefac_res * res_I[0]
             indir_J = prefac_indir * res_I[0]
 
         elif (integ_outer == "romberg"):
-            I = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+            I = ci.complex_romberg(fun_t_dir, (-TX_au/2), t_au)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
 
-            dir_J = prefac_dir * I
+            dir_J = prefac_dir * (I + dir_const)
             res_J = prefac_res * res_I
             indir_J = prefac_indir * res_I
 
@@ -302,20 +297,24 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
+        dir_const = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
+                    * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
+                    * erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)) )
+
 # integral 1
         if (integ_outer == "quadrature"):
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            I1 = ci.complex_quadrature(fun_TX2_dir, (-TX_au/2), TX_au/2)
             res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
  
-            dir_J = prefac_dir * I1[0]
+            dir_J = prefac_dir * (I1[0] + dir_const)
             res_J = prefac_res * res_I[0]
             indir_J = prefac_indir * res_I[0]
         
         elif (integ_outer == "romberg"):
-            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            I1 = ci.complex_romberg(fun_TX2_dir, (-TX_au/2), TX_au/2)
             res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
     
-            dir_J = prefac_dir * I1
+            dir_J = prefac_dir * (I1 + dir_const)
             res_J = prefac_res * res_I
             indir_J = prefac_indir * res_I
 
@@ -349,56 +348,3 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 
 outfile.close
 pure_out.close
-
-#---------------------------------------------------------------------------------
-# write the time-independent limit at tmax_s into a file to be plotted together with the td result
-print 'Writing the time-independent limit'
-limit = open('limit.dat', mode='w')
-limit.write('\n')
-outlines = []
-#FWHM_E = 1./(2*FWHM)
-#print 'FHWM in energy', sciconv.hartree_to_ev(FWHM_E)
-
-t_limit = lambda x: rdg_au**2 * VEr_au**2 / ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2) \
-                   + (2 * rdg_au**2 * (x + E_fin_au - Er_au)
-                     / (q * np.pi* ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
-                   + (rdg_au**2 * (x + E_fin_au - Er_au)**2
-                     / (q**2 * np.pi**2 * VEr_au**2
-                        * ((x + E_fin_au - Er_au)**2 + VEr_au**4 * np.pi**2))) \
-
-t_limit_q = lambda x: (q + (x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2 \
-                      / (1.0 + ((x + E_fin_au - Er_au) / (np.pi * VEr_au**2))**2)
-
-t_ampl = lambda x: - (rdg_au * VEr_au / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
-                   - (cdg_au * (x + E_fin_au - Er_au)
-                      / np.sqrt((x + E_fin_au - Er_au)**2 + np.pi**2 * VEr_au**4)) \
-                   - 2 * np.sqrt(np.pi**2*Omega_au/3) * cdg_au \
-                     / (x + E_fin_au - Omega_au - 1j*FWHM_E) \
-                     * np.sin(TX_au*(x+E_fin_au-Omega_au-1j*FWHM_E))
-
-if (X_sinsq):
-    print 'use sinsq function'
-    envelope = lambda x: abs(A0X/4 * np.sin((Omega_au - E_fin_au - x) * TX_au/2)
-                          * (+1./(2*np.pi/TX_au - Omega_au + E_fin_au + x)
-                             +2./(Omega_au - E_fin_au - x)
-                             -1./(2*np.pi/TX_au + Omega_au - E_fin_au - x) ))**2
-elif (X_gauss):
-    print 'use gauss function'
-    envelope = lambda x: 1./2 * np.exp(-sigma**2 * (Omega_au - E_fin_au - x)**2 )
-else:
-    print 'no pulse shape selected'
-
-
-E_kin_au = E_min_au
-while (E_kin_au <= E_max_au):
-    #point = A0X**2 * np.abs(t_limit_q(E_kin_au))
-    point = t_limit_q(E_kin_au) * envelope(E_kin_au)
-    #point = t_limit_q(E_kin_au)
-    string = in_out.prep_output(point, E_kin_au, tmax_au)
-    outlines.append(string)
-
-    E_kin_au = E_kin_au + E_step_au
-
-in_out.doout_1f(limit,outlines)
-
-limit.close()
