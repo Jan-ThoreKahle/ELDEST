@@ -158,11 +158,11 @@ elif (Xshape == 'infinite'):
 
 #direct ionization
 fun_t_dir = lambda t1: - np.exp(-1j*t_au * (E_kin_au + E_fin_au)) \
-                       * np.exp(-sigma**2/2 * (Er_a_au)**2) \
+                       * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                        * FX_t1(t1) * np.exp(-1j * t1 * (Er_a_au - E_kin_au - E_fin_au)) \
                        * erf(1./sigma/np.sqrt(2) * (t1 - 1j * sigma**2 * (Er_a_au - Omega_au)))
 fun_TX2_dir = lambda t1: - np.exp(-1j*t_au * (E_kin_au + E_fin_au)) \
-                       * np.exp(-sigma**2/2 * (Er_a_au)**2) \
+                       * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                        * FX_t1(t1) * np.exp(-1j * t1 * (Er_a_au - E_kin_au - E_fin_au)) \
                        * erf(1./sigma/np.sqrt(2) * (t1 - 1j * sigma**2 * (Er_a_au - Omega_au)))
 
@@ -324,7 +324,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
-        dir_const = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
+        dir_const = np.exp(-1j* TX_au/2 * (E_kin_au + E_fin_au)) \
                     * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                     * erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)) )
         res_p1 = np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2)) \
@@ -375,7 +375,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
                     )
 
         J = (0
-             + dir_J
+             #+ dir_J
              + res_J
              + indir_J
              )
