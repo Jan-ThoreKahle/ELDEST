@@ -161,8 +161,7 @@ fun_t_dir = lambda t1: - np.exp(-1j*t_au * (E_kin_au + E_fin_au)) \
                        * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                        * FX_t1(t1) * np.exp(-1j * t1 * (Er_a_au - E_kin_au - E_fin_au)) \
                        * erf(1./sigma/np.sqrt(2) * (t1 - 1j * sigma**2 * (Er_a_au - Omega_au)))
-fun_TX2_dir = lambda t1: - np.exp(-1j*t_au * (E_kin_au + E_fin_au)) \
-                       * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
+fun_TX2_dir = lambda t1: - 1 \
                        * FX_t1(t1) * np.exp(-1j * t1 * (Er_a_au - E_kin_au - E_fin_au)) \
                        * erf(1./sigma/np.sqrt(2) * (t1 - 1j * sigma**2 * (Er_a_au - Omega_au)))
 
@@ -229,6 +228,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
+        dir_fac = np.exp(-1j* t_au/2 * (E_kin_au + E_fin_au)) \
+                  * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2)
         dir_const = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
                     * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                     * erf(1./np.sqrt(2)/sigma * (t_au - 1j*sigma**2 * (Er_a_au - Omega_au)) )
@@ -248,7 +249,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_3 = ci.complex_quadrature(res_int3, (-TX_au/2), t_au)
             res_4 = ci.complex_quadrature(res_int4, (-TX_au/2), t_au)
 
-            dir_J = prefac_dir * (I[0] + dir_const)
+            dir_J = prefac_dir * (dir_fac * I[0] + dir_const)
             res_J = prefac_res * res_p_all * (
                       res_1[0] * res_p1
                     + res_2[0] * res_p2
@@ -270,7 +271,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_3 = ci.complex_romberg(res_int3, (-TX_au/2), t_au)
             res_4 = ci.complex_romberg(res_int4, (-TX_au/2), t_au)
 
-            dir_J = prefac_dir * (I + dir_const)
+            dir_J = prefac_dir * (dir_fac * I + dir_const)
             res_J = prefac_res * (
                       res_1 * res_p1
                     + res_2 * res_p2
@@ -327,9 +328,11 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
-        dir_const = np.exp(-1j* TX_au/2 * (E_kin_au + E_fin_au)) \
+        dir_const = np.exp(-1j* t_au/2 * (E_kin_au + E_fin_au)) \
                     * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                     * erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)) )
+        dir_fac = np.exp(-1j* t_au/2 * (E_kin_au + E_fin_au)) \
+                  * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2)
         res_p1 = np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2)) \
                  * erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)))
         res_p2 = - np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2))
@@ -348,7 +351,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             res_3 = ci.complex_quadrature(res_int3, (-TX_au/2), TX_au/2)
             res_4 = ci.complex_quadrature(res_int4, (-TX_au/2), TX_au/2)
  
-            dir_J = prefac_dir * (I1[0] + dir_const)
+            dir_J = prefac_dir * (dir_fac * I1[0] + dir_const)
             res_J = prefac_res * res_p_all * (
                       res_1[0] * res_p1
                     + res_2[0] * res_p2
@@ -366,7 +369,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             I1 = ci.complex_romberg(fun_TX2_dir, (-TX_au/2), TX_au/2)
             res_1 = ci.complex_romberg(res_int1, (-TX_au/2), TX_au/2)
     
-            dir_J = prefac_dir * (I1 + dir_const)
+            dir_J = prefac_dir * (dir_fac * I1 + dir_const)
             res_J = prefac_res * (
                       res_1 * res_p1
                     + res_2 * res_p2
