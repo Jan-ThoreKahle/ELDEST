@@ -31,7 +31,7 @@ print infile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 
-outfile.write("The results were obtained with photoelectron.py \n")
+outfile.write("The results were obtained with dblexc.py \n")
 #-------------------------------------------------------------------------
 # set some defaults
 Xshape = 'convoluted'
@@ -113,11 +113,11 @@ cdg_au = rdg_au / ( q * np.pi * VEr_au)
 print 'cdg_au = ', cdg_au
 
 
-#-------------------------------------------------------------------------
-in_out.check_input(Er_au, E_fin_au, Gamma_au,
-                   Omega_au, TX_au, n_X, A0X,
-                   omega_au, TL_au, A0L, delta_t_au,
-                   tmax_au, timestep_au, E_step_au)
+##-------------------------------------------------------------------------
+#in_out.check_input(Er_au, E_fin_au, Gamma_au,
+#                   Omega_au, TX_au, n_X, A0X,
+#                   omega_au, TL_au, A0L, delta_t_au,
+#                   tmax_au, timestep_au, E_step_au)
 #-------------------------------------------------------------------------
 # physical defintions of functions
 # functions for the shape of the XUV pulse
@@ -166,18 +166,6 @@ fun_TX2_dir = lambda t1: - np.exp(-1j*t_au * (E_kin_au + E_fin_au)) \
                        * FX_t1(t1) * np.exp(-1j * t1 * (Er_a_au - E_kin_au - E_fin_au)) \
                        * erf(1./sigma/np.sqrt(2) * (t1 - 1j * sigma**2 * (Er_a_au - Omega_au)))
 
-dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
-dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
-
-dress_I_after = lambda t1: integrate.quad(integ_IR,t1,(delta_t_au + TL_au/2))[0]
-dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))
-fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-                              * np.exp(1j * E_kin_au * ((delta_t_au + TL_au/2)-t_au)) \
-                              * dress_after(t1)
-
-fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-                                  * dress(t1)
-
 
 
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
@@ -198,6 +186,13 @@ elif (integ == 'analytic'):
 res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner(t1)
 
+res_int1 = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi * VEr_au**2 + 1j* (Er_au-Er_a_au)))
+res_int2 = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi * VEr_au**2 + 1j* (Er_au-Er_a_au))) \
+                      * erf(1./np.sqrt(2)/sigma * (t1 - 1j*sigma**2 * (Er_a_au - Omega_au)))
+res_int3 = lambda t1: FX_t1(t1) * np.exp(-t1 * 1j* (Er_a_au - E_kin_au - E_fin_au))
+res_int4 = lambda t1: FX_t1(t1) * np.exp(-t1 * 1j* (Er_a_au - E_kin_au - E_fin_au)) \
+                      * erf(1./np.sqrt(2)/sigma * (t1 - 1j*sigma**2 * (Er_a_au - Omega_au)))
+
 #-------------------------------------------------------------------------
 # initialization
 t_au = -TX_au/2
@@ -213,9 +208,9 @@ while (E_kin_au <= E_max_au):
 #-------------------------------------------------------------------------
 # constants / prefactors
 # jdg is assumed to be 1
-prefac_res = -VEr_au * rdg_au / 2
-prefac_indir = 1j * np.pi * VEr_au**2 * cdg_au / 2
-prefac_dir = 1j * cdg_au / 2
+prefac_res = -VEr_au * rdg_au * A0X * Omega_au/ 2
+prefac_indir = 1j * np.pi * VEr_au**2 * cdg_au * A0X * Omega_au/ 2
+prefac_dir = 1j * cdg_au * A0X * Omega_au/ 2
 
 
 #-------------------------------------------------------------------------
@@ -237,22 +232,54 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         dir_const = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
                     * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                     * erf(1./np.sqrt(2)/sigma * (t_au - 1j*sigma**2 * (Er_a_au - Omega_au)) )
+        res_p1 = np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2)) \
+                 * erf(1./np.sqrt(2)/sigma * (t_au - 1j*sigma**2 * (Er_a_au - Omega_au)))
+        res_p2 = - np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2))
+        res_p3 = - erf(1./np.sqrt(2)/sigma * (t_au - 1j*sigma**2 * (Er_a_au - Omega_au)))
+        res_p4 = 1
 # integral 1
         if (integ_outer == "quadrature"):
             I = ci.complex_quadrature(fun_t_dir, (-TX_au/2), t_au)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+            res_1 = ci.complex_quadrature(res_int1, (-TX_au/2), t_au)
+            res_2 = ci.complex_quadrature(res_int2, (-TX_au/2), t_au)
+            res_3 = ci.complex_quadrature(res_int3, (-TX_au/2), t_au)
+            res_4 = ci.complex_quadrature(res_int4, (-TX_au/2), t_au)
 
             dir_J = prefac_dir * (I[0] + dir_const)
-            res_J = prefac_res * res_I[0]
-            indir_J = prefac_indir * res_I[0]
+            res_J = prefac_res * (
+                      res_1[0] * res_p1
+                    + res_2[0] * res_p2
+                    + res_3[0] * res_p3
+                    + res_4[0] * res_p4
+                    )
+            indir_J = prefac_indir * (
+                      res_1[0] * res_p1
+                    + res_2[0] * res_p2
+                    + res_3[0] * res_p3
+                    + res_4[0] * res_p4
+                    )
 
         elif (integ_outer == "romberg"):
             I = ci.complex_romberg(fun_t_dir, (-TX_au/2), t_au)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+            #res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+            res_1 = ci.complex_romberg(res_int1, (-TX_au/2), t_au)
+            res_2 = ci.complex_romberg(res_int2, (-TX_au/2), t_au)
+            res_3 = ci.complex_romberg(res_int3, (-TX_au/2), t_au)
+            res_4 = ci.complex_romberg(res_int4, (-TX_au/2), t_au)
 
             dir_J = prefac_dir * (I + dir_const)
-            res_J = prefac_res * res_I
-            indir_J = prefac_indir * res_I
+            res_J = prefac_res * (
+                      res_1 * res_p1
+                    + res_2 * res_p2
+                    + res_3 * res_p3
+                    + res_4 * res_p4
+                    )
+            indir_J = prefac_indir * (
+                      res_1 * res_p1
+                    + res_2 * res_p2
+                    + res_3 * res_p3
+                    + res_4 * res_p4
+                    )
 
         J = (0
              + dir_J
@@ -300,23 +327,52 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
         dir_const = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
                     * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
                     * erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)) )
+        res_p1 = np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2)) \
+                 * erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)))
+        res_p2 = - np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2))
+        res_p3 = - erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)))
+        res_p4 = 1
 
 # integral 1
         if (integ_outer == "quadrature"):
             I1 = ci.complex_quadrature(fun_TX2_dir, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+            #res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+            res_1 = ci.complex_quadrature(res_int1, (-TX_au/2), TX_au/2)
+            res_2 = ci.complex_quadrature(res_int2, (-TX_au/2), TX_au/2)
+            res_3 = ci.complex_quadrature(res_int3, (-TX_au/2), TX_au/2)
+            res_4 = ci.complex_quadrature(res_int4, (-TX_au/2), TX_au/2)
  
             dir_J = prefac_dir * (I1[0] + dir_const)
-            res_J = prefac_res * res_I[0]
-            indir_J = prefac_indir * res_I[0]
+            res_J = prefac_res * (
+                      res_1[0] * res_p1
+                    + res_2[0] * res_p2
+                    + res_3[0] * res_p3
+                    + res_4[0] * res_p4
+                    )
+            indir_J = prefac_indir * (
+                      res_1[0] * res_p1
+                    + res_2[0] * res_p2
+                    + res_3[0] * res_p3
+                    + res_4[0] * res_p4
+                    )
         
         elif (integ_outer == "romberg"):
             I1 = ci.complex_romberg(fun_TX2_dir, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+            res_1 = ci.complex_romberg(res_int1, (-TX_au/2), TX_au/2)
     
             dir_J = prefac_dir * (I1 + dir_const)
-            res_J = prefac_res * res_I
-            indir_J = prefac_indir * res_I
+            res_J = prefac_res * (
+                      res_1 * res_p1
+                    + res_2 * res_p2
+                    + res_3 * res_p3
+                    + res_4 * res_p4
+                    )
+            indir_J = prefac_indir * (
+                      res_1 * res_p1
+                    + res_2 * res_p2
+                    + res_3 * res_p3
+                    + res_4 * res_p4
+                    )
 
         J = (0
              + dir_J
@@ -348,3 +404,6 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 
 outfile.close
 pure_out.close
+
+print "end of script"
+sys.exit(0)
