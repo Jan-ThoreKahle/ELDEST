@@ -237,6 +237,9 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         res_p2 = - np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2))
         res_p3 = - erf(1./np.sqrt(2)/sigma * (t_au - 1j*sigma**2 * (Er_a_au - Omega_au)))
         res_p4 = 1
+        res_p_all = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
+                    * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
+                    / (np.pi * VEr_au**2 + 1j * (Er_au - E_kin_au - E_fin_au))
 # integral 1
         if (integ_outer == "quadrature"):
             I = ci.complex_quadrature(fun_t_dir, (-TX_au/2), t_au)
@@ -246,7 +249,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             res_4 = ci.complex_quadrature(res_int4, (-TX_au/2), t_au)
 
             dir_J = prefac_dir * (I[0] + dir_const)
-            res_J = prefac_res * (
+            res_J = prefac_res * res_p_all * (
                       res_1[0] * res_p1
                     + res_2[0] * res_p2
                     + res_3[0] * res_p3
@@ -332,6 +335,9 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
         res_p2 = - np.exp(-t_au * (1j*(Er_au - E_fin_au - E_kin_au) + np.pi * VEr_au**2))
         res_p3 = - erf(1./np.sqrt(2)/sigma * (TX_au/2 - 1j*sigma**2 * (Er_a_au - Omega_au)))
         res_p4 = 1
+        res_p_all = np.exp(-1j* t_au * (E_kin_au + E_fin_au)) \
+                    * np.exp(-sigma**2/2 * (Er_a_au - Omega_au)**2) \
+                    / (np.pi * VEr_au**2 + 1j * (Er_au - E_kin_au - E_fin_au))
 
 # integral 1
         if (integ_outer == "quadrature"):
@@ -343,7 +349,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
             res_4 = ci.complex_quadrature(res_int4, (-TX_au/2), TX_au/2)
  
             dir_J = prefac_dir * (I1[0] + dir_const)
-            res_J = prefac_res * (
+            res_J = prefac_res * res_p_all * (
                       res_1[0] * res_p1
                     + res_2[0] * res_p2
                     + res_3[0] * res_p3
@@ -375,7 +381,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
                     )
 
         J = (0
-             #+ dir_J
+             + dir_J
              + res_J
              + indir_J
              )
