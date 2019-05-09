@@ -36,7 +36,7 @@ print infile
 outfile = open("eldest.out", mode='w')
 pure_out = open('full.dat', mode='w')
 
-outfile.write("The results were obtained with loop_delta.py \n")
+outfile.write("The results were obtained with loop_Asquare.py \n")
 
 #-------------------------------------------------------------------------
 # read inputfile
@@ -512,8 +512,10 @@ res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_a
 t_au = delta_t_s + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
-    delta_t_au = -TL_au/n_L /20
-    delta_t_max = TL_au/n_L /20
+    #delta_t_au = -TL_au/n_L /20
+    #delta_t_max = TL_au/n_L /20
+    delta_t_au = - sciconv.second_to_atu(2.0E-15)
+    delta_t_max = 0
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
@@ -575,6 +577,8 @@ while (delta_t_au <= delta_t_max):
              + res_J
              + indir_J
              )
+
+        dir_J = 0
 
         square = np.absolute(J)**2
         dir_term = np.absolute(dir_J)**2
