@@ -95,3 +95,9 @@ def Wcm2_to_aiu(I_Wcm2):
 #    I_aiu = I_Wcm2 * np.sqrt(constants.epsilon_0 * constants.c)\
 #            * (a_0 * constants.e / E_h) * 10000
     return I_aiu
+
+#-------------------------------------------------------------------------
+#      g/mol to atomic units (mass of electron)
+def gmol_to_me(m_gmol):
+    m_au = m_gmol / constants.Avogadro / 1000 / constants.electron_mass
+    return m_au
