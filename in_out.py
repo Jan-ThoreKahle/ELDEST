@@ -59,6 +59,35 @@ def read_input(inputfile, outfile):
     #
     integ         = "analytic"
     integ_outer   = "romberg"
+    # parameters for the nuclear dynamics
+    mass1         = 20.1797 #in g/mol
+    mass2         = 20.1797 # in g/mol
+    grad_delta    = 0.001
+    R_eq_AA       = 3.08
+#flat test
+    V_RICD_in_a   = 0
+    V_RICD_in_b   = 0
+    V_RICD_in_c   = 0
+    V_RICD_in_d   = 47.6930
+#ungerade initial state
+    #V_RICD_in_a   = -33.179112
+    #V_RICD_in_b   = 1.930064
+    #V_RICD_in_c   = 37.757254
+    #V_RICD_in_d   = 47.6930
+#gerade initial state
+    #V_RICD_in_a   = -15.869110
+    #V_RICD_in_b   = 1.659155
+    #V_RICD_in_c   = 75.293906
+    #V_RICD_in_d   = 47.6930
+    V_fin_RICD_a  = 13.915571
+    V_fin_RICD_b  = 42.516162
+    V_ICD_in_a    = -33.179112
+    V_ICD_in_b    = 1.930064
+    V_ICD_in_c    = 37.757254
+    V_ICD_in_d    = 48.4750
+    V_fin_ICD_a   = 13.915571
+    V_fin_ICD_b   = 42.516162
+    V_fin_ICD_b   = 43.298162
 #-------------------------------------------------------------------------
 
     f = open(inputfile, 'r')
@@ -255,7 +284,13 @@ def read_input(inputfile, outfile):
             omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV,
-            integ, integ_outer)
+            integ, integ_outer,
+            mass1, mass2, grad_delta, R_eq_AA,
+            V_RICD_in_a, V_RICD_in_b, V_RICD_in_c, V_RICD_in_d,
+            V_fin_RICD_a, V_fin_RICD_b,
+            V_ICD_in_a, V_ICD_in_b, V_ICD_in_c, V_ICD_in_d,
+            V_fin_ICD_a, V_fin_ICD_b
+            )
 
 #-------------------------------------------------------------------------
 def check_input(Er, E_fin, Gamma,
