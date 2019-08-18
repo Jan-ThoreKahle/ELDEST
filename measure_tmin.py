@@ -297,14 +297,11 @@ def part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au):
     exp = np.exp(-1j * t_au * (Er_au - 1j*np.pi*VEr_au**2 - E_kin_au - E_fin_au))
     oneover = 1.j/(Er_au - 1j*np.pi*VEr_au**2 - E_kin_au - E_fin_au)
     part1 = exp * oneover
-    print "t_au = ", t_au
-    print "part1 = ", part1
     return part1
 
 def part2const_1st(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n):
     oneover = 1.j/(Er_au - 1j*np.pi*VEr_au**2 - E_kin_au - E_fin_au)
     part2 = oneover
-    print "part2_st = ", part2
     return part2
 
 def part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min):
@@ -312,8 +309,6 @@ def part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min):
                  * (Er_au - 1j*np.pi*VEr_au**2 - E_kin_au - E_fin_au))
     oneover = 1.j/(Er_au - 1j*np.pi*VEr_au**2 - E_kin_au - E_fin_au)
     part2 = exp * oneover
-    print "time- = ", t1min + (n-1) * timestep_au
-    print "part2 = ", part2
     return part2
 
 #-------------------------------------------------------------------------
@@ -514,24 +509,9 @@ while ((t_au <= 0) and (t_au <= tmax_au)):
                             * part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min)
                 else:
                     resstate2 = I1[0] * part2const_1st(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n)
-                print "resstates = ", resstate1, resstate2
-                #store = (prefac_res1) * (resstate1)
-                store = (prefac_res1) * (resstate1 - resstate2)
-                #store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
-                #exp_res = (  np.exp(-1j* n * timestep_au *
-                #                    (Er_au - 1j * VEr_au**2 - E_kin_au - E_fin_au))
-                #           - np.exp(-1j* (n-1) * timestep_au *
-                #                    (Er_au - 1j * VEr_au**2 - E_kin_au - E_fin_au))
-                #          )
+                store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
     
                 dir_J1 = prefac_dir1 * I1[0] * np.exp(-1j * (E_kin_au + T_K + E_fin_au) * t_au)
-                #res_J1 = prefac_res1 * I1[0] * exp_res \
-                #         * 1./(1j*(E_kin_au + E_fin_au - Er_au)
-                #                  - np.pi * (VEr_au**2))
-                #indir_J1 = prefac_indir1 * I1[0] * exp_res \
-                #         * 1./(1j*(E_kin_au + E_fin_au - Er_au)
-                #                  - np.pi * (VEr_au**2)) 
-                #store = res_J1
     
             elif (integ_outer == "romberg"):
                 E_fin_au = E_fin_au_1
@@ -545,11 +525,9 @@ while ((t_au <= 0) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            #res_tuples.append(tuple((n,res_J1 + indir_J1, T_K + E_fin_au)))
             res_tuples.append(tuple((n,store, T_K + E_fin_au)))
             
-            #J = dir_J1
-            J = 0
+            J = dir_J1
             square = 0
             for time in range(0,n+1):
                 new_part = res_tuples[len(Ekins1)*time + E_index][1] \
@@ -648,24 +626,9 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                             * part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min)
                 else:
                     resstate2 = I1[0] * part2const_1st(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n)
-                print "resstates = ", resstate1, resstate2
-                #store = (prefac_res1) * (resstate1)
-                store = (prefac_res1) * (resstate1 - resstate2)
-                #store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
-                #exp_res = (  np.exp(-1j* n * timestep_au *
-                #                    (Er_au - 1j * VEr_au**2 - E_kin_au - E_fin_au))
-                #           - np.exp(-1j* (n-1) * timestep_au *
-                #                    (Er_au - 1j * VEr_au**2 - E_kin_au - E_fin_au))
-                #          )
+                store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
     
                 dir_J1 = prefac_dir1 * I1[0] * np.exp(-1j * (E_kin_au + T_K + E_fin_au) * t_au)
-                #res_J1 = prefac_res1 * I1[0] * exp_res \
-                #         * 1./(1j*(E_kin_au + E_fin_au - Er_au)
-                #                  - np.pi * (VEr_au**2))
-                #indir_J1 = prefac_indir1 * I1[0] * exp_res \
-                #         * 1./(1j*(E_kin_au + E_fin_au - Er_au)
-                #                  - np.pi * (VEr_au**2))
-                #store = res_J1
     
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
@@ -675,11 +638,9 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            #res_tuples.append(tuple((n,res_J1 + indir_J1, T_K + E_fin_au)))
             res_tuples.append(tuple((n,store, T_K + E_fin_au)))
             
             J = dir_J1
-            J = 0
             square = 0
             for time in range(0,n+1):
                 new_part = res_tuples[len(Ekins1)*time + E_index][1] \
@@ -779,23 +740,9 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                 resstate1 = Ires[0] * part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au)
                 resstate2 = Ires[0] \
                             * part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min)
-                print "resstates = ", resstate1, resstate2
-                #store = (prefac_res1) * (resstate1)
-                store = (prefac_res1) * (resstate1 - resstate2)
-                #store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
-                #exp_res = (  np.exp(-1j* n * timestep_au *
-                #                    (Er_au - 1j * VEr_au**2 - E_kin_au - E_fin_au))
-                #           - np.exp(-1j* (n-1) * timestep_au *
-                #                    (Er_au - 1j * VEr_au**2 - E_kin_au - E_fin_au))
-                #          )
+                store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
     
                 dir_J1 = prefac_dir1 * I1[0] * np.exp(-1j * (E_kin_au + T_K + E_fin_au) * t_au)
-                #res_J1 = prefac_res1 * I1[0] * exp_res \
-                #         * 1./(1j*(E_kin_au + E_fin_au - Er_au)
-                #                  - np.pi * (VEr_au**2))
-                #indir_J1 = prefac_indir1 * I1[0] * exp_res \
-                #         * 1./(1j*(E_kin_au + E_fin_au - Er_au)
-                #                  - np.pi * (VEr_au**2))
             
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_TX2_1, (-TX_au/2), TX_au/2)
@@ -805,11 +752,9 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            #res_tuples.append(tuple((n,res_J1 + indir_J1, T_K + E_fin_au)))
             res_tuples.append(tuple((n,store, T_K + E_fin_au)))
             
             J = dir_J1
-            J = 0
             square = 0
             for time in range(0,n+1):
                 new_part = res_tuples[len(Ekins1)*time + E_index][1] \
@@ -843,9 +788,9 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     t_au = t_au + timestep_au
     n = n + 1
 
-for i in range(0,len(Ekins1) * (n)):
-    print res_tuples[i]
-    outfile.write(str(res_tuples[i]) + '\n')
+#for i in range(0,len(Ekins1) * (n)):
+#    print res_tuples[i]
+#    outfile.write(str(res_tuples[i]) + '\n')
 
 
 #-------------------------------------------------------------------------
