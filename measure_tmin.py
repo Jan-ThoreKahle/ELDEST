@@ -226,9 +226,9 @@ fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * (E_kin_au + E_fin_au + T_K) *
                                      #* np.exp(-1j * (E_kin_au + T_K + E_fin_au) * t_au)
 #fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
 #                                     * np.exp(1j * E_kin_au * (t1-t_au))
-fun_t_TX2_1 = lambda t1: FX_t1(t1)   * np.exp(1j * (E_fin_au_TX2 + T_K_TX2) * t1) \
-                                     * np.exp(1j * E_kin_au * (t1-t_au)) \
-                                     * np.exp(-1j * (T_K_TX2 + E_fin_au_TX2) * t_au)
+fun_t_TX2_1 = lambda t1: FX_t1(t1)   * np.exp(1j * (E_kin_au + E_fin_au_TX2 + T_K_TX2) * t1)
+                                     #* np.exp(1j * E_kin_au * (t1-t_au)) \
+                                     #* np.exp(-1j * (T_K_TX2 + E_fin_au_TX2) * t_au)
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
@@ -433,7 +433,7 @@ while (E_kin_au <= E_max_au):
             res_J1 = prefac_res1 * res_I
             indir_J1 = prefac_indir1 * res_I
 
-        res_tuples.append(tuple((n,res_J1 + indir_J1, E_fin_au)))
+        res_tuples.append(tuple((n,res_J1, indir_J1, E_fin_au)))
 
         J = (0
              + dir_J1
@@ -503,13 +503,16 @@ while ((t_au <= 0) and (t_au <= tmax_au)):
     
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                 Ires = ci.complex_quadrature(part1_integral, (-TX_au/2), t_au)
-                resstate1 = Ires[0] * part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au)
+                resstate1 = part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au) \
+                            * (prefac_res1 + prefac_indir1)
                 if (n!=1):
-                    resstate2 = Ires[0] \
-                            * part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min)
+                    resstate2 = part2const(Er_au, VEr_au,
+                                           E_kin_au, E_fin_au, timestep_au, n, t1min) \
+                                * (prefac_res1 + prefac_indir1)
                 else:
-                    resstate2 = I1[0] * part2const_1st(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n)
-                store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
+                    resstate2 = part2const_1st(Er_au, VEr_au, E_kin_au,
+                                               E_fin_au, timestep_au, n) \
+                                * (prefac_res1 + prefac_indir1)
     
                 dir_J1 = prefac_dir1 * I1[0] * np.exp(-1j * (E_kin_au + T_K + E_fin_au) * t_au)
     
@@ -525,14 +528,23 @@ while ((t_au <= 0) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            res_tuples.append(tuple((n,store, T_K + E_fin_au)))
+            res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            #res_tuples.append(tuple((n,resstate1, 0, T_K + E_fin_au)))
             
             J = dir_J1
+            #J = 0
             square = 0
             for time in range(0,n+1):
-                new_part = res_tuples[len(Ekins1)*time + E_index][1] \
+                first = res_tuples[len(Ekins1)*time + E_index][1] * Ires[0]
+                if (time !=1):
+                    sec = res_tuples[len(Ekins1)*time + E_index][2] * Ires[0]
+                else:
+                    sec = res_tuples[len(Ekins1)*time + E_index][2] * I1[0]
+                new_part = (first - sec) \
                            * np.exp(-1j * t_au * (E_kin_au
-                                    + res_tuples[len(Ekins1*time) + E_index][2]))
+                                    + res_tuples[len(Ekins1*time) + E_index][3]))
+                #print "first = ", first
+                #print "sec = ", sec
                 J = J + new_part
                 #square = square + np.absolute(res_tuples[len(Ekins1)*time][1]
                 #         * np.exp(-1j * t_au * (E_kin_au + res_tuples[len(Ekins1*time)][2]))
@@ -605,8 +617,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     else:
        VEr_au = 0
 
-    prefac_res1 = VEr_au * rdg_au
-    prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
+    #prefac_res1 = VEr_au * rdg_au
+    #prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 
     E_index = 0
 
@@ -620,13 +632,16 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                 Ires = ci.complex_quadrature(part1_integral, (-TX_au/2), t_au)
-                resstate1 = Ires[0] * part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au)
+                resstate1 = part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au) \
+                            * (prefac_res1 + prefac_indir1)
                 if (n!=1):
-                    resstate2 = Ires[0] \
-                            * part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min)
+                    resstate2 = part2const(Er_au, VEr_au,
+                                           E_kin_au, E_fin_au, timestep_au, n, t1min) \
+                                * (prefac_res1 + prefac_indir1)
                 else:
-                    resstate2 = I1[0] * part2const_1st(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n)
-                store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
+                    resstate2 = part2const_1st(Er_au, VEr_au, E_kin_au,
+                                               E_fin_au, timestep_au, n) \
+                                * (prefac_res1 + prefac_indir1)
     
                 dir_J1 = prefac_dir1 * I1[0] * np.exp(-1j * (E_kin_au + T_K + E_fin_au) * t_au)
     
@@ -638,15 +653,24 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            res_tuples.append(tuple((n,store, T_K + E_fin_au)))
+            res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            #res_tuples.append(tuple((n,resstate1, 0, T_K + E_fin_au)))
             
             J = dir_J1
+            #J = 0
             square = 0
             for time in range(0,n+1):
-                new_part = res_tuples[len(Ekins1)*time + E_index][1] \
+                first = res_tuples[len(Ekins1)*time + E_index][1] * Ires[0]
+                if (time !=1):
+                    sec = res_tuples[len(Ekins1)*time + E_index][2] * Ires[0]
+                else:
+                    sec = res_tuples[len(Ekins1)*time + E_index][2] * I1[0]
+                new_part = (first - sec) \
                            * np.exp(-1j * t_au * (E_kin_au
-                                    + res_tuples[len(Ekins1*time) + E_index][2]))
+                                    + res_tuples[len(Ekins1*time) + E_index][3]))
                 J = J + new_part
+                #print "first = ", first
+                #print "sec = ", sec
                 #print "newpart = ", new_part
                 #square = square + np.absolute(res_tuples[len(Ekins1)*time][1]
                 #         * np.exp(-1j * t_au * (E_kin_au + res_tuples[len(Ekins1*time)][2]))
@@ -676,6 +700,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     n = n + 1
 
 
+#-------- Special cases --------------------
+R       = 0.5*a*timestep_au**2 + v0*timestep_au + R0
+E_fin_R = potentials.hyperbel(V_fin_RICD_a,V_fin_RICD_b,R)
+T_K = 0
+#-------------------------------------------
 E_fin_au_TX2 = E_fin_R
 T_K_TX2      = T_K
 
@@ -722,8 +751,8 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     else:
        VEr_au = 0
 
-    prefac_res1 = VEr_au * rdg_au
-    prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
+    #prefac_res1 = VEr_au * rdg_au
+    #prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 
     E_index = 0
 
@@ -737,10 +766,16 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_TX2_1, (-TX_au/2), TX_au/2)
                 Ires = ci.complex_quadrature(part1_integral, (-TX_au/2), TX_au/2)
-                resstate1 = Ires[0] * part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au)
-                resstate2 = Ires[0] \
-                            * part2const(Er_au, VEr_au, E_kin_au, E_fin_au, timestep_au, n, t1min)
-                store = (prefac_res1 + prefac_indir1) * (resstate1 + resstate2)
+                resstate1 = part1const(Er_au, VEr_au, E_kin_au, E_fin_au, t_au) \
+                            * (prefac_res1 + prefac_indir1)
+                if (n!=1):
+                    resstate2 = part2const(Er_au, VEr_au,
+                                           E_kin_au, E_fin_au, timestep_au, n, t1min) \
+                                * (prefac_res1 + prefac_indir1)
+                else:
+                    resstate2 = part2const_1st(Er_au, VEr_au, E_kin_au,
+                                               E_fin_au, timestep_au, n) \
+                                * (prefac_res1 + prefac_indir1)
     
                 dir_J1 = prefac_dir1 * I1[0] * np.exp(-1j * (E_kin_au + T_K + E_fin_au) * t_au)
             
@@ -752,15 +787,24 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            res_tuples.append(tuple((n,store, T_K + E_fin_au)))
+            res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            #res_tuples.append(tuple((n,resstate1, 0, T_K + E_fin_au)))
             
             J = dir_J1
+            #J = 0
             square = 0
             for time in range(0,n+1):
-                new_part = res_tuples[len(Ekins1)*time + E_index][1] \
+                first = res_tuples[len(Ekins1)*time + E_index][1] * Ires[0]
+                if (time !=1):
+                    sec = res_tuples[len(Ekins1)*time + E_index][2] * Ires[0]
+                else:
+                    sec = res_tuples[len(Ekins1)*time + E_index][2] * I1[0]
+                new_part = (first - sec) \
                            * np.exp(-1j * t_au * (E_kin_au
-                                    + res_tuples[len(Ekins1*time) + E_index][2]))
+                                    + res_tuples[len(Ekins1*time) + E_index][3]))
                 J = J + new_part
+                #print "first = ", first
+                #print "sec = ", sec
                 #square = square + np.absolute(res_tuples[len(Ekins1)*time][1]
                 #         * np.exp(-1j * t_au * (E_kin_au + res_tuples[len(Ekins1*time)][2]))
                 #         + dir_J1 )**2
