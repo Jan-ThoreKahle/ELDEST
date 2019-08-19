@@ -47,6 +47,15 @@ Xshape = 'convoluted'
 
 #-------------------------------------------------------------------------
 # read inputfile
+#(rdg_au, cdg_au,
+# Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+# interact_eV,
+# Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
+# omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
+# tmax_s, timestep_s, E_step_eV,
+# E_min_eV, E_max_eV,
+# integ, integ_outer) = in_out.read_input(infile, outfile)
+
 (rdg_au, cdg_au,
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
  interact_eV,
@@ -54,8 +63,12 @@ Xshape = 'convoluted'
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
- integ, integ_outer) = in_out.read_input(infile, outfile)
-
+ integ, integ_outer,
+ mass1, mass2, grad_delta, R_eq_AA,
+ V_RICD_in_a, V_RICD_in_b, V_RICD_in_c, V_RICD_in_d,
+ V_fin_RICD_a, V_fin_RICD_b,
+ V_ICD_in_a, V_ICD_in_b, V_ICD_in_c, V_ICD_in_d,
+ V_fin_ICD_a, V_fin_ICD_b) = in_out.read_input(infile, outfile)
 
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
