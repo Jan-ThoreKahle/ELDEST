@@ -421,11 +421,11 @@ while ((t_au <= 0) and (t_au <= tmax_au)):
                 indir_J1 = prefac_indir1 * res_I
     
             J = (0
-                 #+ dir_J1
+                 + dir_J1
                  + res_J1
                  + indir_J1
                  )
-            outfile.write("Ekin, Jres = " + str(E_kin_au) + '  ' + str(res_J1)+'\n')
+            #outfile.write("Ekin, Jres = " + str(E_kin_au) + '  ' + str(res_J1)+'\n')
     
             square = np.absolute(J)**2
             squares = np.append(squares, square)
@@ -520,12 +520,12 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 indir_J1 = prefac_indir1 * res_I
     
             J = (0
-                 #+ dir_J1
+                 + dir_J1
                  + res_J1
                  + indir_J1
                  )
     
-            outfile.write("Ekin, Jres = " + str(E_kin_au) + '  ' + str(res_J1)+'\n')
+            #outfile.write("Ekin, Jres = " + str(E_kin_au) + '  ' + str(res_J1)+'\n')
 
             square = np.absolute(J)**2
             squares = np.append(squares, square)
@@ -598,11 +598,6 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     else:
        VEr_au = 0
 
-    #E_fin_au = E_fin_au_1
-    #Er_au = Er_a_au
-    #VEr_au = VEr_au_1
-
-
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
@@ -627,11 +622,11 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                 indir_J1 = prefac_indir1 * res_I
     
             J = (0
-                 #+ dir_J1
+                 + dir_J1
                  + res_J1
                  + indir_J1
                  )
-            outfile.write("Ekin, Jres = " + str(E_kin_au) + '  ' + str(res_J1)+'\n')
+            #outfile.write("Ekin, Jres = " + str(E_kin_au) + '  ' + str(res_J1)+'\n')
     
             square = np.absolute(J)**2
             squares = np.append(squares, square)
