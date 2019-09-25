@@ -15,6 +15,7 @@
 import scipy
 import scipy.integrate as integrate
 from scipy.signal import argrelextrema
+from scipy.special import erf
 import numpy as np
 import sciconv
 import complex_integration as ci
@@ -34,9 +35,11 @@ print infile
 #-------------------------------------------------------------------------
 # open outputfile
 outfile = open("eldest.out", mode='w')
+movie_out = open('movie.dat', mode='w')
+popfile = open("pop.dat", mode='w')
 pure_out = open('full.dat', mode='w')
 
-outfile.write("The results were obtained with photoelectron.py \n")
+outfile.write("The results were obtained with indep_photo.py \n")
 #-------------------------------------------------------------------------
 # set some defaults
 Xshape = 'convoluted'
@@ -44,14 +47,27 @@ Xshape = 'convoluted'
 
 #-------------------------------------------------------------------------
 # read inputfile
+#(rdg_au, cdg_au,
+# Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
+# interact_eV,
+# Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
+# omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
+# tmax_s, timestep_s, E_step_eV,
+# E_min_eV, E_max_eV,
+# integ, integ_outer) = in_out.read_input(infile, outfile)
 (rdg_au, cdg_au,
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
  interact_eV,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
- omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q,
+ omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
- integ, integ_outer) = in_out.read_input(infile, outfile)
+ integ, integ_outer,
+ mass1, mass2, grad_delta, R_eq_AA,
+ V_RICD_in_a, V_RICD_in_b, V_RICD_in_c, V_RICD_in_d,
+ V_fin_RICD_a, V_fin_RICD_b,
+ V_ICD_in_a, V_ICD_in_b, V_ICD_in_c, V_ICD_in_d,
+ V_fin_ICD_a, V_fin_ICD_b) = in_out.read_input(infile, outfile)
 
 
 #-------------------------------------------------------------------------
@@ -104,6 +120,9 @@ print 'E0L', E0L
 A0L           = E0L / omega_au
 print 'A0L = ', A0L
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
+FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
+sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))
+a             = 5./2 * sigma_L_au
 
 # parameters of the simulation
 tmax_au       = sciconv.second_to_atu(tmax_s)
@@ -227,11 +246,17 @@ res_outer_fun = lambda t1: FX_t1(t1) \
 t_au = -TX_au/2
 
 # construct list of energy points
+lower_E_min = sciconv.ev_to_hartree(E_min_au)
+lower_E_max = sciconv.ev_to_hartree(12.2)
+upper_E_min = sciconv.ev_to_hartree(12.7)
+upper_E_max = E_max_au
+
 Ekins = []
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
     Ekins.append(sciconv.hartree_to_ev(E_kin_au))
     E_kin_au = E_kin_au + E_step_au
+Ekins2 = Ekins
 
 
 #-------------------------------------------------------------------------
@@ -242,14 +267,16 @@ while (E_kin_au <= E_max_au):
 aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 
-prefac_res1 = aV * VEr_au * rdg_au
-prefac_res2 = aW * WEr_au * rdg_au
-prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au) * cdg_au_V
-prefac_indir2 = -1j * np.pi * WEr_au * (WEr_au) * cdg_au_W
+prefac_res1 = VEr_au * rdg_au * aV
+prefac_res2 = WEr_au * rdg_au * aW
+prefac_indir1 = -1j * np.pi * VEr_au * (VEr_au) * cdg_au_V * aV
+prefac_indir2 = -1j * np.pi * WEr_au * (WEr_au) * cdg_au_W * aW
 #prefac_indir = 0
-prefac_dir1 = 1j * aV * cdg_au_V
-prefac_dir2 = 1j * aW * cdg_au_W
+prefac_dir1 = 1j * cdg_au_V * aV
+prefac_dir2 = 1j * cdg_au_W * aW
 
+N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_au)**2) \
+     * np.exp(-Gamma_au * (delta_t_au - a))
 
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
@@ -261,68 +288,64 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     squares = np.array([])
     E_kin_au = E_min_au
     
+    t_s = sciconv.atu_to_second(t_au)
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
-        p_au = np.sqrt(2*E_kin_au)
+        if (E_kin_au > lower_E_max and E_kin_au < upper_E_min):
+            square = 0
+        else:
+            p_au = np.sqrt(2*E_kin_au)
 
 # integral 1
-        if (integ_outer == "quadrature"):
-            E_fin_au = E_fin_au_1
-            VEr_au = VEr_au_1
+            if (integ_outer == "quadrature"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
 
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
-            dir_J1 = prefac_dir1 * I1[0]
-            #dir_J1 = 0
-            res_J1 = prefac_res1 * res_I[0]
-            indir_J1 = prefac_indir1 * res_I[0]
+                dir_J1 = prefac_dir1 * I1[0]
+                res_J1 = prefac_res1 * res_I[0]
+                indir_J1 = prefac_indir1 * res_I[0]
 
-            E_fin_au = E_fin_au_2
-            VEr_au = WEr_au
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
 
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
 
-            dir_J2 = prefac_dir2 * I1[0]
-            #dir_J2 = 0
-            res_J2 = prefac_res2 * res_I[0]
-            indir_J2 = prefac_indir2 * res_I[0]
+                dir_J2 = prefac_dir2 * I1[0]
+                res_J2 = prefac_res2 * res_I[0]
+                indir_J2 = prefac_indir2 * res_I[0]
 
-        elif (integ_outer == "romberg"):
-            E_fin_au = E_fin_au_1
-            VEr_au = VEr_au_1
+            elif (integ_outer == "romberg"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
 
-            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
     
-            dir_J1 = 0
-            dir_J1 = prefac_dir1 * I1
-            res_J1 = prefac_res1 * res_I
-            indir_J1 = prefac_indir1 * res_I
+                dir_J1 = 0
+                dir_J1 = prefac_dir1 * I1
+                res_J1 = prefac_res1 * res_I
+                indir_J1 = prefac_indir1 * res_I
 
-            E_fin_au = E_fin_au_2
-            VEr_au = WEr_au
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
 
-            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
     
-            dir_J2 = prefac_dir2 * I1
-            #dir_J2 = 0
-            res_J2 = prefac_res2 * res_I
-            indir_J2 = prefac_indir2 * res_I
+                dir_J2 = prefac_dir2 * I1
+                res_J2 = prefac_res2 * res_I
+                indir_J2 = prefac_indir2 * res_I
 
-        #J = (0
-        #     + dir_J1 + dir_J2
-        #     + res_J1 + res_J2
-        #     + indir_J1 + indir_J2
-        #     )
-        J1 = dir_J1 + res_J1 + indir_J1
-        J2 = dir_J2 + res_J2 + indir_J2
-        #J2 = 0
+            J1 = dir_J1 + res_J1 + indir_J1
+            J2 = dir_J2 + res_J2 + indir_J2
 
-        square = np.absolute(J1)**2 + np.absolute(J2)**2
+            square = np.absolute(J1)**2 + np.absolute(J2)**2
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
@@ -332,6 +355,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     
     
     in_out.doout_1f(pure_out, outlines)
+    in_out.doout_movie(movie_out, outlines)
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
@@ -345,7 +369,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 
 #-------------------------------------------------------------------------
-while (t_au >= TX_au/2 and (t_au <= tmax_au)):
+while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('after the XUV pulse \n')
     print 'after the XUV pulse'
@@ -354,67 +378,63 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     squares = np.array([])
     E_kin_au = E_min_au
     
+    t_s = sciconv.atu_to_second(t_au)
     print 't_s = ', sciconv.atu_to_second(t_au)
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
-        p_au = np.sqrt(2*E_kin_au)
+        if (E_kin_au > lower_E_max and E_kin_au < upper_E_min):
+            square = 0
+        else:
+            p_au = np.sqrt(2*E_kin_au)
 
 # integral 1
-        if (integ_outer == "quadrature"):
-            E_fin_au = E_fin_au_1
-            VEr_au = VEr_au_1
-
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-
-            dir_J1 = prefac_dir1 * I1[0]
-            #dir_J1 = 0
-            res_J1 = prefac_res1 * res_I[0]
-            indir_J1 = prefac_indir1 * res_I[0]
-
-            E_fin_au = E_fin_au_2
-            VEr_au = WEr_au
-
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-
-            dir_J2 = prefac_dir2 * I1[0]
-            #dir_J2 = 0
-            res_J2 = prefac_res2 * res_I[0]
-            indir_J2 = prefac_indir2 * res_I[0]
+            if (integ_outer == "quadrature"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
+    
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+                dir_J1 = prefac_dir1 * I1[0]
+                res_J1 = prefac_res1 * res_I[0]
+                indir_J1 = prefac_indir1 * res_I[0]
+    
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
+    
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+                dir_J2 = prefac_dir2 * I1[0]
+                res_J2 = prefac_res2 * res_I[0]
+                indir_J2 = prefac_indir2 * res_I[0]
+            
+            elif (integ_outer == "romberg"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
+    
+                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
         
-        elif (integ_outer == "romberg"):
-            E_fin_au = E_fin_au_1
-            VEr_au = VEr_au_1
-
-            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1
+                res_J1 = prefac_res1 * res_I
+                indir_J1 = prefac_indir1 * res_I
     
-            dir_J1 = prefac_dir1 * I1
-            res_J1 = prefac_res1 * res_I
-            indir_J1 = prefac_indir1 * res_I
-
-            E_fin_au = E_fin_au_2
-            VEr_au = WEr_au
-
-            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
     
-            dir_J2 = prefac_dir2 * I1
-            res_J2 = prefac_res2 * res_I
-            indir_J2 = prefac_indir2 * res_I
-
-        #J = (0
-        #     + dir_J1 + dir_J2
-        #     + res_J1 + res_J2
-        #     + indir_J1 + indir_J2
-        #     )
-
-        J1 = dir_J1 + res_J1 + indir_J1
-        J2 = dir_J2 + res_J2 + indir_J2
-        #J2 = 0
-
-        square = np.absolute(J1)**2 + np.absolute(J2)**2
+                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+        
+                dir_J2 = prefac_dir2 * I1
+                res_J2 = prefac_res2 * res_I
+                indir_J2 = prefac_indir2 * res_I
+    
+            J1 = dir_J1 + res_J1 + indir_J1
+            J2 = dir_J2 + res_J2 + indir_J2
+    
+            square = np.absolute(J1)**2 + np.absolute(J2)**2
         squares = np.append(squares, square)
 
         string = in_out.prep_output(square, E_kin_au, t_au)
@@ -425,6 +445,7 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
     
     
     in_out.doout_1f(pure_out,outlines)
+    in_out.doout_movie(movie_out, outlines)
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
@@ -433,8 +454,184 @@ while (t_au >= TX_au/2 and (t_au <= tmax_au)):
 
     t_au = t_au + timestep_au
 
+#-------------------------------------------------------------------------
+while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax_au)):
+#-------------------------------------------------------------------------
+    outfile.write('during the second pulse \n')
+    print 'during the second pulse'
+
+    outlines = []
+    squares = np.array([])
+    E_kin_au = E_min_au
+
+    t_s = sciconv.atu_to_second(t_au)
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
+    print 't_s = ', sciconv.atu_to_second(t_au)
+    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    rdg_decay_au = np.sqrt(N0) \
+                   * np.exp(-1./4 * 8 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
+                                    -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
+
+    print "sqrt N0 = ", np.sqrt(N0)
+    print "rdg_decay_au = ", rdg_decay_au
+    Mrt = np.sqrt(N0) - rdg_decay_au
+    prefac_res1 = VEr_au * rdg_decay_au
+    prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
+    prefac_res2 = WEr_au * rdg_decay_au
+    prefac_indir2 = -1j * WEr_au * rdg_decay_au / q
+
+    print "Mr(t) = ", (np.sqrt(N0) - rdg_decay_au)
+
+    popfile.write(str(sciconv.atu_to_second(t_au)) + '   ' + str(rdg_decay_au**2)
+                  + '   ' + str(Mrt**2) + '\n')
+
+    while (E_kin_au <= E_max_au):
+        if (E_kin_au > lower_E_max and E_kin_au < upper_E_min):
+            square = 0
+        else:
+            p_au = np.sqrt(2*E_kin_au)
+
+# integral 1
+            if (integ_outer == "quadrature"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
+    
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+                dir_J1 = prefac_dir1 * I1[0]
+                res_J1 = prefac_res1 * res_I[0]
+                indir_J1 = prefac_indir1 * res_I[0]
+    
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
+    
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+                dir_J2 = prefac_dir2 * I1[0]
+                res_J2 = prefac_res2 * res_I[0]
+                indir_J2 = prefac_indir2 * res_I[0]
+            
+            elif (integ_outer == "romberg"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
+    
+                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+        
+                dir_J1 = prefac_dir1 * I1
+                res_J1 = prefac_res1 * res_I
+                indir_J1 = prefac_indir1 * res_I
+    
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
+    
+                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+        
+                dir_J2 = prefac_dir2 * I1
+                res_J2 = prefac_res2 * res_I
+                indir_J2 = prefac_indir2 * res_I
+    
+            J1 = dir_J1 + res_J1 + indir_J1
+            J2 = dir_J2 + res_J2 + indir_J2
+    
+            square = np.absolute(J1)**2 + np.absolute(J2)**2
+        squares = np.append(squares, square)
+        string = in_out.prep_output(square, E_kin_au, t_au)
+        outlines.append(string)
+
+        E_kin_au = E_kin_au + E_step_au
+
+
+    in_out.doout_1f(pure_out,outlines)
+    in_out.doout_movie(movie_out, outlines)
+    max_pos = argrelextrema(squares, np.greater)[0]
+    if (len(max_pos > 0)):
+        for i in range (0, len(max_pos)):
+            print Ekins2[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+
+    t_au = t_au + timestep_au
+
+
+
+popfile.close
+
+#-------------------------------------------------------------------------
+while (t_au <= tmax_au):
+#-------------------------------------------------------------------------
+    outfile.write('after the pulses \n')
+    print 'after the pulses'
+
+    outlines = []
+    squares = np.array([])
+    E_kin_au = E_min_au
+
+    t_s = sciconv.atu_to_second(t_au)
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
+    print 't_s = ', sciconv.atu_to_second(t_au)
+    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+
+    while (E_kin_au <= E_max_au):
+        if (E_kin_au > lower_E_max and E_kin_au < upper_E_min):
+            square = 0
+        else:
+            p_au = np.sqrt(2*E_kin_au)
+
+# integral 1
+            if (integ_outer == "quadrature"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
+    
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1[0]
+    
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
+    
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                dir_J2 = prefac_dir2 * I1[0]
+            
+            elif (integ_outer == "romberg"):
+                E_fin_au = E_fin_au_1
+                VEr_au = VEr_au_1
+    
+                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1
+    
+                E_fin_au = E_fin_au_2
+                VEr_au = WEr_au
+    
+                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                dir_J2 = prefac_dir2 * I1
+    
+            J1 = dir_J1
+            J2 = dir_J2
+    
+            square = np.absolute(J1)**2 + np.absolute(J2)**2
+        squares = np.append(squares, square)
+        string = in_out.prep_output(square, E_kin_au, t_au)
+        outlines.append(string)
+
+        E_kin_au = E_kin_au + E_step_au
+
+
+    in_out.doout_1f(pure_out,outlines)
+    in_out.doout_movie(movie_out, outlines)
+    max_pos = argrelextrema(squares, np.greater)[0]
+    if (len(max_pos > 0)):
+        for i in range (0, len(max_pos)):
+            print Ekins2[max_pos[i]], squares[max_pos[i]]
+            outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
+
+    t_au = t_au + timestep_au
+
+
+
 
 
 outfile.close
 pure_out.close
-
+movie_out.close
