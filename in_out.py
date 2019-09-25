@@ -65,15 +65,15 @@ def read_input(inputfile, outfile):
     grad_delta    = 0.001
     R_eq_AA       = 3.08
 #flat test
-    V_RICD_in_a   = 0
-    V_RICD_in_b   = 0
-    V_RICD_in_c   = 0
-    V_RICD_in_d   = 47.6930
-#ungerade initial state
-    #V_RICD_in_a   = -33.179112
-    #V_RICD_in_b   = 1.930064
-    #V_RICD_in_c   = 37.757254
+    #V_RICD_in_a   = 0
+    #V_RICD_in_b   = 0
+    #V_RICD_in_c   = 0
     #V_RICD_in_d   = 47.6930
+#ungerade initial state
+    V_RICD_in_a   = -33.179112
+    V_RICD_in_b   = 1.930064
+    V_RICD_in_c   = 37.757254
+    V_RICD_in_d   = 47.6930
 #gerade initial state
     #V_RICD_in_a   = -15.869110
     #V_RICD_in_b   = 1.659155

@@ -630,7 +630,10 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            if (E_res_R >= E_fin_R):
+                res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            else:
+                res_tuples.append(tuple((n,0, 0, T_K + E_fin_au)))
             
             J = dir_J1
             for time in range(0,n+1):
@@ -644,6 +647,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                                     + res_tuples[len(Ekins1*time) + E_index][3]))
                 J = J + new_part
     
+
             square = np.absolute(J)**2
             squares = np.append(squares, square)
 
@@ -747,7 +751,11 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
     
-            res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            #res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            if (E_res_R >= E_fin_R):
+                res_tuples.append(tuple((n,resstate1, resstate2, T_K + E_fin_au)))
+            else:
+                res_tuples.append(tuple((n,0, 0, T_K + E_fin_au)))
             
             J = dir_J1
             for time in range(0,n+1):
