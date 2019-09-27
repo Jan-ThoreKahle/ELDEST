@@ -249,6 +249,7 @@ t_au = -TX_au/2
 lower_E_min = sciconv.ev_to_hartree(E_min_au)
 lower_E_max = sciconv.ev_to_hartree(12.2)
 upper_E_min = sciconv.ev_to_hartree(12.7)
+#upper_E_min = sciconv.ev_to_hartree(12.3)
 upper_E_max = E_max_au
 
 Ekins = []
