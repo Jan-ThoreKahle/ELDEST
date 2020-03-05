@@ -253,29 +253,11 @@ elif (integ == 'analytic'):
                             * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                            )
 
-res_inner_prep_damp = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
-                                - np.pi * (VEr_au**2 + UEr_au**2))
-                        * (np.exp((t1+t_before) * (1j*(E_kin_au + E_fin_au - Er_au)
-                                              - np.pi * (VEr_au**2 + UEr_au**2)))
-                          - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
-                                              - np.pi * (VEr_au**2 + UEr_au**2))))
-                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
-                       )
-
-res_inner_damp_store = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
-                                - np.pi * (VEr_au**2 + UEr_au**2))
-                        * (np.exp((t1+t_before+timestep_au) * (1j*(E_kin_au + E_fin_au - Er_au)
-                                              - np.pi * (VEr_au**2 + UEr_au**2)))
-                          - np.exp((t1+t_before) * (1j*(E_kin_au + E_fin_au - Er_au)
-                                              - np.pi * (VEr_au**2 + UEr_au**2))))
-                        * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
-                       )
-
 res_inner_damp = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                                 - np.pi * (VEr_au**2 + UEr_au**2))
                         * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
                                               - np.pi * (VEr_au**2 + UEr_au**2)))
-                          - np.exp((t1+t_before) * (1j*(E_kin_au + E_fin_au - Er_au)
+                          - np.exp((t_before) * (1j*(E_kin_au + E_fin_au - Er_au)
                                               - np.pi * (VEr_au**2 + UEr_au**2))))
                         * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                        )
@@ -296,14 +278,6 @@ res_outer_fun = lambda t1: FX_t1(t1) \
 res_outer_fun_damp = lambda t1: FX_t1(t1) \
                            * np.exp(t1 * (np.pi* (VEr_au**2 + UEr_au**2) + 1j*Er_au)) \
                            * res_inner_damp(t1)
-
-res_outer_fun_prep_damp = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * (np.pi* (VEr_au**2 + UEr_au**2) + 1j*Er_au)) \
-                           * res_inner_prep_damp(t1)
-
-res_outer_fun_damp_store = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * (np.pi* (VEr_au**2 + UEr_au**2) + 1j*Er_au)) \
-                           * res_inner_damp_store(t1)
 
 second_outer_fun = lambda t1: A0X \
                               * np.exp((t1) * (np.pi* (VEr_au**2) + 1j*Er_au)) \
@@ -542,7 +516,7 @@ while (E_kin_au <= E_max_au):
             Er_au = Er_a_au
             VEr_au = VEr_au_1
 
-            res_I = ci.complex_quadrature(res_outer_fun_prep_damp, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
 
             res_J1 = prefac_res1 * res_I[0]
             indir_J1 = prefac_indir1 * res_I[0]
@@ -553,7 +527,7 @@ while (E_kin_au <= E_max_au):
             Er_au = Er_a_au
             VEr_au = VEr_au_1
 
-            res_I = ci.complex_romberg(res_outer_fun_prep_damp, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
     
             res_J1 = prefac_res1 * res_I
             indir_J1 = prefac_indir1 * res_I
@@ -655,17 +629,12 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                 VEr_au = VEr_au_1
     
                 I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                #res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
                 res_I = ci.complex_quadrature(res_outer_fun_damp, (-TX_au/2), TX_au/2)
-                ress_I = ci.complex_quadrature(res_outer_fun_damp_store, (-TX_au/2), TX_au/2)
     
                 dir_J1 = prefac_dir1 * I1[0]
                 res_J1 = prefac_res1 * res_I[0]
                 indir_J1 = prefac_indir1 * res_I[0]
                 mix_J1 = prefac_mix1 * res_I[0]
-                sres_J1 = prefac_res1 * ress_I[0]
-                sindir_J1 = prefac_indir1 * ress_I[0]
-                smix_J1 = prefac_mix1 * ress_I[0]
             
             elif (integ_outer == "romberg"):
                 E_fin_au = E_fin_au_1
@@ -673,25 +642,22 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                 VEr_au = VEr_au_1
     
                 I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                #res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
                 res_I = ci.complex_romberg(res_outer_fun_damp, (-TX_au/2), TX_au/2)
-                ress_I = ci.complex_romberg(res_outer_fun_damp_store, (-TX_au/2), TX_au/2)
         
                 dir_J1 = prefac_dir1 * I1
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
                 mix_J1 = prefac_mix1 * res_I
-                sres_J1 = prefac_res1 * ress_I
-                sindir_J1 = prefac_indir1 * ress_I
-                smix_J1 = prefac_mix1 * ress_I
             
+            ress[E_count] = ress[E_count] * np.exp(-1j*timestep_au * (E_kin_au + E_fin_au))
+
             J = (0
                  + dir_J1
                  + ress[E_count]
                  + res_J1 + indir_J1 + mix_J1
                  )
 
-            ress[E_count] = ress[E_count] + (sres_J1 + sindir_J1 + smix_J1)
+            ress[E_count] = ress[E_count] + (res_J1 + indir_J1 + mix_J1)
 
             E_count = E_count + 1
     
@@ -713,7 +679,6 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
             outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     t_before = t_au
     t_au = t_au + timestep_au
-    print "sum = ", ress
 
 
 
@@ -787,6 +752,8 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     
                 dir_J1 = prefac_dir1 * I1
     
+            ress[E_count] = ress[E_count] * np.exp(-1j* timestep_au * (E_kin_au + E_fin_au))
+
             J = (0
                  + dir_J1
                  + ress[E_count]
