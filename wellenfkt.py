@@ -3,22 +3,20 @@
 ##########################################################################
 #                             WELLENFKT                                  #
 ##########################################################################
-# Purpose:                                                               #
-#                                                                        #
+# Purpose: Determine Franck-Condon factors and eigenenergies of Morse    #
+#          potentials based on analytical solutions                      #
+#          of Morse-Potentials (JCP 88, 4535 (1988).)                    #
 ##########################################################################
 # written by: Elke Fasshauer August 2019                                 #
 ##########################################################################
 
 import scipy.misc
 import scipy.integrate as integrate
-#from scipy.signal import argrelextrema
-#from scipy.special import erf
 from scipy.special import gamma
 from scipy.special import eval_genlaguerre
 from scipy.special import genlaguerre
 import numpy as np
 import sciconv as sc
-#import complex_integration as ci
 #import in_out
 import sys
 import warnings
@@ -84,18 +82,20 @@ alpha = gs_a
 Req = gs_Req
 n_gs = 0
 
-lambda_param_gs = np.sqrt(2*red_mass * gs_de) / gs_a
-z_gs = lambda R: 2* lambda_param_gs * np.exp(-gs_a * (R - gs_Req))
-Nn_gs = np.sqrt(scipy.misc.factorial(n_gs) * (2*lambda_param_gs - 2*n_gs - 1)
-                / gamma(2*lambda_param_gs - n_gs))
-
-psi_n_gs = lambda R: (1.0
-           * np.sqrt(gs_a)
-           *Nn_gs
-           * z_gs(R)**(lambda_param_gs - n_gs - 0.5) 
-           * np.exp(-z_gs(R)/2) 
-           * eval_genlaguerre(n_gs, 2*lambda_param_gs - 2*n_gs -1, z_gs(R))
-            )
+# functioning version, but can be numerically unstable for some
+# potentials, the other one is more stable
+#lambda_param_gs = np.sqrt(2*red_mass * gs_de) / gs_a
+#z_gs = lambda R: 2* lambda_param_gs * np.exp(-gs_a * (R - gs_Req))
+#Nn_gs = np.sqrt(scipy.misc.factorial(n_gs) * (2*lambda_param_gs - 2*n_gs - 1)
+#                / gamma(2*lambda_param_gs - n_gs))
+#
+#psi_n_gs = lambda R: (1.0
+#           * np.sqrt(gs_a)
+#           *Nn_gs
+#           * z_gs(R)**(lambda_param_gs - n_gs - 0.5) 
+#           * np.exp(-z_gs(R)/2) 
+#           * eval_genlaguerre(n_gs, 2*lambda_param_gs - 2*n_gs -1, z_gs(R))
+#            )
 
 print "--------------------------------"
 
@@ -110,24 +110,22 @@ Req = u_Req
 def psi_n(R,n):
     lambda_param = np.sqrt(2*red_mass*De) / alpha
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
-    #s = 2*lambda_param - 2*n - 1
     if (n == 0):
-   #     s = 2*lambda_param - 2*n - 1
         psi_0 = ( 1.0 
-                     * np.sqrt(alpha)
-                     #/ sqrt_fact(2*lambda_param-2)
+                     * np.sqrt(alpha) # not mentioned part of norm. fact.
+                     # needed due to different type of Laguerre polyomials
+                     #/ sqrt_fact(2*lambda_param-2) alternative normalization
+                     # factor based on Eq. (41)
                      * np.sqrt(s) * sqrt_fact(n) / sqrt_fact(s+n)
-                     * z**(s/4)
+                     * z**(s/4) #improves numerical stability to split
                      * z**(s/4)
                      * np.exp(-z / 2)
                      )
         return psi_0
     elif (n == 1):
-        #s = 2*lambda_param - 2*n - 1
         psi_1 = ( 1.0 
                      * (2*n + s -1 -z)
                      * np.sqrt(1./(n*(s + n)))
-                     #/ np.sqrt(s+n)
                      )
         return psi_1 * psi_n(R,n-1)
     else:
@@ -142,30 +140,7 @@ z = lambda R: 2* lambda_param * np.exp(-alpha * (R - Req))
 Nn = np.sqrt(scipy.misc.factorial(n) * (2*lambda_param - 2*n - 1)) \
                 / sqrt_fact(2*lambda_param - n - 1)
 
-## funktioniert nicht ordentlich -> numerisch instabil
-#psi_n = lambda R: Nn *( 1
-#           * z(R)**(lambda_param - n - 0.5) 
-#           * np.exp(-z(R)/2) 
-#           * eval_genlaguerre(n, 2*lambda_param - 2*n -1, z(R))
-#            )
 
-
-# try eq 50 for n = 0
-s = 2*lambda_param - 2*n - 1
-#psi_0 = lambda R:  ( 1.0 
-#                        * np.sqrt(alpha)
-#                        / sqrt_fact(2*lambda_param-2)
-#                        * z(R)**(s/4)
-#                        * z(R)**(s/4)
-#                        * np.exp(-z(R) / 2)
-#                        )
-#
-#psi_1 = lambda R:  ( 1.0 
-#                        * psi_0(R)
-#                        * (2 * n + s -1 - z(R))
-#                        * np.sqrt(1./(n*(s + n)))
-#                        )
-n = 2
 s = 2*lambda_param - 2*n - 1
 
 func = lambda R, n: psi_n(R,n) * psi_n(R,n)
