@@ -82,7 +82,7 @@ print eigenvalue(n, gs_de, gs_a, red_mass)
 De = gs_de
 alpha = gs_a
 Req = gs_Req
-n_gs = 1
+n_gs = 0
 
 lambda_param_gs = np.sqrt(2*red_mass * gs_de) / gs_a
 z_gs = lambda R: 2* lambda_param_gs * np.exp(-gs_a * (R - gs_Req))
@@ -110,12 +110,13 @@ Req = u_Req
 def psi_n(R,n):
     lambda_param = np.sqrt(2*red_mass*De) / alpha
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
-    s = 2*lambda_param - 2*n - 1
+    #s = 2*lambda_param - 2*n - 1
     if (n == 0):
    #     s = 2*lambda_param - 2*n - 1
         psi_0 = ( 1.0 
                      * np.sqrt(alpha)
-                     / sqrt_fact(2*lambda_param-2)
+                     #/ sqrt_fact(2*lambda_param-2)
+                     * np.sqrt(s) * sqrt_fact(n) / sqrt_fact(s+n)
                      * z**(s/4)
                      * z**(s/4)
                      * np.exp(-z / 2)
@@ -124,8 +125,9 @@ def psi_n(R,n):
     elif (n == 1):
         #s = 2*lambda_param - 2*n - 1
         psi_1 = ( 1.0 
-                     * (2 * n + s -1 - z)
+                     * (2*n + s -1 -z)
                      * np.sqrt(1./(n*(s + n)))
+                     #/ np.sqrt(s+n)
                      )
         return psi_1 * psi_n(R,n-1)
     else:
@@ -140,7 +142,7 @@ z = lambda R: 2* lambda_param * np.exp(-alpha * (R - Req))
 Nn = np.sqrt(scipy.misc.factorial(n) * (2*lambda_param - 2*n - 1)) \
                 / sqrt_fact(2*lambda_param - n - 1)
 
-# funktioniert nicht ordentlich -> numerisch instabil
+## funktioniert nicht ordentlich -> numerisch instabil
 #psi_n = lambda R: Nn *( 1
 #           * z(R)**(lambda_param - n - 0.5) 
 #           * np.exp(-z(R)/2) 
@@ -163,11 +165,13 @@ s = 2*lambda_param - 2*n - 1
 #                        * (2 * n + s -1 - z(R))
 #                        * np.sqrt(1./(n*(s + n)))
 #                        )
-n = 27
+n = 2
+s = 2*lambda_param - 2*n - 1
 
-#func = lambda R, n: psi_n(R,n) * psi_n(R,n)
+func = lambda R, n: psi_n(R,n) * psi_n(R,n)
+#func = lambda R, n: psi_n(R) * psi_n(R)
 #func = lambda R: psi_n_gs(R) * psi_n_gs(R)
-func = lambda R, n: psi_n_gs(R) * psi_n(R,n)
+#func = lambda R, n: psi_n_gs(R) * psi_n(R,n)
 
 R_min = sc.angstrom_to_bohr(1.5)
 R_max = sc.angstrom_to_bohr(30.0)
@@ -176,4 +180,5 @@ print "R_min = ", R_min
 print "R_max = ", R_max
 
 FC = integrate.quad(func, R_min, R_max, args=(n))
+#FC = integrate.quad(func, R_min, R_max)
 print "FC = ", FC[0]
