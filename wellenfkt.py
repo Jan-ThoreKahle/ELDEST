@@ -24,7 +24,9 @@ import potentials
 
 #-------------------------------------------------------------------------
 
-n = 3
+n = 0
+n1 = n
+n2 = n
 
 #-------------------------------------------------------------------------
 # Parameters for potentials
@@ -104,9 +106,16 @@ def psi_n(R,n,alpha,Req,red_mass,De):
     s = 2*lambda_param - 2*n - 1
     psi = const_s_psi(R,n,s,alpha,Req,lambda_param)
     return psi
+    
 
+def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
+    func = lambda R: (psi_n(R,n1,alpha1,Req1,red_mass,De1)
+                    * psi_n(R,n2,alpha2,Req2,red_mass,De2) )
+    tmp = integrate.quad(func, R_min, R_max)
+    FC = tmp[0]
+    return FC
+    
 
-func = lambda R: psi_n(R,n,u_a,u_Req,red_mass,u_de) * psi_n(R,n,u_a,u_Req,red_mass,u_de)
 
 R_min = sc.angstrom_to_bohr(1.5)
 R_max = sc.angstrom_to_bohr(30.0)
@@ -114,5 +123,9 @@ R_max = sc.angstrom_to_bohr(30.0)
 print "R_min = ", R_min
 print "R_max = ", R_max
 
-FC = integrate.quad(func, R_min, R_max)
-print "FC = ", FC[0]
+FCO = FC(n1,u_a,u_Req,u_de,red_mass,n2,u_a,u_Req,u_de,R_min,R_max)
+
+print "FC = ", FCO
+
+
+
