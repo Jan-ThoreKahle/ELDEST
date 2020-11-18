@@ -24,7 +24,7 @@ import potentials
 
 #-------------------------------------------------------------------------
 
-n = 1
+n = 0
 
 #-------------------------------------------------------------------------
 # Parameters for potentials
@@ -71,10 +71,6 @@ print eigenvalue(n, gs_de, gs_a, red_mass)
 
 print "--------------------------------"
 
-De = u_de
-alpha = u_a
-Req = u_Req
-
 def const_s_psi(R,n,s,alpha,Req,lambda_param):
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
     if (n == 0):
@@ -110,7 +106,7 @@ def psi_n(R,n,alpha,Req,red_mass,De):
     return psi
 
 
-func = lambda R, n: psi_n(R,n,alpha,Req,red_mass,De) * psi_n(R,n,alpha,Req,red_mass,De)
+func = lambda R, n: psi_n(R,n,u_a,u_Req,red_mass,u_de) * psi_n(R,n,u_a,u_Req,red_mass,u_de)
 
 R_min = sc.angstrom_to_bohr(1.5)
 R_max = sc.angstrom_to_bohr(30.0)
