@@ -5,8 +5,8 @@
 #        Investigating Electronic Decay Processes with Streaking         #
 ##########################################################################
 # Purpose:                                                               #
-#          - A program to simulate the streaking process of electronic   #
-#            decay processes.                                            #
+#          - A program to simulate the RICD stopped by a second pulse    #
+#            to give ICD with two final states. Script for first PRA.    #
 #                                                                        #
 ##########################################################################
 # written by: Elke Fasshauer May 2018                                    #
