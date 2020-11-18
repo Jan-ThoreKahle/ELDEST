@@ -55,6 +55,7 @@ g_const    = -256.182536
 
 mass1 = 20.1797
 mass2 = 20.1797
+#-------------------------------------------------------------------------
 
 red_mass_gmol = mass1 * mass2 / (mass1 + mass2)
 red_mass = sc.gmol_to_me(red_mass_gmol)
