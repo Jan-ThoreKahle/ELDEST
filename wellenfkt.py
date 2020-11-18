@@ -33,7 +33,7 @@ import potentials
 #outfile.write("The results were obtained with time_measure_split.py \n")
 #-------------------------------------------------------------------------
 
-n = 0
+n = 2
 
 #-------------------------------------------------------------------------
 # Parameters for potentials
@@ -108,8 +108,8 @@ Req = u_Req
 #alpha = g_a
 #Req = g_Req
 
-def psi_n(R,n):
-    lambda_param = np.sqrt(2*red_mass*De) / alpha
+def const_s_psi(R,n,s,alpha,Req,lambda_param):
+    #lambda_param = np.sqrt(2*red_mass*De) / alpha
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
     if (n == 0):
         psi_0 = ( 1.0 
@@ -128,23 +128,58 @@ def psi_n(R,n):
                      * (2*n + s -1 -z)
                      * np.sqrt(1./(n*(s + n)))
                      )
-        return psi_1 * psi_n(R,n-1)
+        return psi_1 * const_s_psi(R,n-1,s,alpha,Req,lambda_param)
     else:
         prefac  =  np.sqrt(1./(n*(s + n)))
         prefac1 =  (2 * n + s -1 - z)
         prefac2 = np.sqrt((n-1) * (n + s - 1))
-        return prefac * (prefac1 * psi_n(R,n-1) - (prefac2 * psi_n(R,n-2)))
+        return prefac * (prefac1 * const_s_psi(R,n-1,s,alpha,Req,lambda_param)
+                         - (prefac2 * const_s_psi(R,n-2,s,alpha,Req,lambda_param)))
 
-lambda_param = np.sqrt(2*red_mass*De) / alpha
-#print "lambda_param = ", lambda_param
-z = lambda R: 2* lambda_param * np.exp(-alpha * (R - Req))
-Nn = np.sqrt(scipy.misc.factorial(n) * (2*lambda_param - 2*n - 1)) \
-                / sqrt_fact(2*lambda_param - n - 1)
+#def psi_n(R,n):
+#    lambda_param = np.sqrt(2*red_mass*De) / alpha
+#    z = 2* lambda_param * np.exp(-alpha * (R - Req))
+#    if (n == 0):
+#        psi_0 = ( 1.0 
+#                     * np.sqrt(alpha) # not mentioned part of norm. fact.
+#                     # needed due to different type of Laguerre polyomials
+#                     #/ sqrt_fact(2*lambda_param-2) alternative normalization
+#                     # factor based on Eq. (41)
+#                     * np.sqrt(s) * sqrt_fact(n) / sqrt_fact(s+n)
+#                     * z**(s/4) #improves numerical stability to split
+#                     * z**(s/4)
+#                     * np.exp(-z / 2)
+#                     )
+#        return psi_0
+#    elif (n == 1):
+#        psi_1 = ( 1.0 
+#                     * (2*n + s -1 -z)
+#                     * np.sqrt(1./(n*(s + n)))
+#                     )
+#        return psi_1 * psi_n(R,n-1)
+#    else:
+#        prefac  =  np.sqrt(1./(n*(s + n)))
+#        prefac1 =  (2 * n + s -1 - z)
+#        prefac2 = np.sqrt((n-1) * (n + s - 1))
+#        return prefac * (prefac1 * psi_n(R,n-1) - (prefac2 * psi_n(R,n-2)))
+
+def psi_n(R,n,alpha,Req,red_mass,De):
+    lambda_param = np.sqrt(2*red_mass*De) / alpha
+    s = 2*lambda_param - 2*n - 1
+    psi = const_s_psi(R,n,s,alpha,Req,lambda_param)
+    return psi
+
+##print "lambda_param = ", lambda_param
+#z = lambda R: 2* lambda_param * np.exp(-alpha * (R - Req))
+#Nn = np.sqrt(scipy.misc.factorial(n) * (2*lambda_param - 2*n - 1)) \
+#                / sqrt_fact(2*lambda_param - n - 1)
 
 
-s = 2*lambda_param - 2*n - 1
+#s = 2*lambda_param - 2*n - 1
 
-func = lambda R, n: psi_n(R,n) * psi_n(R,n)
+#func = lambda R, n: const_s_psi(R,n,alpha,Req,lambda_param) * const_s_psi(R,n,alpha,Req,lambda_param)
+func = lambda R, n: psi_n(R,n,alpha,Req,red_mass,De) * psi_n(R,n,alpha,Req,red_mass,De)
+#func = lambda R, n: psi_n(R,n) * psi_n(R,n)
 #func = lambda R, n: psi_n(R) * psi_n(R)
 #func = lambda R: psi_n_gs(R) * psi_n_gs(R)
 #func = lambda R, n: psi_n_gs(R) * psi_n(R,n)
