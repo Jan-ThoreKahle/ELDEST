@@ -22,18 +22,9 @@ import sys
 import warnings
 import potentials
 
-
-#infile = sys.argv[1]
-#print infile
-
-#-------------------------------------------------------------------------
-# open outputfile
-#outfile = open("eldest.out", mode='w')
-
-#outfile.write("The results were obtained with time_measure_split.py \n")
 #-------------------------------------------------------------------------
 
-n = 2
+n = 1
 
 #-------------------------------------------------------------------------
 # Parameters for potentials
@@ -78,38 +69,13 @@ print "Grundzustand:"
 print "Potentialtiefe", gs_de
 print eigenvalue(n, gs_de, gs_a, red_mass)
 
-De = gs_de
-alpha = gs_a
-Req = gs_Req
-n_gs = 0
-
-# functioning version, but can be numerically unstable for some
-# potentials, the other one is more stable
-#lambda_param_gs = np.sqrt(2*red_mass * gs_de) / gs_a
-#z_gs = lambda R: 2* lambda_param_gs * np.exp(-gs_a * (R - gs_Req))
-#Nn_gs = np.sqrt(scipy.misc.factorial(n_gs) * (2*lambda_param_gs - 2*n_gs - 1)
-#                / gamma(2*lambda_param_gs - n_gs))
-#
-#psi_n_gs = lambda R: (1.0
-#           * np.sqrt(gs_a)
-#           *Nn_gs
-#           * z_gs(R)**(lambda_param_gs - n_gs - 0.5) 
-#           * np.exp(-z_gs(R)/2) 
-#           * eval_genlaguerre(n_gs, 2*lambda_param_gs - 2*n_gs -1, z_gs(R))
-#            )
-
 print "--------------------------------"
 
 De = u_de
 alpha = u_a
 Req = u_Req
 
-#De = g_de
-#alpha = g_a
-#Req = g_Req
-
 def const_s_psi(R,n,s,alpha,Req,lambda_param):
-    #lambda_param = np.sqrt(2*red_mass*De) / alpha
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
     if (n == 0):
         psi_0 = ( 1.0 
@@ -153,5 +119,4 @@ print "R_min = ", R_min
 print "R_max = ", R_max
 
 FC = integrate.quad(func, R_min, R_max, args=(n))
-#FC = integrate.quad(func, R_min, R_max)
 print "FC = ", FC[0]
