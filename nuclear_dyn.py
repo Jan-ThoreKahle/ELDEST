@@ -44,7 +44,6 @@ outfile.write("The results were obtained with nuclear_dyn.py \n")
 # set some defaults
 Xshape = 'convoluted'
 
-
 #-------------------------------------------------------------------------
 
 (rdg_au, cdg_au,
@@ -56,10 +55,10 @@ Xshape = 'convoluted'
  E_min_eV, E_max_eV,
  integ, integ_outer,
  mass1, mass2, grad_delta, R_eq_AA,
- V_RICD_in_a, V_RICD_in_b, V_RICD_in_c, V_RICD_in_d,
- V_fin_RICD_a, V_fin_RICD_b,
- V_ICD_in_a, V_ICD_in_b, V_ICD_in_c, V_ICD_in_d,
- V_fin_ICD_a, V_fin_ICD_b) = in_out.read_input(infile, outfile)
+ gs_de_eV, gs_a_AA, gs_Req_AA, gs_const_eV,
+ res_de_eV, res_a_AA, res_Req_AA, res_const_eV,
+ fin_a_eV, fin_b_AA, fin_c_AA, fin_d_eV, fin_pot_type
+ ) = in_out.read_input(infile, outfile)
 
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
@@ -184,7 +183,11 @@ elif (Xshape == 'infinite'):
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
-
+#direct ionization
+fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
+                                     * np.exp(1j * E_kin_au * (t1-t_au))
+fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
+                                     * np.exp(1j * E_kin_au * (t1-t_au))
 
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * (VEr_au**2) + 1j*(Er_au))) \
                            * IR_during(t2)
@@ -221,24 +224,6 @@ popfun = lambda t1: np.exp(-2* np.sqrt(2*Ip)**3 / 3 / A0L
 # initialization
 t_au = -TX_au/2
 
-## construct list of energy points
-## test different energy areas
-#lower_E_min = sciconv.ev_to_hartree(0.45)
-#lower_E_max = sciconv.ev_to_hartree(0.75)
-#upper_E_min = sciconv.ev_to_hartree(4.6)
-#upper_E_max = E_max_au
-#Ekins1 = []
-#Ekins2 = []
-#E_kin_au = E_min_au
-#while (E_kin_au <= E_max_au):
-#    if (E_kin_au >= lower_E_min and E_kin_au <= lower_E_max):
-#        Ekins2.append(sciconv.hartree_to_ev(E_kin_au))
-#    elif (E_kin_au >= upper_E_min and E_kin_au <= upper_E_max):
-#        Ekins1.append(sciconv.hartree_to_ev(E_kin_au))
-#        Ekins2.append(sciconv.hartree_to_ev(E_kin_au))
-#    E_kin_au = E_kin_au + E_step_au
-
-
 
 Ekins = []
 E_kin_au = E_min_au
@@ -249,16 +234,10 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
-aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
-
 prefac_res1 = VEr_au * rdg_au
-prefac_res2 = WEr_au
 prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
-prefac_indir2 = -1j * np.pi * WEr_au**2 * cdg_au_W
 #prefac_indir = 0
 prefac_dir1 = 1j * cdg_au_V
-prefac_dir2 = 1j * cdg_au_W
 
 N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
      * np.exp(-Gamma_au * (delta_t_au - a))
@@ -283,45 +262,42 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
-        if (E_kin_au < upper_E_min):
-            square = 0.0
-        else:
 # integral 1
-            if (integ_outer == "quadrature"):
-                E_fin_au = E_fin_au_1
-                Er_au = Er_a_au
-                VEr_au = VEr_au_1
+        if (integ_outer == "quadrature"):
+            E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
     
-                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
     
-                dir_J1 = prefac_dir1 * I1[0]
-                res_J1 = prefac_res1 * res_I[0]
-                indir_J1 = prefac_indir1 * res_I[0]
+            dir_J1 = prefac_dir1 * I1[0]
+            res_J1 = prefac_res1 * res_I[0]
+            indir_J1 = prefac_indir1 * res_I[0]
     
-            elif (integ_outer == "romberg"):
-                E_fin_au = E_fin_au_1
-                Er_au = Er_a_au
-                VEr_au = VEr_au_1
+        elif (integ_outer == "romberg"):
+            E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
     
-                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
         
-                dir_J1 = prefac_dir1 * I1
-                res_J1 = prefac_res1 * res_I
-                indir_J1 = prefac_indir1 * res_I
+            dir_J1 = prefac_dir1 * I1
+            res_J1 = prefac_res1 * res_I
+            indir_J1 = prefac_indir1 * res_I
     
-            J = (0
-                 + dir_J1
-                 + res_J1
-                 + indir_J1
-                 )
+        J = (0
+             + dir_J1
+             + res_J1
+             + indir_J1
+             )
     
-            square = np.absolute(J)**2
-            squares = np.append(squares, square)
+        square = np.absolute(J)**2
+        squares = np.append(squares, square)
 
-            string = in_out.prep_output(square, E_kin_au, t_au)
-            outlines.append(string)
+        string = in_out.prep_output(square, E_kin_au, t_au)
+        outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
     
@@ -357,45 +333,42 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
-        if (E_kin_au < upper_E_min):
-            square = 0.0
-        else:
 # integral 1
-            if (integ_outer == "quadrature"):
-                E_fin_au = E_fin_au_1
-                Er_au = Er_a_au
-                VEr_au = VEr_au_1
+        if (integ_outer == "quadrature"):
+            E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
     
-                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
     
-                dir_J1 = prefac_dir1 * I1[0]
-                res_J1 = prefac_res1 * res_I[0]
-                indir_J1 = prefac_indir1 * res_I[0]
-            
-            elif (integ_outer == "romberg"):
-                E_fin_au = E_fin_au_1
-                Er_au = Er_a_au
-                VEr_au = VEr_au_1
-    
-                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+            dir_J1 = prefac_dir1 * I1[0]
+            res_J1 = prefac_res1 * res_I[0]
+            indir_J1 = prefac_indir1 * res_I[0]
         
-                dir_J1 = prefac_dir1 * I1
-                res_J1 = prefac_res1 * res_I
-                indir_J1 = prefac_indir1 * res_I
+        elif (integ_outer == "romberg"):
+            E_fin_au = E_fin_au_1
+            Er_au = Er_a_au
+            VEr_au = VEr_au_1
     
-            J = (0
-                 + dir_J1
-                 + res_J1
-                 + indir_J1
-                 )
+            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+        
+            dir_J1 = prefac_dir1 * I1
+            res_J1 = prefac_res1 * res_I
+            indir_J1 = prefac_indir1 * res_I
     
-            square = np.absolute(J)**2
-            squares = np.append(squares, square)
+        J = (0
+             + dir_J1
+             + res_J1
+             + indir_J1
+             )
+    
+        square = np.absolute(J)**2
+        squares = np.append(squares, square)
 
-            string = in_out.prep_output(square, E_kin_au, t_au)
-            outlines.append(string)
+        string = in_out.prep_output(square, E_kin_au, t_au)
+        outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
 
