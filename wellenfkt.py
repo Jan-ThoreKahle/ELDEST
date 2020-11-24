@@ -13,46 +13,53 @@
 import scipy.misc
 import scipy.integrate as integrate
 from scipy.special import gamma
-from scipy.special import eval_genlaguerre
-from scipy.special import genlaguerre
+#from scipy.special import eval_genlaguerre
+#from scipy.special import genlaguerre
 import numpy as np
 import sciconv as sc
 #import in_out
-import sys
-import warnings
-import potentials
+#import sys
+#import warnings
+#import potentials
 
 #-------------------------------------------------------------------------
 
-n = 0
-n1 = n
-n2 = n
+#n = 0
+#n1 = n
+#n2 = n
 
 #-------------------------------------------------------------------------
 # Parameters for potentials
 #-------------------------------------------------------------------------
-gs_de      =  0.0001107257
-gs_a       =  1.105308
-gs_Req     =  5.918877
-gs_const   = -0.00018536
-
-u_de       =  0.096727
-u_a        =  0.447152
-u_Req      =  4.523888
-u_const    = -256.233965
-
-g_de       = 0.079073
-g_a        = 0.143584
-g_Req      = 10.003604
-g_const    = -256.182536
-
-mass1 = 20.1797
-mass2 = 20.1797
+#Bedenke, dass diese Parameter Grottenschlecht sind
+#gs_de      =  0.0001107257
+#gs_a       =  1.105308
+#gs_Req     =  5.918877
+#gs_const   = -0.00018536
+#
+#u_de       =  0.096727
+#u_a        =  0.447152
+#u_Req      =  4.523888
+#u_const    = -256.233965
+#
+#g_de       = 0.079073
+#g_a        = 0.143584
+#g_Req      = 10.003604
+#g_const    = -256.182536
+#
+#mass1 = 20.1797
+#mass2 = 20.1797
 #-------------------------------------------------------------------------
 
-red_mass_gmol = mass1 * mass2 / (mass1 + mass2)
-red_mass = sc.gmol_to_me(red_mass_gmol)
-print "redmass = ", red_mass
+#red_mass_gmol = mass1 * mass2 / (mass1 + mass2)
+#red_mass = sc.gmol_to_me(red_mass_gmol)
+#print "redmass = ", red_mass
+
+def red_mass_au(mass1,mass2):
+    red_mass_gmol = mass1 * mass2 / (mass1 + mass2)
+    red_mass_au = sc.gmol_to_me(red_mass_gmol)
+    return red_mass_au
+
 
 def eigenvalue(n, De, alpha, red_mass):
     En =   (n + 0.5) * alpha * np.sqrt(2*De / red_mass) \
@@ -67,11 +74,11 @@ def sqrt_fact(real):
     else:
         return np.sqrt(real) * sqrt_fact(real-1)
 
-print "Grundzustand:"
-print "Potentialtiefe", gs_de
-print eigenvalue(n, gs_de, gs_a, red_mass)
-
-print "--------------------------------"
+#print "Grundzustand:"
+#print "Potentialtiefe", gs_de
+#print eigenvalue(n, gs_de, gs_a, red_mass)
+#
+#print "--------------------------------"
 
 def const_s_psi(R,n,s,alpha,Req,lambda_param):
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
@@ -117,15 +124,15 @@ def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
     
 
 
-R_min = sc.angstrom_to_bohr(1.5)
-R_max = sc.angstrom_to_bohr(30.0)
-
-print "R_min = ", R_min
-print "R_max = ", R_max
-
-FCO = FC(n1,u_a,u_Req,u_de,red_mass,n2,u_a,u_Req,u_de,R_min,R_max)
-
-print "FC = ", FCO
+#R_min = sc.angstrom_to_bohr(1.5)
+#R_max = sc.angstrom_to_bohr(30.0)
+#
+#print "R_min = ", R_min
+#print "R_max = ", R_max
+#
+#FCO = FC(n1,u_a,u_Req,u_de,red_mass,n2,u_a,u_Req,u_de,R_min,R_max)
+#
+#print "FC = ", FCO
 
 
 
