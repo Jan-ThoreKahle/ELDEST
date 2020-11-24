@@ -138,16 +138,36 @@ VEr_au_1      = VEr_au
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 cdg_au_W = rdg_au / ( q * np.pi * WEr_au)
 
+#-------------------------------------------------------------------------
 # Potential details
 # vibrational energies of Morse potentials
 red_mass = wf.red_mass_au(mass1,mass2)
 print "red_mass = ", red_mass
-lambda_param = np.sqrt(2*red_mass*gs_de) / gs_a
+#ground state
+print "Ground state"
+lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param - 0.5)
 print "n_gs_max = ", n_gs_max
 for n in range (0,n_gs_max):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)
     print "Eigenvalue = ", ev, "n = ", n
+#resonant state
+print "Resonant state"
+lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
+n_res_max = int(lambda_param_res - 0.5)
+print "n_res_max = ", n_res_max
+for n in range (0,n_res_max):
+    ev = wf.eigenvalue(n,res_de,res_a,red_mass)
+    print "Eigenvalue = ", ev, "n = ", n
+#resonant state
+print "Final state"
+if (fin_pot_type == 'morse'):
+    lambda_param_fin = np.sqrt(2*red_mass*fin_de) / fin_a
+    n_fin_max = int(lambda_param_fin - 0.5)
+    print "n_fin_max = ", n_fin_max
+    for n in range (0,n_fin_max):
+        ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
+        print "Eigenvalue = ", ev, "n = ", n
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_fin_au, Gamma_au,
