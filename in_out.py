@@ -65,21 +65,21 @@ def read_input(inputfile, outfile):
     mass2         = 20.1797 # in g/mol
     grad_delta    = 0.001
     R_eq_AA       = 3.08
-# GS Parameters
-    gs_de_eV      = 0
-    gs_a_AA       = 0
-    gs_Req_AA     = 0
-    gs_const_eV   = 47.6930
+# GS Parameters # use atomic units
+    gs_de      = 0
+    gs_a       = 0
+    gs_Req     = 0
+    gs_const   = 47.6930
 # resonant state parameters
-    res_de_eV     = -33.179112
-    res_a_AA      = 1.930064
-    res_Req_AA    = 37.757254
-    res_const_eV  = 47.6930
+    res_de     = -33.179112
+    res_a      = 1.930064
+    res_Req    = 37.757254
+    res_const  = 47.6930
 # final state parameters
-    fin_a_eV      = -15.869110
-    fin_b_AA      = 1.659155
-    fin_c_AA      = 75.293906
-    fin_d_eV      = 47.6930
+    fin_a      = -15.869110
+    fin_b      = 1.659155
+    fin_c      = 75.293906
+    fin_d      = 47.6930
     fin_pot_type  = 'morse'
 #-------------------------------------------------------------------------
 
@@ -269,44 +269,44 @@ def read_input(inputfile, outfile):
                 print 'no integration scheme selected'
                 outfile.write('no integration scheme selected \n')
 
-        elif (words[0] == 'gs_de_eV'):
+        elif (words[0] == 'gs_de'):
             outfile.write('Parameters of potential energy curves:' + '\n')
-            gs_de_eV = float(words[2])
-            print "found gs_de_eV"
-            outfile.write('gs_de_eV = ' + str(gs_de_eV) + '\n')
-        elif (words[0] == 'gs_a_AA'):
-            gs_a_AA = float(words[2])
-            outfile.write('gs_a_AA = ' + str(gs_a_AA) + '\n')
-        elif (words[0] == 'gs_Req_AA'):
-            gs_Req_AA = float(words[2])
-            outfile.write('gs_Req_AA = ' + str(gs_Req_AA) + '\n')
-        elif (words[0] == 'gs_const_eV'):
-            gs_const_eV = float(words[2])
-            outfile.write('gs_const_eV = ' + str(gs_const_eV) + '\n')
-        elif (words[0] == 'res_de_eV'):
-            res_de_eV = float(words[2])
-            outfile.write('res_de_eV = ' + str(res_de_eV) + '\n')
-        elif (words[0] == 'res_a_AA'):
-            res_a_AA = float(words[2])
-            outfile.write('res_a_AA = ' + str(res_a_AA) + '\n')
-        elif (words[0] == 'res_Req_AA'):
-            res_Req_AA = float(words[2])
-            outfile.write('res_Req_AA = ' + str(res_Req_AA) + '\n')
-        elif (words[0] == 'res_const_eV'):
-            res_const_eV = float(words[2])
-            outfile.write('res_const_eV = ' + str(res_const_eV) + '\n')
-        elif (words[0] == 'fin_a_eV'):
-            fin_a_eV = float(words[2])
-            outfile.write('fin_a_eV = ' + str(fin_a_eV) + '\n')
-        elif (words[0] == 'fin_b_AA'):
-            fin_b_AA = float(words[2])
-            outfile.write('fin_b_AA = ' + str(fin_b_AA) + '\n')
-        elif (words[0] == 'fin_c_AA'):
-            fin_c_AA = float(words[2])
-            outfile.write('fin_c_AA = ' + str(fin_c_AA) + '\n')
-        elif (words[0] == 'fin_d_eV'):
-            fin_d_eV = float(words[2])
-            outfile.write('fin_d_eV = ' + str(fin_d_eV) + '\n')
+            gs_de = float(words[2])
+            print "found gs_de"
+            outfile.write('gs_de = ' + str(gs_de) + '\n')
+        elif (words[0] == 'gs_a'):
+            gs_a = float(words[2])
+            outfile.write('gs_a = ' + str(gs_a) + '\n')
+        elif (words[0] == 'gs_Req'):
+            gs_Req = float(words[2])
+            outfile.write('gs_Req = ' + str(gs_Req) + '\n')
+        elif (words[0] == 'gs_const'):
+            gs_const = float(words[2])
+            outfile.write('gs_const = ' + str(gs_const) + '\n')
+        elif (words[0] == 'res_de'):
+            res_de = float(words[2])
+            outfile.write('res_de = ' + str(res_de) + '\n')
+        elif (words[0] == 'res_a'):
+            res_a = float(words[2])
+            outfile.write('res_a = ' + str(res_a) + '\n')
+        elif (words[0] == 'res_Req'):
+            res_Req = float(words[2])
+            outfile.write('res_Req = ' + str(res_Req) + '\n')
+        elif (words[0] == 'res_const'):
+            res_const = float(words[2])
+            outfile.write('res_const = ' + str(res_const) + '\n')
+        elif (words[0] == 'fin_a'):
+            fin_a = float(words[2])
+            outfile.write('fin_a = ' + str(fin_a) + '\n')
+        elif (words[0] == 'fin_b'):
+            fin_b = float(words[2])
+            outfile.write('fin_b = ' + str(fin_b) + '\n')
+        elif (words[0] == 'fin_c'):
+            fin_c = float(words[2])
+            outfile.write('fin_c = ' + str(fin_c) + '\n')
+        elif (words[0] == 'fin_d'):
+            fin_d = float(words[2])
+            outfile.write('fin_d = ' + str(fin_d) + '\n')
         elif (words[0] == 'fin_pot_type'):
             fin_pot_type = str(words[2])
             outfile.write('fin_pot_type = ' + str(fin_pot_type) + '\n')
@@ -324,9 +324,9 @@ def read_input(inputfile, outfile):
             E_min_eV, E_max_eV,
             integ, integ_outer,
             mass1, mass2, grad_delta, R_eq_AA,
-            gs_de_eV, gs_a_AA, gs_Req_AA, gs_const_eV,
-            res_de_eV, res_a_AA, res_Req_AA, res_const_eV,
-            fin_a_eV, fin_b_AA, fin_c_AA, fin_d_eV, fin_pot_type
+            gs_de, gs_a, gs_Req, gs_const,
+            res_de, res_a, res_Req, res_const,
+            fin_a, fin_b, fin_c, fin_d, fin_pot_type
             )
 
 #-------------------------------------------------------------------------
