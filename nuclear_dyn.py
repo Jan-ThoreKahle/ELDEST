@@ -23,6 +23,7 @@ import pulses
 import in_out
 import sys
 import warnings
+import wellenfkt as wf
 
 
 # don't print warnings unless python -W ... is used
@@ -55,9 +56,9 @@ Xshape = 'convoluted'
  E_min_eV, E_max_eV,
  integ, integ_outer,
  mass1, mass2, grad_delta, R_eq_AA,
- gs_de_eV, gs_a_AA, gs_Req_AA, gs_const_eV,
- res_de_eV, res_a_AA, res_Req_AA, res_const_eV,
- fin_a_eV, fin_b_AA, fin_c_AA, fin_d_eV, fin_pot_type
+ gs_de, gs_a, gs_Req, gs_const,
+ res_de, res_a, res_Req, res_const,
+ fin_a, fin_b, fin_c, fin_d, fin_pot_type
  ) = in_out.read_input(infile, outfile)
 
 #-------------------------------------------------------------------------
@@ -137,6 +138,10 @@ VEr_au_1      = VEr_au
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 cdg_au_W = rdg_au / ( q * np.pi * WEr_au)
 
+# Potential details
+# vibrational energies of Morse potentials
+red_mass = wf.red_mass_au(mass1,mass2)
+print red_mass
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_fin_au, Gamma_au,
