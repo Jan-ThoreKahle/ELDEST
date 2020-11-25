@@ -130,13 +130,11 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print 'VEr_au = ', VEr_au
-WEr_au        = np.sqrt(Gamma_au_2/ (2*np.pi))
 
 VEr_au_1      = VEr_au
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
-cdg_au_W = rdg_au / ( q * np.pi * WEr_au)
 
 #-------------------------------------------------------------------------
 # Potential details
@@ -151,7 +149,6 @@ E_kappa = []
 print "n_gs_max = ", n_gs_max
 for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)
-    #print "Eigenvalue = ", ev, "n = ", n
     E_kappa.append(ev)
 #resonant state
 print "Resonant state"
@@ -161,7 +158,6 @@ E_lambda = []
 print "n_res_max = ", n_res_max
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
-    #print "Eigenvalue = ", ev, "n = ", n
     E_lambda.append(ev)
 #final state
 print "Final state"
@@ -176,7 +172,6 @@ if (fin_pot_type == 'morse'):
     print "n_fin_max = ", n_fin_max
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
-        #print "Eigenvalue = ", ev, "n = ", n
         E_mu.append(ev)
 
 #-------------------------------------------------------------------------
@@ -283,8 +278,8 @@ fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
                                      * np.exp(1j * E_kin_au * (t1-t_au))
 
-res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * (VEr_au**2) + 1j*(Er_au))) \
-                           * IR_during(t2)
+#res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * W_au + 1j*(Er_au))) \
+#                           * IR_during(t2)
 
 if (integ == 'romberg'):
     res_inner = lambda t1: integrate.romberg(res_inner_fun, t1, t_au)
@@ -293,16 +288,16 @@ elif (integ == 'quadrature'):
 elif (integ == 'analytic'):
 # analytic inner integral
     res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
-                                    - np.pi * (VEr_au**2))
+                                    - np.pi * W_au)
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                  - np.pi * (VEr_au**2)))
+                                                  - np.pi * W_au))
                               - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
-                                                  - np.pi * (VEr_au**2))))
+                                                  - np.pi * W_au)))
                             * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                            )
 
 res_outer_fun = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * (np.pi* (VEr_au**2) + 1j*Er_au)) \
+                           * np.exp(t1 * (np.pi* (W_au) + 1j*Er_au)) \
                            * res_inner(t1)
 
 
@@ -323,11 +318,10 @@ while (E_kin_au <= E_max_au):
 # constants / prefactors
 prefac_res1 = VEr_au * rdg_au
 prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
-#prefac_indir = 0
 prefac_dir1 = 1j * cdg_au_V
 
-N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
-     * np.exp(-Gamma_au * (delta_t_au - a))
+#N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
+#     * np.exp(-Gamma_au * (delta_t_au - a))
 
 
 
@@ -349,36 +343,33 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
-# integral 1
-        if (integ_outer == "quadrature"):
+        J = 0
+        for nlambda in range (0,n_res_max+1):
             E_fin_au = E_fin_au_1
             Er_au = Er_a_au
-            VEr_au = VEr_au_1
+            #VEr_au = VEr_au_1
+            W_au = W_lambda[nlambda]
+            if (integ_outer == "quadrature"):
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
     
-            I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+                dir_J1 = prefac_dir1 * I1[0]
+                res_J1 = prefac_res1 * res_I[0]
+                indir_J1 = prefac_indir1 * res_I[0]
     
-            dir_J1 = prefac_dir1 * I1[0]
-            res_J1 = prefac_res1 * res_I[0]
-            indir_J1 = prefac_indir1 * res_I[0]
+            elif (integ_outer == "romberg"):
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+            
+                dir_J1 = prefac_dir1 * I1
+                res_J1 = prefac_res1 * res_I
+                indir_J1 = prefac_indir1 * res_I
     
-        elif (integ_outer == "romberg"):
-            E_fin_au = E_fin_au_1
-            Er_au = Er_a_au
-            VEr_au = VEr_au_1
-    
-            I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
-        
-            dir_J1 = prefac_dir1 * I1
-            res_J1 = prefac_res1 * res_I
-            indir_J1 = prefac_indir1 * res_I
-    
-        J = (0
-             + dir_J1
-             + res_J1
-             + indir_J1
-             )
+            J = (J
+                 + dir_J1
+                 + res_J1
+                 + indir_J1
+                 )
     
         square = np.absolute(J)**2
         squares = np.append(squares, square)
@@ -420,36 +411,34 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
-# integral 1
-        if (integ_outer == "quadrature"):
+        J = 0
+        for nlambda in range (0,n_res_max+1):
             E_fin_au = E_fin_au_1
             Er_au = Er_a_au
-            VEr_au = VEr_au_1
+            #VEr_au = VEr_au_1
+            W_au = W_lambda[nlambda]
+      
+            if (integ_outer == "quadrature"):
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
     
-            I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1[0]
+                res_J1 = prefac_res1 * res_I[0]
+                indir_J1 = prefac_indir1 * res_I[0]
+            
+            elif (integ_outer == "romberg"):
+                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+            
+                dir_J1 = prefac_dir1 * I1
+                res_J1 = prefac_res1 * res_I
+                indir_J1 = prefac_indir1 * res_I
     
-            dir_J1 = prefac_dir1 * I1[0]
-            res_J1 = prefac_res1 * res_I[0]
-            indir_J1 = prefac_indir1 * res_I[0]
-        
-        elif (integ_outer == "romberg"):
-            E_fin_au = E_fin_au_1
-            Er_au = Er_a_au
-            VEr_au = VEr_au_1
-    
-            I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-            res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-        
-            dir_J1 = prefac_dir1 * I1
-            res_J1 = prefac_res1 * res_I
-            indir_J1 = prefac_indir1 * res_I
-    
-        J = (0
-             + dir_J1
-             + res_J1
-             + indir_J1
-             )
+            J = (J
+                 + dir_J1
+                 + res_J1
+                 + indir_J1
+                 )
     
         square = np.absolute(J)**2
         squares = np.append(squares, square)
