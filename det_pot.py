@@ -12,6 +12,7 @@ while another == 'y':
     De_eV = raw_input('How deep should the potential be in eV?    ')
     De_eV = float(De_eV)
     De_au = sc.ev_to_hartree(De_eV)
+    print "De_au = ", De_au
     n_n = raw_input('How many bound states do you want?    ')
     n_n = int(n_n)
     alpha_min = 2* np.sqrt(2*mu*De_au) / (1 + 2*n_n)
