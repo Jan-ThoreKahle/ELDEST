@@ -287,17 +287,19 @@ elif (integ == 'quadrature'):
     res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
 elif (integ == 'analytic'):
 # analytic inner integral
-    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
+    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au - E_lambda)
                                     - np.pi * W_au)
-                            * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
+                            * (np.exp(t_au * (1j*(E_kin_au + E_fin_au
+                                                  - Er_au - E_lambda)
                                                   - np.pi * W_au))
-                              - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
+                              - np.exp(t1 * (1j*(E_kin_au + E_fin_au
+                                                 - Er_au - E_lambda)
                                                   - np.pi * W_au)))
                             * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                            )
 
 res_outer_fun = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * (np.pi* (W_au) + 1j*Er_au)) \
+                           * np.exp(t1 * (np.pi* (W_au) + 1j*(Er_au+E_lambda))) \
                            * res_inner(t1)
 
 
@@ -343,7 +345,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         for nlambda in range (0,n_res_max+1):
             E_fin_au = E_fin_au_1
             Er_au = Er_a_au
-            #VEr_au = VEr_au_1
+            E_lambda = E_lambdas[nlambda]
             W_au = W_lambda[nlambda]
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
@@ -411,7 +413,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
         for nlambda in range (0,n_res_max+1):
             E_fin_au = E_fin_au_1
             Er_au = Er_a_au
-            #VEr_au = VEr_au_1
+            E_lambda = E_lambdas[nlambda]
             W_au = W_lambda[nlambda]
       
             if (integ_outer == "quadrature"):
