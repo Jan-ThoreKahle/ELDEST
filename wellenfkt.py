@@ -116,7 +116,7 @@ def psi_n(R,n,alpha,Req,red_mass,De):
     
 
 def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
-    func = lambda R: (psi_n(R,n1,alpha1,Req1,red_mass,De1)
+    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                     * psi_n(R,n2,alpha2,Req2,red_mass,De2) )
     tmp = integrate.quad(func, R_min, R_max)
     FC = tmp[0]
