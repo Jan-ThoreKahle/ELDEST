@@ -147,19 +147,23 @@ print "red_mass = ", red_mass
 print "Ground state"
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
+E_kappa = []
 print "n_gs_max = ", n_gs_max
 for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)
-    print "Eigenvalue = ", ev, "n = ", n
+    #print "Eigenvalue = ", ev, "n = ", n
+    E_kappa.append(ev)
 #resonant state
 print "Resonant state"
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
 n_res_max = int(lambda_param_res - 0.5)
+E_lambda = []
 print "n_res_max = ", n_res_max
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
-    print "Eigenvalue = ", ev, "n = ", n
-#resonant state
+    #print "Eigenvalue = ", ev, "n = ", n
+    E_lambda.append(ev)
+#final state
 print "Final state"
 if (fin_pot_type == 'morse'):
     fin_de    = fin_a
@@ -168,10 +172,65 @@ if (fin_pot_type == 'morse'):
     fin_const = fin_d
     lambda_param_fin = np.sqrt(2*red_mass*fin_de) / fin_a
     n_fin_max = int(lambda_param_fin - 0.5)
+    E_mu = []
     print "n_fin_max = ", n_fin_max
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
-        print "Eigenvalue = ", ev, "n = ", n
+        #print "Eigenvalue = ", ev, "n = ", n
+        E_mu.append(ev)
+
+#-------------------------------------------------------------------------
+# Franck-Condon factors
+#-------------------------------------------------------------------------
+# ground state - resonant state <lambda|kappa>
+gs_res =  []
+gs_fin =  []
+res_fin = []
+R_min = sciconv.angstrom_to_bohr(1.5)
+R_max = sciconv.angstrom_to_bohr(30.0)
+for i in range (0,n_gs_max+1):
+    tmp = []
+    for j in range (0,n_res_max+1):
+        tmp.append(wf.FC(j,res_a,res_Req,res_de,red_mass,
+                         i,gs_a,gs_Req,gs_de,R_min,R_max))
+    gs_res.append(tmp)
+print "gs_res"
+print gs_res
+    
+# ground state - final state <mu|kappa>
+if fin_pot_type == 'morse':
+    for i in range (0,n_gs_max+1):
+        tmp = []
+        for j in range (0,n_fin_max+1):
+            tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
+                             i,gs_a,gs_Req,gs_de,R_min,R_max))
+        gs_fin.append(tmp)
+    print "gs_fin"
+    print gs_fin
+
+# resonant state - final state <mu|lambdaa>
+if fin_pot_type == 'morse':
+    for i in range (0,n_res_max+1):
+        tmp = []
+        for j in range (0,n_fin_max+1):
+            tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
+                             i,res_a,res_Req,res_de,R_min,R_max))
+        res_fin.append(tmp)
+    print "res_fin"
+    print res_fin
+
+#-------------------------------------------------------------------------
+# determine total decay width matrix element
+print "determine total decay width"
+if fin_pot_type == 'morse':
+    W_lambda = []
+    for i in range (0,n_res_max+1):
+        tmp = 0
+        for j in range (0,n_fin_max+1):
+            tmp = tmp + VEr_au**2 * res_fin[i][j]
+        W_lambda.append(tmp)
+
+
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_fin_au, Gamma_au,
