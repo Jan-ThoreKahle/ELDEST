@@ -189,8 +189,8 @@ for i in range (0,n_gs_max+1):
         tmp.append(wf.FC(j,res_a,res_Req,res_de,red_mass,
                          i,gs_a,gs_Req,gs_de,R_min,R_max))
     gs_res.append(tmp)
-print "gs_res"
-print gs_res
+#print "gs_res"
+#print gs_res
     
 # ground state - final state <mu|kappa>
 if fin_pot_type == 'morse':
@@ -200,8 +200,8 @@ if fin_pot_type == 'morse':
             tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                              i,gs_a,gs_Req,gs_de,R_min,R_max))
         gs_fin.append(tmp)
-    print "gs_fin"
-    print gs_fin
+#    print "gs_fin"
+#    print gs_fin
 
 # resonant state - final state <mu|lambdaa>
 if fin_pot_type == 'morse':
@@ -211,8 +211,18 @@ if fin_pot_type == 'morse':
             tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                              i,res_a,res_Req,res_de,R_min,R_max))
         res_fin.append(tmp)
-    print "res_fin"
-    print res_fin
+#    print "res_fin"
+#    print res_fin
+
+# sum over mup of product <lambda|mup><mup|kappa>
+indir_FCsums = []
+for i in range (0,n_res_max+1):
+    indir_FCsum = 0
+    for j in range (0,n_fin_max+1):
+        tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]
+        indir_FCsum = indir_FCsum + tmp
+    indir_FCsums.append(indir_FCsum)
+#print indir_FCsums
 
 #-------------------------------------------------------------------------
 # determine total decay width matrix element
@@ -354,17 +364,21 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                     I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                     res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
     
-                    dir_J1 = prefac_dir1 * I1[0]
-                    res_J1 = prefac_res1 * res_I[0]
-                    indir_J1 = prefac_indir1 * res_I[0]
+                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
+                    res_J1 = (prefac_res1 * res_I[0]
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I[0]
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
     
                 elif (integ_outer == "romberg"):
                     I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                     res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
                 
-                    dir_J1 = prefac_dir1 * I1
-                    res_J1 = prefac_res1 * res_I
-                    indir_J1 = prefac_indir1 * res_I
+                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
+                    res_J1 = (prefac_res1 * res_I
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
     
                 J = (J
                      + dir_J1
@@ -427,17 +441,21 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                     I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
                     res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
     
-                    dir_J1 = prefac_dir1 * I1[0]
-                    res_J1 = prefac_res1 * res_I[0]
-                    indir_J1 = prefac_indir1 * res_I[0]
+                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
+                    res_J1 = (prefac_res1 * res_I[0]
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I[0]
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
                 
                 elif (integ_outer == "romberg"):
                     I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
                     res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-                
-                    dir_J1 = prefac_dir1 * I1
-                    res_J1 = prefac_res1 * res_I
-                    indir_J1 = prefac_indir1 * res_I
+
+                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
+                    res_J1 = (prefac_res1 * res_I
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
     
                 J = (J
                      + dir_J1
