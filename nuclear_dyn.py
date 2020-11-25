@@ -307,13 +307,6 @@ res_outer_fun = lambda t1: FX_t1(t1) \
 
 
 #-------------------------------------------------------------------------
-# population change by tunnel ionization
-Ip = sciconv.ev_to_hartree(1.5)
-konst = 1./16 
-popfun = lambda t1: np.exp(-2* np.sqrt(2*Ip)**3 / 3 / A0L
-                           * np.exp((t1-delta_t_au)**2 / 2 / sigma_L_au**2)) \
-                    * konst
-#-------------------------------------------------------------------------
 #-------------------------------------------------------------------------
 # initialization
 t_au = -TX_au/2
