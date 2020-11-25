@@ -7,7 +7,7 @@ import sys
 
 mu = wf.red_mass_au(20.1797,20.1797)
 
-another = raw_input('Do you want another value? (y/n)    ')
+another = 'y'
 while another == 'y':
     De_eV = raw_input('How deep should the potential be in eV?    ')
     De_eV = float(De_eV)
@@ -24,6 +24,8 @@ while another == 'y':
     for n in range (0,n_max+1):
         ev = wf.eigenvalue(n,De_au,alpha,mu)
         print "Eigenvalue = ", ev, "n = ", n
+    print '--------------------------------------------------------------------'
+    another = raw_input('Do you want another value? (y/n)    ')
 else:
     sys.exit()
 
