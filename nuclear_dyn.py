@@ -145,20 +145,20 @@ print "red_mass = ", red_mass
 print "Ground state"
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
-E_kappa = []
+E_kappas = []
 print "n_gs_max = ", n_gs_max
 for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)
-    E_kappa.append(ev)
+    E_kappas.append(ev)
 #resonant state
 print "Resonant state"
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
 n_res_max = int(lambda_param_res - 0.5)
-E_lambda = []
+E_lambdas = []
 print "n_res_max = ", n_res_max
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
-    E_lambda.append(ev)
+    E_lambdas.append(ev)
 #final state
 print "Final state"
 if (fin_pot_type == 'morse'):
@@ -168,11 +168,11 @@ if (fin_pot_type == 'morse'):
     fin_const = fin_d
     lambda_param_fin = np.sqrt(2*red_mass*fin_de) / fin_a
     n_fin_max = int(lambda_param_fin - 0.5)
-    E_mu = []
+    E_mus = []
     print "n_fin_max = ", n_fin_max
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
-        E_mu.append(ev)
+        E_mus.append(ev)
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -319,10 +319,6 @@ while (E_kin_au <= E_max_au):
 prefac_res1 = VEr_au * rdg_au
 prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 prefac_dir1 = 1j * cdg_au_V
-
-#N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
-#     * np.exp(-Gamma_au * (delta_t_au - a))
-
 
 
 #-------------------------------------------------------------------------
