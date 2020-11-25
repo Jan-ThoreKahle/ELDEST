@@ -341,38 +341,42 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
-        J = 0
-        for nlambda in range (0,n_res_max+1):
-            E_fin_au = E_fin_au_1
-            Er_au = Er_a_au
-            E_lambda = E_lambdas[nlambda]
-            W_au = W_lambda[nlambda]
-            if (integ_outer == "quadrature"):
-                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+        sum_square = 0
+        for nmu in range (0,n_fin_max+1):
+        
+            J = 0
+            for nlambda in range (0,n_res_max+1):
+                E_fin_au = E_fin_au_1 + E_mus[nmu]
+                Er_au = Er_a_au
+                E_lambda = E_lambdas[nlambda]
+                W_au = W_lambda[nlambda]
+                if (integ_outer == "quadrature"):
+                    I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                    res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
     
-                dir_J1 = prefac_dir1 * I1[0]
-                res_J1 = prefac_res1 * res_I[0]
-                indir_J1 = prefac_indir1 * res_I[0]
+                    dir_J1 = prefac_dir1 * I1[0]
+                    res_J1 = prefac_res1 * res_I[0]
+                    indir_J1 = prefac_indir1 * res_I[0]
     
-            elif (integ_outer == "romberg"):
-                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
-            
-                dir_J1 = prefac_dir1 * I1
-                res_J1 = prefac_res1 * res_I
-                indir_J1 = prefac_indir1 * res_I
+                elif (integ_outer == "romberg"):
+                    I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                    res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                
+                    dir_J1 = prefac_dir1 * I1
+                    res_J1 = prefac_res1 * res_I
+                    indir_J1 = prefac_indir1 * res_I
     
-            J = (J
-                 + dir_J1
-                 + res_J1
-                 + indir_J1
-                 )
+                J = (J
+                     + dir_J1
+                     + res_J1
+                     + indir_J1
+                     )
     
-        square = np.absolute(J)**2
-        squares = np.append(squares, square)
+            square = np.absolute(J)**2
+            sum_square = sum_square + square
+        squares = np.append(squares, sum_square)
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
+        string = in_out.prep_output(sum_square, E_kin_au, t_au)
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
@@ -409,39 +413,43 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
-        J = 0
-        for nlambda in range (0,n_res_max+1):
-            E_fin_au = E_fin_au_1
-            Er_au = Er_a_au
-            E_lambda = E_lambdas[nlambda]
-            W_au = W_lambda[nlambda]
-      
-            if (integ_outer == "quadrature"):
-                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-    
-                dir_J1 = prefac_dir1 * I1[0]
-                res_J1 = prefac_res1 * res_I[0]
-                indir_J1 = prefac_indir1 * res_I[0]
-            
-            elif (integ_outer == "romberg"):
-                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-            
-                dir_J1 = prefac_dir1 * I1
-                res_J1 = prefac_res1 * res_I
-                indir_J1 = prefac_indir1 * res_I
-    
-            J = (J
-                 + dir_J1
-                 + res_J1
-                 + indir_J1
-                 )
-    
-        square = np.absolute(J)**2
-        squares = np.append(squares, square)
+        sum_square = 0
+        for nmu in range (0,n_fin_max+1):
 
-        string = in_out.prep_output(square, E_kin_au, t_au)
+            J = 0
+            for nlambda in range (0,n_res_max+1):
+                E_fin_au = E_fin_au_1 + E_mus[nmu]
+                Er_au = Er_a_au
+                E_lambda = E_lambdas[nlambda]
+                W_au = W_lambda[nlambda]
+      
+                if (integ_outer == "quadrature"):
+                    I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                    res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+                    dir_J1 = prefac_dir1 * I1[0]
+                    res_J1 = prefac_res1 * res_I[0]
+                    indir_J1 = prefac_indir1 * res_I[0]
+                
+                elif (integ_outer == "romberg"):
+                    I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                    res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+                
+                    dir_J1 = prefac_dir1 * I1
+                    res_J1 = prefac_res1 * res_I
+                    indir_J1 = prefac_indir1 * res_I
+    
+                J = (J
+                     + dir_J1
+                     + res_J1
+                     + indir_J1
+                     )
+    
+            square = np.absolute(J)**2
+            sum_square = sum_square + square
+        squares = np.append(squares, sum_square)
+
+        string = in_out.prep_output(sum_square, E_kin_au, t_au)
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
