@@ -19,7 +19,7 @@ from scipy.special import erf
 import numpy as np
 import sciconv
 import complex_integration as ci
-import pulses
+#import pulses
 import in_out
 import sys
 import warnings
