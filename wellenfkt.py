@@ -90,8 +90,8 @@ def const_s_psi(R,n,s,alpha,Req,lambda_param):
                      # factor based on Eq. (41)
                      * np.sqrt(s) * sqrt_fact(n) / sqrt_fact(s+n)
                      * z**(s/4) #improves numerical stability to split
-                     * z**(s/4)
                      * np.exp(-z / 2)
+                     * z**(s/4)
                      )
         return psi_0
     elif (n == 1):
