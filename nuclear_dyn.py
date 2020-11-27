@@ -189,8 +189,8 @@ for i in range (0,n_gs_max+1):
         tmp.append(wf.FC(j,res_a,res_Req,res_de,red_mass,
                          i,gs_a,gs_Req,gs_de,R_min,R_max))
     gs_res.append(tmp)
-#print "gs_res"
-#print gs_res
+print "gs_res"
+print gs_res
     
 # ground state - final state <mu|kappa>
 if fin_pot_type == 'morse':
@@ -200,8 +200,8 @@ if fin_pot_type == 'morse':
             tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                              i,gs_a,gs_Req,gs_de,R_min,R_max))
         gs_fin.append(tmp)
-#    print "gs_fin"
-#    print gs_fin
+    print "gs_fin"
+    print gs_fin
 
 # resonant state - final state <mu|lambdaa>
 if fin_pot_type == 'morse':
@@ -211,8 +211,8 @@ if fin_pot_type == 'morse':
             tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                              i,res_a,res_Req,res_de,R_min,R_max))
         res_fin.append(tmp)
-#    print "res_fin"
-#    print res_fin
+    print "res_fin"
+    print res_fin
 
 # sum over mup of product <lambda|mup><mup|kappa>
 indir_FCsums = []
