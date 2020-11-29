@@ -73,7 +73,7 @@ def is_correct_nmax(l_param,nmax):
 De_res = De_min
 while (De_res < De_max):
 
-    res_alpha = alpha_min(mu,De_res,nmax_res)# + alpha_in_step
+    res_alpha = alpha_min(mu,De_res,nmax_res)
     
     while (is_correct_nmax(lambda_param(mu,De_res,res_alpha+alpha_step),nmax_res)):
         res_alpha = res_alpha + alpha_step
@@ -117,19 +117,12 @@ while (De_res < De_max):
                         FCfins.append(FC_tmp)
                 if any(math.isnan(x) for x in FCfins):
                     break
-                #print FCfins
                 n_realistic_fin_states = sum(abs(x) >= FCmin_fin for x in FCfins)
                 if (n_realistic_fin_states < n_vis_finstates):
                 #if not all(abs(x) >= FCmin_fin for x in FCfins):
                     continue
                 print "n_realistic_fin_states = ", n_realistic_fin_states
 
-                #FCfin_gs_0 = wf.FC(0,gs_a,gs_Req,gs_de,mu,
-                #             0,fin_alpha,fin_Req,De_fin,R_min,R_max)
-                #if (math.isnan(FCfin_gs_0)):
-                #    break
-                #if not (abs(FCfin_gs_0) <= FCmax):
-                #    continue
                 print "YES!!!!!!!!!!!!!!!!!!!!!!!!"
                 print 'resonant', sc.hartree_to_ev(De_res), De_res, res_alpha
                 print 'final   ', sc.hartree_to_ev(De_fin), De_fin, fin_alpha
