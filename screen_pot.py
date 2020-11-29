@@ -24,10 +24,11 @@ gs_const  = 0.0
 nmax_res = 1
 nmax_fin = 6
 n_vis_finstates = 5
+n_vis_resstates = 2
 
 De_min_eV = 0.01
 De_max_eV = 8.0
-alpha_max = 70.0
+alpha_max = 40.0
 
 De_step_eV = 0.1
 alpha_step = 0.5
@@ -35,6 +36,7 @@ alpha_step = 0.5
 
 FCmin = 0.1
 FCmin_fin = 0.05
+FCmin_res = 0.1
 FCmax = 1.0E-3
 
 minEdiff_eV = 0.2
@@ -79,27 +81,29 @@ while (De_res < De_max):
         res_alpha = res_alpha + alpha_step
 
         # consider only cases with minimum energy gap between vibrational states
-        ev1 = wf.eigenvalue(1,De_res,res_alpha,mu)
-        ev0 = wf.eigenvalue(0,De_res,res_alpha,mu)
-        if ((ev1-ev0) < minEdiff):
-            continue
+        evs = []
+        for i in range(0,nmax_res+1):
+            tmp = wf.eigenvalue(i,De_res,res_alpha,mu)
+            evs.append(tmp)
+        if (nmax_res == 1):
+            if ((evs[1]-evs[0]) < minEdiff):
+                continue
 
             
         # consider only cases, where the overlap of both res vib states with the
         # ground state is sufficient
-        FCres1 = wf.FC(1,res_alpha,res_Req,De_res,mu,
-                     0,gs_a,gs_Req,gs_de,R_min,R_max)
-        FCres0 = wf.FC(0,res_alpha,res_Req,De_res,mu,
-                     0,gs_a,gs_Req,gs_de,R_min,R_max)
-
-        if (math.isnan(FCres0) or math.isnan(FCres1)):
+        FCres = []
+        for i in range(0,nmax_res+1):
+            FC_tmp = wf.FC(i,res_alpha,res_Req,De_res,mu,
+                      0,gs_a,gs_Req,gs_de,R_min,R_max)
+            FCres.append(FC_tmp)
+        if any(math.isnan(x) for x in FCres):
             break
-        #print FCres0, FCres1
-        if not (FCres1 >= FCmin and FCres0 >= FCmin):
+        n_realistic_res_states = sum(abs(x) >= FCmin_res for x in FCres)
+        if (n_realistic_res_states < n_vis_resstates):
+        #if not all(abs(x) >= FCmin_fin for x in FCfins):
             continue
 
-
-        
 
         De_fin = De_min
         while (De_fin < De_max):
@@ -121,14 +125,15 @@ while (De_res < De_max):
                 if (n_realistic_fin_states < n_vis_finstates):
                 #if not all(abs(x) >= FCmin_fin for x in FCfins):
                     continue
+                print "n_realistic_res_states = ", n_realistic_res_states
                 print "n_realistic_fin_states = ", n_realistic_fin_states
 
                 print "YES!!!!!!!!!!!!!!!!!!!!!!!!"
                 print 'resonant', sc.hartree_to_ev(De_res), De_res, res_alpha
                 print 'final   ', sc.hartree_to_ev(De_fin), De_fin, fin_alpha
-                print FCres0, FCres1
-                print FCfins
-                print sc.hartree_to_ev(ev1-ev0)
+                print 'FCres', FCres
+                print 'FCfins', FCfins
+                print sc.hartree_to_ev(evs[1]-evs[0])
                 print '---------------------------------------------------'
                 
             
