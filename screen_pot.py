@@ -11,16 +11,19 @@ import math
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
+#--------------------------------------------------------------------------
+# input parameters
 mu = wf.red_mass_au(20.1797,20.1797)
 
 gs_de     = 0.0001102
-#gs_a      = 1.5
-gs_a      = 3.8
+gs_a      = 1.5
+#gs_a      = 3.8
 gs_Req    = 6.0
 gs_const  = 0.0
 
 nmax_res = 1
-nmax_fin = 0
+nmax_fin = 6
+n_vis_finstates = 5
 
 De_min_eV = 0.01
 De_max_eV = 8.0
@@ -31,12 +34,13 @@ alpha_step = 0.5
 #alpha_in_step = 0.05
 
 FCmin = 0.1
+FCmin_fin = 0.05
 FCmax = 1.0E-3
 
 minEdiff_eV = 0.2
 
-res_Req = 5.8
-fin_Req = 5.4
+res_Req = 6.0
+fin_Req = 6.0
 R_min = sc.angstrom_to_bohr(1.5)
 R_max = sc.angstrom_to_bohr(30.0)
 #--------------------------------------------------------------------------
@@ -90,15 +94,12 @@ while (De_res < De_max):
 
         if (math.isnan(FCres0) or math.isnan(FCres1)):
             break
-        print FCres0, FCres1
+        #print FCres0, FCres1
         if not (FCres1 >= FCmin and FCres0 >= FCmin):
             continue
 
 
         
-        #for j in range(0,nmax_res+1):
-        #    FC_res_gs = wf.FC(j,res_alpha,Req,De_res,mu,
-        #                 0,gs_a,Req,gs_de,R_min,R_max)
 
         De_fin = De_min
         while (De_fin < De_max):
@@ -108,26 +109,32 @@ while (De_res < De_max):
                 fin_alpha = fin_alpha + alpha_step
                 # consider only cases, where the overlap of both res vib states with the
                 # ground state is sufficient
-                FCfin1 = wf.FC(1,res_alpha,res_Req,De_res,mu,
-                             0,fin_alpha,fin_Req,De_fin,R_min,R_max)
-                FCfin0 = wf.FC(0,res_alpha,res_Req,De_res,mu,
-                             0,fin_alpha,fin_Req,De_fin,R_min,R_max)
-                if (math.isnan(FCfin0) or math.isnan(FCfin1)):
+                FCfins = []
+                for i in range(0,nmax_res+1):
+                    for j in range(0,nmax_fin+1):
+                        FC_tmp = wf.FC(i,res_alpha,res_Req,De_res,mu,
+                                  j,fin_alpha,fin_Req,De_fin,R_min,R_max)
+                        FCfins.append(FC_tmp)
+                if any(math.isnan(x) for x in FCfins):
                     break
-                if not (abs(FCfin1) >= FCmin and abs(FCfin0) >= FCmin):
+                #print FCfins
+                n_realistic_fin_states = sum(abs(x) >= FCmin_fin for x in FCfins)
+                if (n_realistic_fin_states < n_vis_finstates):
+                #if not all(abs(x) >= FCmin_fin for x in FCfins):
                     continue
+                print "n_realistic_fin_states = ", n_realistic_fin_states
 
-                FCfin_gs_0 = wf.FC(0,gs_a,gs_Req,gs_de,mu,
-                             0,fin_alpha,fin_Req,De_fin,R_min,R_max)
-                if (math.isnan(FCfin_gs_0)):
-                    break
-                if not (abs(FCfin_gs_0) <= FCmax):
-                    continue
+                #FCfin_gs_0 = wf.FC(0,gs_a,gs_Req,gs_de,mu,
+                #             0,fin_alpha,fin_Req,De_fin,R_min,R_max)
+                #if (math.isnan(FCfin_gs_0)):
+                #    break
+                #if not (abs(FCfin_gs_0) <= FCmax):
+                #    continue
                 print "YES!!!!!!!!!!!!!!!!!!!!!!!!"
                 print 'resonant', sc.hartree_to_ev(De_res), De_res, res_alpha
                 print 'final   ', sc.hartree_to_ev(De_fin), De_fin, fin_alpha
                 print FCres0, FCres1
-                print FCfin0, FCfin1, FCfin_gs_0
+                print FCfins
                 print sc.hartree_to_ev(ev1-ev0)
                 print '---------------------------------------------------'
                 
