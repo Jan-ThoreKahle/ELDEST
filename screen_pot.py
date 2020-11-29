@@ -21,14 +21,14 @@ gs_a      = 1.5
 gs_Req    = 6.0
 gs_const  = 0.0
 
-nmax_res = 1
-nmax_fin = 6
-n_vis_finstates = 5
-n_vis_resstates = 2
+nmax_res = 0
+nmax_fin = 1
+n_vis_finstates = 2
+n_vis_resstates = 1
 
 De_min_eV = 0.01
 De_max_eV = 8.0
-alpha_max = 40.0
+alpha_max = 25.0
 
 De_step_eV = 0.1
 alpha_step = 0.5
@@ -36,10 +36,10 @@ alpha_step = 0.5
 
 FCmin = 0.1
 FCmin_fin = 0.05
-FCmin_res = 0.1
+FCmin_res = 0.2
 FCmax = 1.0E-3
 
-minEdiff_eV = 0.2
+minEdiff_eV = 0.23
 
 res_Req = 6.0
 fin_Req = 6.0
@@ -81,12 +81,12 @@ while (De_res < De_max):
         res_alpha = res_alpha + alpha_step
 
         # consider only cases with minimum energy gap between vibrational states
-        evs = []
+        res_evs = []
         for i in range(0,nmax_res+1):
             tmp = wf.eigenvalue(i,De_res,res_alpha,mu)
-            evs.append(tmp)
+            res_evs.append(tmp)
         if (nmax_res == 1):
-            if ((evs[1]-evs[0]) < minEdiff):
+            if ((res_evs[1]-res_evs[0]) < minEdiff):
                 continue
 
             
@@ -108,9 +108,20 @@ while (De_res < De_max):
         De_fin = De_min
         while (De_fin < De_max):
 
+            # consider only cases with minimum energy gap between vibrational states
+            fin_evs = []
+
             fin_alpha = alpha_min(mu,De_fin,nmax_fin)
             while (is_correct_nmax(lambda_param(mu,De_fin,fin_alpha+alpha_step),nmax_fin) and (fin_alpha <= alpha_max)):
                 fin_alpha = fin_alpha + alpha_step
+
+                for i in range(0,nmax_fin+1):
+                    tmp = wf.eigenvalue(i,De_fin,fin_alpha,mu)
+                    fin_evs.append(tmp)
+                if (nmax_fin == 1):
+                    if ((fin_evs[1]-fin_evs[0]) < minEdiff):
+                        continue
+
                 # consider only cases, where the overlap of both res vib states with the
                 # ground state is sufficient
                 FCfins = []
@@ -133,7 +144,10 @@ while (De_res < De_max):
                 print 'final   ', sc.hartree_to_ev(De_fin), De_fin, fin_alpha
                 print 'FCres', FCres
                 print 'FCfins', FCfins
-                print sc.hartree_to_ev(evs[1]-evs[0])
+                if (nmax_res+1 >= 2):
+                    print 'Ediff_res', sc.hartree_to_ev(res_evs[1]-res_evs[0])
+                if (nmax_fin+1 >= 2):
+                    print 'Ediff_fin', sc.hartree_to_ev(fin_evs[1]-fin_evs[0])
                 print '---------------------------------------------------'
                 
             
