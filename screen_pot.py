@@ -34,8 +34,8 @@ De_step_eV = 0.1
 alpha_step = 0.5
 #alpha_in_step = 0.05
 
-FCmin = 0.1
-FCmin_fin = 0.05
+FCmin = 0.4
+FCmin_fin = 0.5
 FCmin_res = 0.2
 FCmax = 1.0E-3
 
@@ -77,7 +77,8 @@ while (De_res < De_max):
 
     res_alpha = alpha_min(mu,De_res,nmax_res)
     
-    while (is_correct_nmax(lambda_param(mu,De_res,res_alpha+alpha_step),nmax_res)):
+    while (is_correct_nmax(lambda_param(mu,De_res,res_alpha+alpha_step),nmax_res)
+           and (res_alpha <= alpha_max)):
         res_alpha = res_alpha + alpha_step
 
         # consider only cases with minimum energy gap between vibrational states
