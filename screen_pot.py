@@ -22,24 +22,25 @@ gs_Req    = 6.0
 gs_const  = 0.0
 
 nmax_res = 0
-nmax_fin = 1
-n_vis_finstates = 2
+nmax_fin = 0
 n_vis_resstates = 1
+n_vis_finstates = 1
 
 De_min_eV = 0.01
-De_max_eV = 8.0
-alpha_max = 25.0
+#De_max_eV = 8.0
+De_max_eV = 0.2
+alpha_max = 22.0
 
 De_step_eV = 0.1
 alpha_step = 0.5
 #alpha_in_step = 0.05
 
 FCmin = 0.4
-FCmin_fin = 0.5
-FCmin_res = 0.2
+FCmin_fin = 0.9
+FCmin_res = 0.9
 FCmax = 1.0E-3
 
-minEdiff_eV = 0.23
+minEdiff_eV = 0.15
 
 res_Req = 6.0
 fin_Req = 6.0
@@ -100,6 +101,7 @@ while (De_res < De_max):
             FCres.append(FC_tmp)
         if any(math.isnan(x) for x in FCres):
             break
+        
         n_realistic_res_states = sum(abs(x) >= FCmin_res for x in FCres)
         if (n_realistic_res_states < n_vis_resstates):
         #if not all(abs(x) >= FCmin_fin for x in FCfins):
@@ -133,6 +135,7 @@ while (De_res < De_max):
                         FCfins.append(FC_tmp)
                 if any(math.isnan(x) for x in FCfins):
                     break
+                #print FCfins
                 n_realistic_fin_states = sum(abs(x) >= FCmin_fin for x in FCfins)
                 if (n_realistic_fin_states < n_vis_finstates):
                 #if not all(abs(x) >= FCmin_fin for x in FCfins):
