@@ -24,7 +24,8 @@ while another == 'y':
     print "n_max = ", n_max
     for n in range (0,n_max+1):
         ev = wf.eigenvalue(n,De_au,alpha,mu)
-        print "Eigenvalue = ", ev, "n = ", n
+        print "Eigenvalue [au] = ", ev, "n = ", n
+        print "Eigenvalue [eV] = ", sc.hartree_to_ev(ev), "n = ", n
     print '--------------------------------------------------------------------'
     another = raw_input('Do you want another value? (y/n)    ')
 else:
