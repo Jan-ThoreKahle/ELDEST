@@ -139,6 +139,9 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 #-------------------------------------------------------------------------
 # Potential details
 # vibrational energies of Morse potentials
+print
+print '----------------------------------------------------------------'
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
 red_mass = wf.red_mass_au(mass1,mass2)
 print "red_mass = ", red_mass
 #ground state
@@ -183,36 +186,65 @@ gs_fin =  []
 res_fin = []
 R_min = sciconv.angstrom_to_bohr(1.5)
 R_max = sciconv.angstrom_to_bohr(30.0)
+print
+print '----------------------------------------------------------------'
+print "Franck Condon overlaps between ground and resonant state"
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write("Franck Condon overlaps between ground and resonant state" + '\n')
+outfile.write('n_gs  ' +'n_res  ' + '<res|gs>' + '\n')
 for i in range (0,n_gs_max+1):
     tmp = []
     for j in range (0,n_res_max+1):
-        tmp.append(wf.FC(j,res_a,res_Req,res_de,red_mass,
-                         i,gs_a,gs_Req,gs_de,R_min,R_max))
+        FC = wf.FC(j,res_a,res_Req,res_de,red_mass,
+                   i,gs_a,gs_Req,gs_de,R_min,R_max)
+        #tmp.append(wf.FC(j,res_a,res_Req,res_de,red_mass,
+        #                 i,gs_a,gs_Req,gs_de,R_min,R_max))
+        tmp.append(FC)
+        outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
+        print ('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC))
     gs_res.append(tmp)
-print "gs_res"
-print gs_res
+#print "gs_res"
+#print gs_res
     
 # ground state - final state <mu|kappa>
+print
+print '----------------------------------------------------------------'
+print "Franck Condon overlaps between ground and final state"
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write("Franck Condon overlaps between ground and final state" + '\n')
+outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 if fin_pot_type == 'morse':
     for i in range (0,n_gs_max+1):
         tmp = []
         for j in range (0,n_fin_max+1):
-            tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
-                             i,gs_a,gs_Req,gs_de,R_min,R_max))
+            FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
+                       i,gs_a,gs_Req,gs_de,R_min,R_max)
+            tmp.append(FC)
+            outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
+            print ('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC))
         gs_fin.append(tmp)
-    print "gs_fin"
-    print gs_fin
+#    print "gs_fin"
+#    print gs_fin
 
 # resonant state - final state <mu|lambdaa>
+print
+print '----------------------------------------------------------------'
+print "Franck Condon overlaps between final and resonant state"
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write("Franck Condon overlaps between final and resonant state" + '\n')
+outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
 if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = []
         for j in range (0,n_fin_max+1):
-            tmp.append(wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
-                             i,res_a,res_Req,res_de,R_min,R_max))
+            FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
+                       i,res_a,res_Req,res_de,R_min,R_max)
+            tmp.append(FC)
+            outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
+            print ('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC))
         res_fin.append(tmp)
-    print "res_fin"
-    print res_fin
+#    print "res_fin"
+#    print res_fin
 
 # sum over mup of product <lambda|mup><mup|kappa>
 indir_FCsums = []
@@ -223,6 +255,9 @@ for i in range (0,n_res_max+1):
         indir_FCsum = indir_FCsum + tmp
     indir_FCsums.append(indir_FCsum)
 #print indir_FCsums
+print
+print '----------------------------------------------------------------'
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
 
 #-------------------------------------------------------------------------
 # determine total decay width matrix element
