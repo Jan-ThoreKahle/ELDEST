@@ -150,11 +150,24 @@ lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
 E_kappas = []
 print "n_gs_max = ", n_gs_max
+
+print '----------------------------------------------------------------'
+print "Energies of vibrational states of the ground state"
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write("Energies of vibrational states of the ground state" + '\n')
+outfile.write('n_gs  ' + 'E [au]' + 'E [eV]' + '\n')
 for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)
     E_kappas.append(ev)
+    outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
+    print '{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev))
 #resonant state
 print "Resonant state"
+print '----------------------------------------------------------------'
+print "Energies of vibrational states of the resonant state"
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write("Energies of vibrational states of the resonant state" + '\n')
+outfile.write('n_res  ' + 'E [au]' + 'E [eV]' + '\n')
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
 n_res_max = int(lambda_param_res - 0.5)
 E_lambdas = []
@@ -162,8 +175,15 @@ print "n_res_max = ", n_res_max
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
+    outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
+    print '{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev))
 #final state
 print "Final state"
+print '----------------------------------------------------------------'
+print "Energies of vibrational states of the final state"
+outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write("Energies of vibrational states of the final state" + '\n')
+outfile.write('n_gs  ' + 'E [au]' + 'E [eV]' + '\n')
 if (fin_pot_type == 'morse'):
     fin_de    = fin_a
     fin_a     = fin_b
@@ -176,6 +196,8 @@ if (fin_pot_type == 'morse'):
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
         E_mus.append(ev)
+        outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
+        print '{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev))
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
