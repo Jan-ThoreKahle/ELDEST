@@ -289,7 +289,7 @@ if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = 0
         for j in range (0,n_fin_max+1):
-            tmp = tmp + VEr_au**2 * res_fin[i][j]
+            tmp = tmp + VEr_au**2 * (res_fin[i][j])**2
         W_lambda.append(tmp)
 
 
