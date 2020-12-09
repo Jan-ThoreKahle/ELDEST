@@ -283,7 +283,8 @@ outfile.write('\n' + "--------------------------------------------------------" 
 
 #-------------------------------------------------------------------------
 # determine total decay width matrix element
-print "determine total decay width"
+print 'Effective decay widths in eV and lifetimes in s:'
+outfile.write('Effective decay widths in eV and lifetimes in s:' + '\n')
 if fin_pot_type == 'morse':
     W_lambda = []
     for i in range (0,n_res_max+1):
@@ -291,6 +292,10 @@ if fin_pot_type == 'morse':
         for j in range (0,n_fin_max+1):
             tmp = tmp + VEr_au**2 * (res_fin[i][j])**2
         W_lambda.append(tmp)
+        ttmp = 1./ tmp
+        print sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp)
+        outfile.write( str(sciconv.hartree_to_ev(tmp))
+                     + str(sciconv.atu_to_second(ttmp)) + '\n')
 
 
 
