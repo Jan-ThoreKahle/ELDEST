@@ -292,7 +292,7 @@ if fin_pot_type == 'morse':
         for j in range (0,n_fin_max+1):
             tmp = tmp + VEr_au**2 * (res_fin[i][j])**2
         W_lambda.append(tmp)
-        ttmp = 1./ tmp
+        ttmp = 1./ (2 * np.pi * tmp)
         print sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp)
         outfile.write( str(sciconv.hartree_to_ev(tmp))
                      + str(sciconv.atu_to_second(ttmp)) + '\n')

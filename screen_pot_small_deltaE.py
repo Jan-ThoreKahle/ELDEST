@@ -22,25 +22,26 @@ gs_Req    = 6.0
 gs_const  = 0.0
 
 nmax_res = 1
-nmax_fin = 1
+nmax_fin = 0
 n_vis_resstates = 2
-n_vis_finstates = 4
+n_vis_finstates = 2
 
 De_min_eV = 0.01
-De_max_eV = 6.0
+De_max_eV = 0.2
 #De_max_eV = 0.2
 alpha_max = 30.0
 
-De_step_eV = 0.1
+De_step_eV = 0.01
 alpha_step = 0.5
 #alpha_in_step = 0.05
 
 FCmin = 0.4
-FCmin_fin = 0.2
-FCmin_res = 0.2
+FCmin_fin = 0.6
+FCmin_res = 0.6
 FCmax = 1.0E-3
 
-minEdiff_eV = 0.19
+minEdiff_eV = 0.20
+maxEdiff_eV = 0.020
 
 res_Req = 6.0
 fin_Req = 6.0
@@ -51,6 +52,7 @@ R_max = sc.angstrom_to_bohr(30.0)
 De_min = sc.ev_to_hartree(De_min_eV)
 De_max = sc.ev_to_hartree(De_max_eV)
 minEdiff = sc.ev_to_hartree(minEdiff_eV)
+maxEdiff = sc.ev_to_hartree(maxEdiff_eV)
 De_step = sc.ev_to_hartree(De_step_eV)
 #--------------------------------------------------------------------------
 #definition of functions
@@ -82,14 +84,14 @@ while (De_res < De_max):
            and (res_alpha <= alpha_max)):
         res_alpha = res_alpha + alpha_step
 
-        # consider only cases with minimum energy gap between vibrational states
+        # consider only cases with maximum energy gap between vibrational states
         res_evs = []
         for i in range(0,nmax_res+1):
             tmp = wf.eigenvalue(i,De_res,res_alpha,mu)
             res_evs.append(tmp)
-        #if (nmax_res == 1):
-        #    if ((res_evs[1]-res_evs[0]) < minEdiff):
-        #        continue
+        if (nmax_res == 1):
+            if ((res_evs[1]-res_evs[0]) > maxEdiff):
+                continue
 
             
         # consider only cases, where the overlap of both res vib states with the
@@ -135,6 +137,8 @@ while (De_res < De_max):
                         FCfins.append(FC_tmp)
                 if any(math.isnan(x) for x in FCfins):
                     break
+                if any((x<0) for x in FCfins):
+                    continue
                 #print FCfins
                 n_realistic_fin_states = sum(abs(x) >= FCmin_fin for x in FCfins)
                 if (n_realistic_fin_states < n_vis_finstates):
