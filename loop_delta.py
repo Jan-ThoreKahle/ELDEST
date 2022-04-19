@@ -47,7 +47,11 @@ outfile.write("The results were obtained with loop_delta.py \n")
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, sigma_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
- integ, integ_outer
+ integ, integ_outer,
+ mass1, mass2, grad_delta, R_eq_AA,
+ gs_de, gs_a, gs_Req, gs_const,
+ res_de, res_a, res_Req, res_const,
+ fin_a, fin_b, fin_c, fin_d, fin_pot_type
  ) = in_out.read_input(infile, outfile)
 
 
