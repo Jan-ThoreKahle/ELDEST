@@ -379,6 +379,8 @@ t_au = delta_t_s + TL_au
 if (Lshape == "sinsq"):
     delta_t_au = -TL_au/n_L /2
     delta_t_max = TL_au/n_L /2
+    #delta_t_au = - sciconv.second_to_atu(2.0E-15)
+    #delta_t_max = 0
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
