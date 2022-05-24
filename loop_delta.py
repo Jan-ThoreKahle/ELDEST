@@ -270,8 +270,6 @@ fun_IR_dir = lambda t1: FX_t1(t1) * IR_during(t1)
 #-------------------------------------------------------------------------
 # resonant state functions
 if (Lshape == "sinsq"):
-    alpha = 1j*A0L*p_au/4
-    gamma = Er_au-E_kin_au-E_fin_au-1j*np.pi*VEr_au**2
 
     inner_prefac = lambda t_au: np.exp(-1j*t_au*(E_kin_au+E_fin_au))    \
                             *np.exp(-1j*A0L*p_au/4*8*(np.pi)**2/(omega_au*(4*(np.pi)**2 - omega_au**2*TL_au**2))    \
@@ -280,19 +278,23 @@ if (Lshape == "sinsq"):
     inner_int_part_zero = lambda x: 1/(-1j*gamma)*np.exp(-1j*gamma*x)
 
     inner_int_part_one = lambda x,y,z: A0L*p_au/(4*x)*np.exp(-1j*gamma*y)   \
-                            (gamma*sin(x*(y-delta_t_au)+z*phi) - 1j*x*cos(x*(y-delta_t_au)+z*phi))  \
-                            *(x**2+(1j*(Er_au-E_kin_au-E_fin_au)+np.pi*VEr_au**2)**2)**(-1)
+                            *(gamma*np.sin(x*(y-delta_t_au)+z*phi) - 1j*x*np.cos(x*(y-delta_t_au)+z*phi))  \
+                            *1/(x**2+(1j*(Er_au-E_kin_au-E_fin_au)+np.pi*VEr_au**2)**2)
 
-    inner_int_part_two_sq = lambda x,y,z: alpha**2/(2*2*1j*x**2*((2*x)**2-gamma**2))    \
+    inner_int_part_two_sq = lambda x,y,z: alpha**2/(2*2*1j*(x)**2*((2*(x))**2-gamma**2))    \
                             *(2*1j*x*np.exp(-1j*gamma*y)*np.sin(2*(y-delta_t_au)*x+z*2*phi) \
-                            +gamma*np.exp(-1j*gamma*y)*cos(2(y-delta_t_au)*x+z*2*phi))  \
-                            +2*alpha**2*1j/(2*(2+1j)**2*x**2*gamma**2)*np.exp(-1j*gamma*y)
+                            +gamma*np.exp(-1j*gamma*y)*np.cos(2*(y-delta_t_au)*x+z*2*phi)   \
+                            )  \
+                            +2*alpha**2*1j/(2*(2*1j)**2*x**2*gamma)*np.exp(-1j*gamma*y)
 
-    inner_part_two = lambda x,y,z,w,q: alpha**2/(x*y*(2*1j)**2)    \
+    inner_int_part_two = lambda x,y,z,w,q: alpha**2/(x*y*(2*1j)**2)    \
                             *(1/((x+y)**2-gamma**2)*2*1j*np.exp(-1j*gamma*z)    \
-                                *(-1j*(x+y)*np.sin((z-delta_t_au)(x+y)+w*phi)-gamma*np.cos((z-delta_t_au)*(x+y)+w*phi)) \
+                                *(-1j*(x+y)*np.sin((z-delta_t_au)*(x+y)+w*phi)   \
+                                -gamma*np.cos((z-delta_t_au)*(x+y)+w*phi)  \
+                                ) \
                             +1/((x-y)**2-gamma**2)*2*1j*np.exp(-1j*gamma*z)     \
-                                *(1j*(x-y)*np.sin((z-delta_t_au)*(x-y)+q*phi)+gamma*cos((z-delta_t_au)*(x-y)+q*phi)))
+                                *(1j*(x-y)*np.sin((z-delta_t_au)*(x-y)+q*phi)+gamma*np.cos((z-delta_t_au)*(x-y)+q*phi))
+                            )
     
 
 elif (Lshape == "gauss"):
@@ -360,8 +362,8 @@ elif (integ == 'quadrature'):
     res_inner_a = lambda t1: ci.complex_quadrature(res_inner_after, t1, t_au)[0]
 elif (integ == 'analytic'):
     res_inner_a = lambda t1: inner_prefac(t_au) \
-                                *(inner_int_part_zero(t)-inner_int_part_zero(t1)    \
-                                +inner_int_part_one((2*np.pi/TL_au+omega_au),t_au,1)    \
+                                *(inner_int_part_zero(t_au)-inner_int_part_zero(t1)    \
+                                +inner_int_part_one((2*np.pi/(TL_au)+omega_au),t_au,1)    \
                                 -inner_int_part_one((2*np.pi/TL_au+omega_au),t1,1)  \
                                 +inner_int_part_one((2*np.pi/TL_au-omega_au),t_au,(-1))    \
                                 +inner_int_part_one((2*np.pi/TL_au-omega_au),t1,(-1))    \
@@ -378,20 +380,22 @@ elif (integ == 'analytic'):
                                 +2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t_au,2,0) \
                                 -2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t1,2,0) \
                                 +2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t_au,0,(-2)) \
-                                -2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t1,0,(-2)))
+                                -2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t1,0,(-2))
+                                )
 
 res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner_a(t1)
 
 #-------------------------------------------------------------------------
 # initialization
-t_au = delta_t_s + TL_au
+#t_au = delta_t_s + TL_au
+t_au = TX_au + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
     delta_t_au = -TL_au/n_L /2
     delta_t_max = TL_au/n_L /2
-    #delta_t_au = - sciconv.second_to_atu(2.0E-15)
-    #delta_t_max = 0
+#    delta_t_au = - sciconv.second_to_atu(2.0E-14)
+#    delta_t_max = 0
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
@@ -429,6 +433,9 @@ while (delta_t_au <= delta_t_max):
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
+        alpha = 1j*A0L*p_au/4
+        gamma = Er_au-E_kin_au-E_fin_au-1j*np.pi*VEr_au**2
+
         #p_au = -A_IR(t_au) + np.sqrt(A_IR(t_au)**2 + 2 * E_kin_au) # only relevant when looking at times during the pulse
 
 # integral 1
