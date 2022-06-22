@@ -102,6 +102,7 @@ elif(Lshape == "gauss"):
 print 'TL_s = ', sciconv.atu_to_second(TL_au)
 print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
 print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
+print 'TL_au=', TL_au
 outfile.write('start of IR pulse = ' + str( delta_t_s - sciconv.atu_to_second(TL_au/2))
               + '\n')
 outfile.write('end of IR pulse = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2))
@@ -270,36 +271,32 @@ fun_IR_dir = lambda t1: FX_t1(t1) * IR_during(t1)
 #-------------------------------------------------------------------------
 # resonant state functions
 if (Lshape == "sinsq"):
-    inner_prefac = lambda x,y:  np.exp(-1j * y * (p_au**2/2 + E_fin_au)) \
-                            * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au - omega_au))
-                                     *np.sin(2*np.pi/TL_au * (x - delta_t_au)
-                                             - omega_au * (x - delta_t_au) - phi) ) \
-                            * np.exp(-1j * p_au * A0L / (4*(2*np.pi/TL_au + omega_au))
-                                     *np.sin(2*np.pi/TL_au * (x - delta_t_au)
-                                             + omega_au * (x + delta_t_au) + phi) ) \
-                            * np.exp(-1j * p_au * A0L / (2*omega_au)
-                                     *np.sin(omega_au * (x - delta_t_au) + phi) )
+
+    inner_prefac = lambda t_au: np.exp(-1j*t_au*(E_kin_au+E_fin_au))    \
+                            *np.exp(-1j*A0L*p_au/4*8*(np.pi)**2/(omega_au*(4*(np.pi)**2 - omega_au**2*TL_au**2))    \
+                            *np.sin(omega_au*TL_au/2+phi))
+
+    inner_int_part_zero = lambda x: 1/(-1j*gamma)*np.exp(-1j*gamma*x)
+
+    inner_int_part_one = lambda x,y,z: A0L*p_au/(4*x)*np.exp(-1j*gamma*y)   \
+                            *(gamma*np.sin(x*(y-delta_t_au)+z*phi) - 1j*x*np.cos(x*(y-delta_t_au)+z*phi))  \
+                            *1/(x**2+(1j*(Er_au-E_kin_au-E_fin_au)+np.pi*VEr_au**2)**2)
+
+    inner_int_part_two_sq = lambda x,y,z: alpha**2/(2*2*1j*(x)**2*((2*(x))**2-gamma**2))    \
+                            *(2*1j*x*np.exp(-1j*gamma*y)*np.sin(2*(y-delta_t_au)*x+z*2*phi) \
+                            +gamma*np.exp(-1j*gamma*y)*np.cos(2*(y-delta_t_au)*x+z*2*phi)   \
+                            )  \
+                            +2*alpha**2*1j/(2*(2*1j)**2*x**2*gamma)*np.exp(-1j*gamma*y)
+
+    inner_int_part_two = lambda x,y,z,w,q: alpha**2/(x*y*(2*1j)**2)    \
+                            *(1/((x+y)**2-gamma**2)*2*1j*np.exp(-1j*gamma*z)    \
+                                *(-1j*(x+y)*np.sin((z-delta_t_au)*(x+y)+w*phi)   \
+                                -gamma*np.cos((z-delta_t_au)*(x+y)+w*phi)  \
+                                ) \
+                            +1/((x-y)**2-gamma**2)*2*1j*np.exp(-1j*gamma*z)     \
+                                *(1j*(x-y)*np.sin((z-delta_t_au)*(x-y)+q*phi)+gamma*np.cos((z-delta_t_au)*(x-y)+q*phi))
+                            )
     
-    inner_int_part = lambda x,y: 1./(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)
-                                  +1j*p_au*A0L/4
-                                     * np.cos(2*np.pi/TL_au * (x-delta_t_au)
-                                              + omega_au * (x-delta_t_au) + phi)
-                                  +1j*p_au*A0L/4
-                                     * np.cos(2*np.pi/TL_au * (x-delta_t_au)
-                                              - omega_au * (x-delta_t_au) - phi)
-                                  +1j*A0L*p_au / 2
-                                     * np.cos(omega_au * (x-delta_t_au) + phi)
-                                  ) \
-                               *(np.exp(y*(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)))
-                               *np.exp(1j*A0L*p_au /(4*(2*np.pi/TL_au - omega_au))
-                                      * np.sin(2*np.pi/TL_au * (x - delta_t_au)
-                                            - omega_au * (x-delta_t_au) - phi) )
-                               *np.exp(1j*A0L*p_au /(4*(2*np.pi/TL_au + omega_au))
-                                      * np.sin(2*np.pi/TL_au * (x - delta_t_au)
-                                            + omega_au * (x-delta_t_au) + phi) )
-                               *np.exp(1j*A0L*p_au / (2 * omega_au)
-                                      * np.sin(omega_au * (x-delta_t_au) + phi) )
-                               )
 
 elif (Lshape == "gauss"):
     inner_prefac = lambda x,y:  np.exp(-1j * y * (p_au**2/2 + E_fin_au)) \
@@ -344,13 +341,13 @@ elif (Lshape == "gauss"):
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
                            * IR_during(t2)
 
-if (integ == 'romberg'):
-    res_inner = lambda t1: ci.complex_romberg(res_inner_fun, t1, t_au)
-elif (integ == 'quadrature'):
-    res_inner = lambda t1: ci.complex.quadrature(res_inner_fun, t1, t_au)[0]
-elif (integ == 'analytic'):
-    res_inner = lambda t1: inner_prefac(t_au,t_au) * \
-                           (inner_int_part(t_au,t_au) - inner_int_part(t1,t1))
+#if (integ == 'romberg'):
+#    res_inner = lambda t1: ci.complex_romberg(res_inner_fun, t1, t_au)
+#elif (integ == 'quadrature'):
+#    res_inner = lambda t1: ci.complex.quadrature(res_inner_fun, t1, t_au)[0]
+#elif (integ == 'analytic'):
+#    res_inner = lambda t1: inner_prefac(t_au,t_au) * \
+#                           (inner_int_part(t_au,t_au) - inner_int_part(t1,t1))
 
 
 res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
@@ -365,22 +362,41 @@ if (integ == 'romberg'):
 elif (integ == 'quadrature'):
     res_inner_a = lambda t1: ci.complex_quadrature(res_inner_after, t1, t_au)[0]
 elif (integ == 'analytic'):
-    res_inner_a = lambda t1: inner_prefac(delta_t_au + TL_au/2,t_au) * \
-                           (inner_int_part(delta_t_au + TL_au/2,t_au)
-                            - inner_int_part(t1,t1))
+    res_inner_a = lambda t1: inner_prefac(t_au) \
+                                *(inner_int_part_zero(t_au)-inner_int_part_zero(t1)    \
+                                +inner_int_part_one((2*np.pi/(TL_au)+omega_au),t_au,1)    \
+                                -inner_int_part_one((2*np.pi/TL_au+omega_au),t1,1)  \
+                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t_au,(-1))    \
+                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t1,(-1))    \
+                                +2*inner_int_part_one(omega_au,t_au,1)    \
+                                -2*inner_int_part_one(omega_au,t1,1)    \
+                                -inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t_au,1)  \
+                                +inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t1,1)  \
+                                -inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t_au,(-1))  \
+                                +inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t1,(-1))  \
+                                -4*inner_int_part_two_sq(omega_au,t_au,1)  \
+                                +4*inner_int_part_two_sq(omega_au,t1,1)  \
+                                +inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t_au,0,2) \
+                                -inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t1,0,2) \
+                                +2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t_au,2,0) \
+                                -2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t1,2,0) \
+                                +2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t_au,0,(-2)) \
+                                -2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t1,0,(-2))
+                                )
 
 res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner_a(t1)
 
 #-------------------------------------------------------------------------
 # initialization
-t_au = delta_t_s + TL_au
+#t_au = delta_t_s + TL_au
+t_au = TX_au + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
     delta_t_au = -TL_au/n_L /2
     delta_t_max = TL_au/n_L /2
-    #delta_t_au = - sciconv.second_to_atu(2.0E-15)
-    #delta_t_max = 0
+#    delta_t_au = - sciconv.second_to_atu(2.0E-14)
+#    delta_t_max = 0
 elif (Lshape == "gauss"):
     delta_t_au = - 3*np.pi / omega_au
     delta_t_max = 3*np.pi / omega_au
@@ -418,6 +434,9 @@ while (delta_t_au <= delta_t_max):
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
+        alpha = 1j*A0L*p_au/4
+        gamma = Er_au-E_kin_au-E_fin_au-1j*np.pi*VEr_au**2
+
         #p_au = -A_IR(t_au) + np.sqrt(A_IR(t_au)**2 + 2 * E_kin_au) # only relevant when looking at times during the pulse
 
 # integral 1
