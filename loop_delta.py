@@ -102,6 +102,7 @@ elif(Lshape == "gauss"):
 print 'TL_s = ', sciconv.atu_to_second(TL_au)
 print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
 print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
+print 'TL_au=', TL_au
 outfile.write('start of IR pulse = ' + str( delta_t_s - sciconv.atu_to_second(TL_au/2))
               + '\n')
 outfile.write('end of IR pulse = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2))
