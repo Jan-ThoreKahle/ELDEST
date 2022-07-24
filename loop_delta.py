@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/Library/Frameworks/Python.framework/Versions/2.7/bin/python2
+##!/usr/bin/python
 
 ##########################################################################
 #                                    ELDEST                              #
@@ -22,6 +23,7 @@ import in_out
 import sys
 import warnings
 from scipy.special import erf
+from scipy import fft
 
 
 # don't print warnings unless python -W ... is used
@@ -296,6 +298,15 @@ if (Lshape == "sinsq"):
                             +1/((x-y)**2-gamma**2)*2*1j*np.exp(-1j*gamma*z)     \
                                 *(1j*(x-y)*np.sin((z-delta_t_au)*(x-y)+q*phi)+gamma*np.cos((z-delta_t_au)*(x-y)+q*phi))
                             )
+
+    #fourier_back = lambda x,k: 1./(2*np.pi*k/N_discr - gamma) \
+    #                           * np.exp(1j * (x-delta_t_au) * (2*np.pi*k/N_discr - gamma))
+    integ_res = lambda t1: 1./(1j * 2*np.pi* ks / N_coeff - 1j*gamma) \
+                           * (np.exp(1j * (t_au - delta_t_au)
+                                        * (2*np.pi * ks / N_coeff -gamma) )
+                             -np.exp(1j * (t1 - delta_t_au)
+                                        * (2*np.pi * ks / N_coeff -gamma) )
+                             )
     
 
 elif (Lshape == "gauss"):
@@ -362,35 +373,46 @@ if (integ == 'romberg'):
 elif (integ == 'quadrature'):
     res_inner_a = lambda t1: ci.complex_quadrature(res_inner_after, t1, t_au)[0]
 elif (integ == 'analytic'):
-    res_inner_a = lambda t1: inner_prefac(t_au) \
-                                *(inner_int_part_zero(t_au)-inner_int_part_zero(t1)    \
-                                +inner_int_part_one((2*np.pi/(TL_au)+omega_au),t_au,1)    \
-                                -inner_int_part_one((2*np.pi/TL_au+omega_au),t1,1)  \
-                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t_au,(-1))    \
-                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t1,(-1))    \
-                                +2*inner_int_part_one(omega_au,t_au,1)    \
-                                -2*inner_int_part_one(omega_au,t1,1)    \
-                                -inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t_au,1)  \
-                                +inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t1,1)  \
-                                -inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t_au,(-1))  \
-                                +inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t1,(-1))  \
-                                -4*inner_int_part_two_sq(omega_au,t_au,1)  \
-                                +4*inner_int_part_two_sq(omega_au,t1,1)  \
-                                +inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t_au,0,2) \
-                                -inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t1,0,2) \
-                                +2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t_au,2,0) \
-                                -2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t1,2,0) \
-                                +2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t_au,0,(-2)) \
-                                -2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t1,0,(-2))
+     res_inner_a = lambda t1: inner_prefac(t_au) \
+                              * ( 1./N_coeff
+                                  * np.exp(-1j * gamma * delta_t_au)
+                                  * np.dot(fourier_coeffs[E_ind,:],integ_res(t1))
                                 )
+#    res_inner_a = lambda t1: inner_prefac(t_au) \
+#                                *(inner_int_part_zero(t_au)-inner_int_part_zero(t1)    \
+#                                +inner_int_part_one((2*np.pi/(TL_au)+omega_au),t_au,1)    \
+#                                -inner_int_part_one((2*np.pi/TL_au+omega_au),t1,1)  \
+#                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t_au,(-1))    \
+#                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t1,(-1))    \
+#                                +2*inner_int_part_one(omega_au,t_au,1)    \
+#                                -2*inner_int_part_one(omega_au,t1,1)    \
+#                                -inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t_au,1)  \
+#                                +inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t1,1)  \
+#                                -inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t_au,(-1))  \
+#                                +inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t1,(-1))  \
+#                                -4*inner_int_part_two_sq(omega_au,t_au,1)  \
+#                                +4*inner_int_part_two_sq(omega_au,t1,1)  \
+#                                +inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t_au,0,2) \
+#                                -inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t1,0,2) \
+#                                +2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t_au,2,0) \
+#                                -2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t1,2,0) \
+#                                +2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t_au,0,(-2)) \
+#                                -2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t1,0,(-2))
+#                                )
 
 res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
-                           * res_inner_a(t1)
+                             * res_inner_a(t1)
+                           #* inner_prefac(t_au) \
+                           #* ( 1./N_discr
+                           #    * np.exp(-1j * gamma * delta_t_au)
+                           #    * np.dot(fhat,integ_res(t1))
+                           #  )
 
 #-------------------------------------------------------------------------
 # initialization
-#t_au = delta_t_s + TL_au
-t_au = TX_au + TL_au
+t_au = delta_t_s + TL_au
+#t_au = delta_t_au + TL_au
+#t_au = TX_au + TL_au
 #delta_t_au = -TL_au/2 + TX_au/2
 if (Lshape == "sinsq"):
     delta_t_au = -TL_au/n_L /2
@@ -407,6 +429,33 @@ E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
     Ekins.append(sciconv.hartree_to_ev(E_kin_au))
     E_kin_au = E_kin_au + E_step_au
+
+N_Ekin = len(Ekins)
+d_tau_var = 1.
+tau_var = np.arange(0,np.ceil(TL_au / 2),d_tau_var)
+N_coeff = len(tau_var)
+#print "N_Ekin = ", N_Ekin
+#print "N_coeff = ", N_coeff
+fourier_coeffs = np.zeros((N_Ekin,N_coeff), dtype=complex)
+
+for E_ind in range (0,N_Ekin):
+     E_kin_au = E_min_au + E_ind * E_step_au
+     p_au = np.sqrt(2 * E_kin_au)
+     alpha = A0L*p_au/4 # Elke's alpha
+     f_grid = np.exp(1j * alpha / (2*np.pi / TL_au + omega_au)
+                        * np.sin((2*np.pi / TL_au + omega_au) * tau_var + phi)) \
+             *np.exp(1j * alpha / (2*np.pi / TL_au - omega_au)
+                        * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) \
+             *np.exp(1j * alpha *2 / omega_au
+                        * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) 
+     fhat = fft(f_grid)
+     PSD = fhat * np.conj(fhat) / N_coeff           # Power spectrum (power per freq
+     indices = PSD > 1.0       # Find all freqs with large power
+     fhat = indices * fhat     # Zero out small Fourier coeffs. in Y
+     fourier_coeffs[E_ind,:] = fhat
+
+#print fourier_coeffs
+ks = np.arange(N_coeff)
 
 
 #-------------------------------------------------------------------------
@@ -428,14 +477,42 @@ while (delta_t_au <= delta_t_max):
     outlines = []
     squares = np.array([])
     E_kin_au = E_min_au
+    E_ind = 0
     
     print 'delta_t_s = ', sciconv.atu_to_second(delta_t_au)
     outfile.write('delta_t_s = ' + str(sciconv.atu_to_second(delta_t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
-        alpha = 1j*A0L*p_au/4
+        #alpha = 1j*A0L*p_au/4 # Gurli's alpha
+        alpha = A0L*p_au/4 # Elke's alpha
         gamma = Er_au-E_kin_au-E_fin_au-1j*np.pi*VEr_au**2
+
+# put it here for proof of principle, move elsewhere later
+        #d_tau_var = 1.000
+        #tau_var = np.arange(0,26000,d_tau_var)
+        #f_grid = np.exp(1j * alpha / (2*np.pi / TL_au + omega_au)
+        #                   * np.sin((2*np.pi / TL_au + omega_au) * tau_var + phi)) \
+        #        *np.exp(1j * alpha / (2*np.pi / TL_au - omega_au)
+        #                   * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) \
+        #        *np.exp(1j * alpha *2 / omega_au
+        #                   * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) 
+        #N_discr = len(f_grid)
+        #fhat = fft(f_grid)
+        #PSD = fhat * np.conj(fhat) / N_discr           # Power spectrum (power per freq
+        #indices = PSD > 100       # Find all freqs with large power
+        #fhat = indices * fhat     # Zero out small Fourier coeffs. in Y
+        ##print np.sum(indices)
+
+        #ks = np.arange(N_discr)
+        #integ_res = lambda t1: 1./(1j * 2*np.pi* ks / N_discr - 1j*gamma) \
+        #                       * (np.exp(1j * (t_au - delta_t_au)
+        #                                    * (2*np.pi * ks / N_discr) -gamma )
+        #                         -np.exp(1j * (t1 - delta_t_au)
+        #                                    * (2*np.pi * ks / N_discr) -gamma )
+        #                         )
+        #res_outer_after_n = lambda t1: res_outer_after(t1) \
+        #                  * (np.dot(fhat,integ_res(t1)))
 
         #p_au = -A_IR(t_au) + np.sqrt(A_IR(t_au)**2 + 2 * E_kin_au) # only relevant when looking at times during the pulse
 
@@ -463,13 +540,15 @@ while (delta_t_au <= delta_t_max):
              )
 
         square = np.absolute(J)**2
-        dir_term = np.absolute(dir_J)**2
+        #dir_term = np.absolute(dir_J)**2
+        res_term = np.absolute(res_J)**2
         squares = np.append(squares, square)
 
-        string = in_out.prep_output_comp(square, dir_term, E_kin_au, delta_t_au)
+        string = in_out.prep_output_comp(square, res_term, E_kin_au, delta_t_au)
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
+        E_ind = E_ind + 1
 
     
     
