@@ -447,7 +447,7 @@ for E_ind in range (0,N_Ekin):
              *np.exp(1j * alpha / (2*np.pi / TL_au - omega_au)
                         * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) \
              *np.exp(1j * alpha *2 / omega_au
-                        * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) 
+                        * np.sin((omega_au) * tau_var + phi)) 
      fhat = fft(f_grid)
      PSD = fhat * np.conj(fhat) / N_coeff           # Power spectrum (power per freq
      indices = PSD > 1.0       # Find all freqs with large power
