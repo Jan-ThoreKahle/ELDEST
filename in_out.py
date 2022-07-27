@@ -91,188 +91,188 @@ def read_input(inputfile, outfile):
         words = line.split()
         if (words[0] == 'rdg_au'):
             rdg_au = float(words[2])
-            print 'rdg_au = ', rdg_au
+            print('rdg_au = ', rdg_au)
             outfile.write('rdg_au = ' + str(rdg_au) + '\n')
         elif (words[0] == 'cdg_au'):
             cdg_au = float(words[2])
-            print 'cdg_au = ', cdg_au
+            print('cdg_au = ', cdg_au)
             outfile.write('cdg_au = ' + str(cdg_au) + '\n')
     
     # energy parameters of the system
         elif (words[0] == 'Er_a_eV'):
             Er_a_eV = float(words[2])
-            print 'Er_a_eV = ', Er_a_eV
+            print('Er_a_eV = ', Er_a_eV)
             outfile.write('Er_a_eV = ' + str(Er_a_eV) + '\n')
         elif (words[0] == 'Er_b_eV'):
             Er_b_eV = float(words[2])
-            print 'Er_b_eV = ', Er_b_eV
+            print('Er_b_eV = ', Er_b_eV)
             outfile.write('Er_b_eV = ' + str(Er_b_eV) + '\n')
         elif (words[0] == 'E_fin_eV'):
             E_fin_eV = float(words[2])
-            print 'E_fin_eV = ', E_fin_eV
+            print('E_fin_eV = ', E_fin_eV)
             outfile.write('E_fin_eV = ' + str(E_fin_eV) + '\n')
         elif (words[0] == 'tau_s'):
             tau_s = float(words[2])
-            print 'tau_s = ', tau_s
+            print('tau_s = ', tau_s)
             outfile.write('tau_s = ' + str(tau_s) + '\n')
         elif (words[0] == 'E_fin_eV_2'):
             E_fin_eV_2 = float(words[2])
-            print 'E_fin_eV_2 = ', E_fin_eV_2
+            print('E_fin_eV_2 = ', E_fin_eV_2)
             outfile.write('E_fin_eV_2 = ' + str(E_fin_eV_2) + '\n')
         elif (words[0] == 'tau_a_s'):
             tau_a_s = float(words[2])
-            print 'tau_a_s = ', tau_a_s
+            print('tau_a_s = ', tau_a_s)
             outfile.write('tau_a_s = ' + str(tau_a_s) + '\n')
         elif (words[0] == 'tau_b_s'):
             tau_b_s = float(words[2])
-            print 'tau_b_s = ', tau_b_s
+            print('tau_b_s = ', tau_b_s)
             outfile.write('tau_b_s = ' + str(tau_b_s) + '\n')
         elif (words[0] == 'tau_s_2'):
             tau_s_2 = float(words[2])
-            print 'tau_s_2 = ', tau_s_2
+            print('tau_s_2 = ', tau_s_2)
             outfile.write('tau_s_2 = ' + str(tau_s_2) + '\n')
         elif (words[0] == 'interact_eV'):
             interact_eV = float(words[2])
-            print 'interact_eV = ', interact_eV
+            print('interact_eV = ', interact_eV)
             outfile.write('interact_eV = ' + str(interact_eV) + '\n')
     
     # exciting laser parameters
         elif (words[0] == 'Omega_eV'):
             Omega_eV = float(words[2])
-            print 'Omega_eV = ', Omega_eV
+            print('Omega_eV = ', Omega_eV)
             outfile.write('Omega_eV = ' + str(Omega_eV) + '\n')
         elif (words[0] == 'n_X'):
             n_X = float(words[2])
-            print 'n_X = ', n_X
+            print('n_X = ', n_X)
             outfile.write('n_X = ' + str(n_X) + '\n')
         elif (words[0] == 'I_X'):
             I_X = float(words[2])
-            print 'I_X = ', I_X
+            print('I_X = ', I_X)
             outfile.write('I_X = ' + str(I_X) + '\n')
         elif (words[0] == 'X_shape'):
             if (words[2] == 'sinsq'):
                 X_sinsq = True
                 X_gauss = False
-                print 'X_shape = Sin**2'
+                print('X_shape = Sin**2')
                 outfile.write('X_shape = Sin**2 \n')
             elif (words[2] == 'gauss'):
                 X_sinsq = False
                 X_gauss = True
-                print 'X_shape = Gauss'
+                print('X_shape = Gauss')
                 outfile.write('X_shape = Gauss \n')
             else:
-                print 'no XUV pulse shape selected'
+                print('no XUV pulse shape selected')
                 outfile.write('no XUV pulse shape selected \n')
         elif (words[0] == 'Xshape'):
             if (words[2] == 'infinite'):
                 Xshape = 'infinite'
                 outfile.write('Infinite XUV pulse selected \n')
-                print 'Infinite XUV pulse selected'
+                print('Infinite XUV pulse selected')
             elif (words[2] == 'convoluted'):
                 Xshape = 'convoluted'
                 outfile.write('Convoluted XUV pulse selected \n')
-                print 'Convoluted XUV pulse selected'
+                print('Convoluted XUV pulse selected')
     
     # dressing laser parameters
         elif (words[0] == 'omega_eV'):
             omega_eV = float(words[2])
-            print 'omega_eV = ', omega_eV
+            print('omega_eV = ', omega_eV)
             outfile.write('omega_eV = ' + str(omega_eV) + '\n')
         elif (words[0] == 'n_L'):
             n_L = float(words[2])
-            print 'n_L = ', n_L
+            print('n_L = ', n_L)
             outfile.write('n_L = ' + str(n_L) + '\n')
         elif (words[0] == 'I_L'):
             I_L = float(words[2])
-            print 'I_L = ', I_L
+            print('I_L = ', I_L)
             outfile.write('I_L = ' + str(I_L) + '\n')
         elif (words[0] == 'Lshape'):
             if (words[2] == 'gauss'):
                 Lshape = 'gauss'
                 outfile.write('Gaussian shaped IR pulse selected \n')
-                print 'Gaussian shaped IR pulse selected'
+                print('Gaussian shaped IR pulse selected')
             elif (words[2] == 'sinsq'):
                 Lshape = 'sinsq'
                 outfile.write('Sinsq shaped IR pulse selected \n')
-                print 'Sinsq shaped IR pulse selected'
+                print('Sinsq shaped IR pulse selected')
         elif (words[0] == 'delta_t_s'):
             delta_t_s = float(words[2])
-            print 'delta_t_s = ', delta_t_s
+            print('delta_t_s = ', delta_t_s)
             outfile.write('delta_t_s = ' + str(delta_t_s) + '\n')
         elif (words[0] == 'shift_step_s'):
             shift_step_s = float(words[2])
-            print 'shift_step_s = ', shift_step_s
+            print('shift_step_s = ', shift_step_s)
             outfile.write('shift_step_s = ' + str(shift_step_s) + '\n')
         elif (words[0] == 'FWHM_L'):
             FWHM_L = float(words[2])
-            print 'FWHM_L_s = ', FWHM_L
+            print('FWHM_L_s = ', FWHM_L)
             outfile.write('FWHM_L = ' + str(FWHM_L) + '\n')
         elif (words[0] == 'phi'):
             phi = float(words[2])
-            print 'phi = ', phi
+            print('phi = ', phi)
             outfile.write('phi = ' + str(phi) + '\n')
         elif (words[0] == 'q'):
             q = float(words[2])
-            print 'q = ', q
+            print('q = ', q)
             outfile.write('q = ' + str(q) + '\n')
     
     # parameters of the simulation
         elif (words[0] == 'tmax_s'):
             tmax_s = float(words[2])
-            print 'tmax_s = ', tmax_s
+            print('tmax_s = ', tmax_s)
             outfile.write('tmax_s = ' + str(tmax_s) + '\n')
         elif (words[0] == 'timestep_s'):
             timestep_s = float(words[2])
-            print 'timestep_s = ', timestep_s
+            print('timestep_s = ', timestep_s)
             outfile.write('timestep_s = ' + str(timestep_s) + '\n')
         elif (words[0] == 'E_step_eV'):
             E_step_eV = float(words[2])
-            print 'E_step_eV = ', E_step_eV
+            print('E_step_eV = ', E_step_eV)
             outfile.write('E_step_eV = ' + str(E_step_eV) + '\n')
     
         elif (words[0] == 'E_min_eV'):
             E_min_eV = float(words[2])
-            print 'E_min_eV = ', E_min_eV
+            print('E_min_eV = ', E_min_eV)
             outfile.write('E_min_eV = ' + str(E_min_eV) + '\n')
         elif (words[0] == 'E_max_eV'):
             E_max_eV = float(words[2])
-            print 'E_max_eV = ', E_max_eV
+            print('E_max_eV = ', E_max_eV)
             outfile.write('E_max_eV = ' + str(E_max_eV) + '\n')
 
         elif (words[0] == 'integ'):
             if (words[2] == 'romberg'):
                 integ = 'romberg'
-                print 'Integration Scheme of the inner integral = Romberg'
+                print('Integration Scheme of the inner integral = Romberg')
                 outfile.write('Integration Scheme of the inner integral = Romberg \n')
             elif (words[2] == 'quadrature'):
                 integ = 'quadrature'
-                print 'Integration Scheme of the inner integral = Gaussian Quadrature'
+                print('Integration Scheme of the inner integral = Gaussian Quadrature')
                 outfile.write('Integration Scheme of the inner integral = Gaussian Quadrature \n')
             elif (words[2] == 'analytic'):
                 integ = 'analytic'
-                print 'Integration Scheme of the inner integral = analytic'
+                print('Integration Scheme of the inner integral = analytic')
                 outfile.write('Integration Scheme of the inner integral = analytic \n')
             else:
-                print 'no integration scheme selected'
+                print('no integration scheme selected')
                 outfile.write('no integration scheme selected \n')
             
         elif (words[0] == 'integ_outer'):
             if (words[2] == 'romberg'):
                 integ_outer = 'romberg'
-                print 'Integration Scheme of the outer integral = Romberg'
+                print('Integration Scheme of the outer integral = Romberg')
                 outfile.write('Integration Scheme of the outer integral = Romberg \n')
             elif (words[2] == 'quadrature'):
                 integ_outer = 'quadrature'
-                print 'Integration Scheme of the outer integral = Gaussian Quadrature'
+                print('Integration Scheme of the outer integral = Gaussian Quadrature')
                 outfile.write('Integration Scheme of the outer integral = Gaussian Quadrature \n')
             else:
-                print 'no integration scheme selected'
+                print('no integration scheme selected')
                 outfile.write('no integration scheme selected \n')
 
         elif (words[0] == 'gs_de'):
             outfile.write('Parameters of potential energy curves:' + '\n')
             gs_de = float(words[2])
-            print "found gs_de"
+            print("found gs_de")
             outfile.write('gs_de = ' + str(gs_de) + '\n')
         elif (words[0] == 'gs_a'):
             gs_a = float(words[2])
@@ -311,7 +311,7 @@ def read_input(inputfile, outfile):
             fin_pot_type = str(words[2])
             outfile.write('fin_pot_type = ' + str(fin_pot_type) + '\n')
             if (fin_pot_type not in ['morse','hyperbel']):
-                print 'Non existent final state potentialy type chosen, QUIT'
+                print('Non existent final state potentialy type chosen, QUIT')
                 sys.exit()
     
     f.close()
@@ -415,182 +415,182 @@ def read_input_old(inputfile, outfile):
         words = line.split()
         if (words[0] == 'rdg_au'):
             rdg_au = float(words[2])
-            print 'rdg_au = ', rdg_au
+            print('rdg_au = ', rdg_au)
             outfile.write('rdg_au = ' + str(rdg_au) + '\n')
         elif (words[0] == 'cdg_au'):
             cdg_au = float(words[2])
-            print 'cdg_au = ', cdg_au
+            print('cdg_au = ', cdg_au)
             outfile.write('cdg_au = ' + str(cdg_au) + '\n')
     
     # energy parameters of the system
         elif (words[0] == 'Er_a_eV'):
             Er_a_eV = float(words[2])
-            print 'Er_a_eV = ', Er_a_eV
+            print('Er_a_eV = ', Er_a_eV)
             outfile.write('Er_a_eV = ' + str(Er_a_eV) + '\n')
         elif (words[0] == 'Er_b_eV'):
             Er_b_eV = float(words[2])
-            print 'Er_b_eV = ', Er_b_eV
+            print('Er_b_eV = ', Er_b_eV)
             outfile.write('Er_b_eV = ' + str(Er_b_eV) + '\n')
         elif (words[0] == 'E_fin_eV'):
             E_fin_eV = float(words[2])
-            print 'E_fin_eV = ', E_fin_eV
+            print('E_fin_eV = ', E_fin_eV)
             outfile.write('E_fin_eV = ' + str(E_fin_eV) + '\n')
         elif (words[0] == 'tau_s'):
             tau_s = float(words[2])
-            print 'tau_s = ', tau_s
+            print('tau_s = ', tau_s)
             outfile.write('tau_s = ' + str(tau_s) + '\n')
         elif (words[0] == 'E_fin_eV_2'):
             E_fin_eV_2 = float(words[2])
-            print 'E_fin_eV_2 = ', E_fin_eV_2
+            print('E_fin_eV_2 = ', E_fin_eV_2)
             outfile.write('E_fin_eV_2 = ' + str(E_fin_eV_2) + '\n')
         elif (words[0] == 'tau_a_s'):
             tau_a_s = float(words[2])
-            print 'tau_a_s = ', tau_a_s
+            print('tau_a_s = ', tau_a_s)
             outfile.write('tau_a_s = ' + str(tau_a_s) + '\n')
         elif (words[0] == 'tau_b_s'):
             tau_b_s = float(words[2])
-            print 'tau_b_s = ', tau_b_s
+            print('tau_b_s = ', tau_b_s)
             outfile.write('tau_b_s = ' + str(tau_b_s) + '\n')
         elif (words[0] == 'tau_s_2'):
             tau_s_2 = float(words[2])
-            print 'tau_s_2 = ', tau_s_2
+            print('tau_s_2 = ', tau_s_2)
             outfile.write('tau_s_2 = ' + str(tau_s_2) + '\n')
         elif (words[0] == 'interact_eV'):
             interact_eV = float(words[2])
-            print 'interact_eV = ', interact_eV
+            print('interact_eV = ', interact_eV)
             outfile.write('interact_eV = ' + str(interact_eV) + '\n')
     
     # exciting laser parameters
         elif (words[0] == 'Omega_eV'):
             Omega_eV = float(words[2])
-            print 'Omega_eV = ', Omega_eV
+            print('Omega_eV = ', Omega_eV)
             outfile.write('Omega_eV = ' + str(Omega_eV) + '\n')
         elif (words[0] == 'n_X'):
             n_X = float(words[2])
-            print 'n_X = ', n_X
+            print('n_X = ', n_X)
             outfile.write('n_X = ' + str(n_X) + '\n')
         elif (words[0] == 'I_X'):
             I_X = float(words[2])
-            print 'I_X = ', I_X
+            print('I_X = ', I_X)
             outfile.write('I_X = ' + str(I_X) + '\n')
         elif (words[0] == 'X_shape'):
             if (words[2] == 'sinsq'):
                 X_sinsq = True
                 X_gauss = False
-                print 'X_shape = Sin**2'
+                print('X_shape = Sin**2')
                 outfile.write('X_shape = Sin**2 \n')
             elif (words[2] == 'gauss'):
                 X_sinsq = False
                 X_gauss = True
-                print 'X_shape = Gauss'
+                print('X_shape = Gauss')
                 outfile.write('X_shape = Gauss \n')
             else:
-                print 'no XUV pulse shape selected'
+                print('no XUV pulse shape selected')
                 outfile.write('no XUV pulse shape selected \n')
         elif (words[0] == 'Xshape'):
             if (words[2] == 'infinite'):
                 Xshape = 'infinite'
                 outfile.write('Infinite XUV pulse selected \n')
-                print 'Infinite XUV pulse selected'
+                print('Infinite XUV pulse selected')
             elif (words[2] == 'convoluted'):
                 Xshape = 'convoluted'
                 outfile.write('Convoluted XUV pulse selected \n')
-                print 'Convoluted XUV pulse selected'
+                print('Convoluted XUV pulse selected')
     
     # dressing laser parameters
         elif (words[0] == 'omega_eV'):
             omega_eV = float(words[2])
-            print 'omega_eV = ', omega_eV
+            print('omega_eV = ', omega_eV)
             outfile.write('omega_eV = ' + str(omega_eV) + '\n')
         elif (words[0] == 'n_L'):
             n_L = float(words[2])
-            print 'n_L = ', n_L
+            print('n_L = ', n_L)
             outfile.write('n_L = ' + str(n_L) + '\n')
         elif (words[0] == 'I_L'):
             I_L = float(words[2])
-            print 'I_L = ', I_L
+            print('I_L = ', I_L)
             outfile.write('I_L = ' + str(I_L) + '\n')
         elif (words[0] == 'Lshape'):
             if (words[2] == 'gauss'):
                 Lshape = 'gauss'
                 outfile.write('Gaussian shaped IR pulse selected \n')
-                print 'Gaussian shaped IR pulse selected'
+                print('Gaussian shaped IR pulse selected')
             elif (words[2] == 'sinsq'):
                 Lshape = 'sinsq'
                 outfile.write('Sinsq shaped IR pulse selected \n')
-                print 'Sinsq shaped IR pulse selected'
+                print('Sinsq shaped IR pulse selected')
         elif (words[0] == 'delta_t_s'):
             delta_t_s = float(words[2])
-            print 'delta_t_s = ', delta_t_s
+            print('delta_t_s = ', delta_t_s)
             outfile.write('delta_t_s = ' + str(delta_t_s) + '\n')
         elif (words[0] == 'shift_step_s'):
             shift_step_s = float(words[2])
-            print 'shift_step_s = ', shift_step_s
+            print('shift_step_s = ', shift_step_s)
             outfile.write('shift_step_s = ' + str(shift_step_s) + '\n')
         elif (words[0] == 'FWHM_L'):
             FWHM_L = float(words[2])
-            print 'FWHM_L_s = ', FWHM_L
+            print('FWHM_L_s = ', FWHM_L)
             outfile.write('FWHM_L = ' + str(FWHM_L) + '\n')
         elif (words[0] == 'phi'):
             phi = float(words[2])
-            print 'phi = ', phi
+            print('phi = ', phi)
             outfile.write('phi = ' + str(phi) + '\n')
         elif (words[0] == 'q'):
             q = float(words[2])
-            print 'q = ', q
+            print('q = ', q)
             outfile.write('q = ' + str(q) + '\n')
     
     # parameters of the simulation
         elif (words[0] == 'tmax_s'):
             tmax_s = float(words[2])
-            print 'tmax_s = ', tmax_s
+            print('tmax_s = ', tmax_s)
             outfile.write('tmax_s = ' + str(tmax_s) + '\n')
         elif (words[0] == 'timestep_s'):
             timestep_s = float(words[2])
-            print 'timestep_s = ', timestep_s
+            print('timestep_s = ', timestep_s)
             outfile.write('timestep_s = ' + str(timestep_s) + '\n')
         elif (words[0] == 'E_step_eV'):
             E_step_eV = float(words[2])
-            print 'E_step_eV = ', E_step_eV
+            print('E_step_eV = ', E_step_eV)
             outfile.write('E_step_eV = ' + str(E_step_eV) + '\n')
     
         elif (words[0] == 'E_min_eV'):
             E_min_eV = float(words[2])
-            print 'E_min_eV = ', E_min_eV
+            print('E_min_eV = ', E_min_eV)
             outfile.write('E_min_eV = ' + str(E_min_eV) + '\n')
         elif (words[0] == 'E_max_eV'):
             E_max_eV = float(words[2])
-            print 'E_max_eV = ', E_max_eV
+            print('E_max_eV = ', E_max_eV)
             outfile.write('E_max_eV = ' + str(E_max_eV) + '\n')
 
         elif (words[0] == 'integ'):
             if (words[2] == 'romberg'):
                 integ = 'romberg'
-                print 'Integration Scheme of the inner integral = Romberg'
+                print('Integration Scheme of the inner integral = Romberg')
                 outfile.write('Integration Scheme of the inner integral = Romberg \n')
             elif (words[2] == 'quadrature'):
                 integ = 'quadrature'
-                print 'Integration Scheme of the inner integral = Gaussian Quadrature'
+                print('Integration Scheme of the inner integral = Gaussian Quadrature')
                 outfile.write('Integration Scheme of the inner integral = Gaussian Quadrature \n')
             elif (words[2] == 'analytic'):
                 integ = 'analytic'
-                print 'Integration Scheme of the inner integral = analytic'
+                print('Integration Scheme of the inner integral = analytic')
                 outfile.write('Integration Scheme of the inner integral = analytic \n')
             else:
-                print 'no integration scheme selected'
+                print('no integration scheme selected')
                 outfile.write('no integration scheme selected \n')
             
         elif (words[0] == 'integ_outer'):
             if (words[2] == 'romberg'):
                 integ_outer = 'romberg'
-                print 'Integration Scheme of the outer integral = Romberg'
+                print('Integration Scheme of the outer integral = Romberg')
                 outfile.write('Integration Scheme of the outer integral = Romberg \n')
             elif (words[2] == 'quadrature'):
                 integ_outer = 'quadrature'
-                print 'Integration Scheme of the outer integral = Gaussian Quadrature'
+                print('Integration Scheme of the outer integral = Gaussian Quadrature')
                 outfile.write('Integration Scheme of the outer integral = Gaussian Quadrature \n')
             else:
-                print 'no integration scheme selected'
+                print('no integration scheme selected')
                 outfile.write('no integration scheme selected \n')
     
     f.close()
@@ -614,13 +614,13 @@ def check_input(Er, E_fin, Gamma,
                 Omega, TX, n_X, A0X,
                 omega, TL, A0L, delta_t,
                 tmax, timestep, E_step):
-    print 'Input Check'
+    print('Input Check')
 
     if (E_fin > Omega):
         exit('Warning: E_fin > Omega' + '\n'
              + 'Stopping Script')
 
-    print 'Input fullfills requirements'
+    print('Input fullfills requirements')
 
     return 0
     
