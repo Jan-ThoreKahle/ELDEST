@@ -1,4 +1,4 @@
-#!/Library/Frameworks/Python.framework/Versions/2.7/bin/python2
+##!/Library/Frameworks/Python.framework/Versions/2.7/bin/python2
 ##!/usr/bin/python
 
 ##########################################################################
@@ -31,7 +31,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 infile = sys.argv[1]
-print infile
+print(infile)
 
 #-------------------------------------------------------------------------
 # open outputfile
@@ -75,13 +75,13 @@ elif(X_gauss):
     FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
     FWHM_I    = 2 * np.sqrt( 2 * np.log(2)) * sigma / np.sqrt(2)
     TX_au     = 5 * sigma
-    print 'sigma = ', sciconv.atu_to_second(sigma)
-    print 'FWHM = ', sciconv.atu_to_second(FWHM)
-    print 'FWHM_I = ', sciconv.atu_to_second(FWHM_I)
+    print('sigma = ', sciconv.atu_to_second(sigma))
+    print('FWHM = ', sciconv.atu_to_second(FWHM))
+    print('FWHM_I = ', sciconv.atu_to_second(FWHM_I))
     outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
     outfile.write('FWHM_I = ' + str(sciconv.atu_to_second(FWHM_I)) + '\n')
-print 'end of the first pulse = ', sciconv.atu_to_second(TX_au)
+print('end of the first pulse = ', sciconv.atu_to_second(TX_au))
 outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 #print 'I_X_au = ', I_X_au
@@ -97,14 +97,14 @@ elif(Lshape == "gauss"):
     sigma_L   = np.pi * n_L / (omega_au * np.sqrt(np.log(2)))
     FWHM_L    = 2 * np.sqrt( 2 * np.log(2)) * sigma_L
     TL_au     = 5 * sigma_L
-    print 'sigma_L = ', sciconv.atu_to_second(sigma_L)
-    print 'FWHM_L = ', sciconv.atu_to_second(FWHM_L)
+    print('sigma_L = ', sciconv.atu_to_second(sigma_L))
+    print('FWHM_L = ', sciconv.atu_to_second(FWHM_L))
     outfile.write('sigma_L = ' + str(sciconv.atu_to_second(sigma_L)) + '\n')
     outfile.write('FWHM_L = ' + str(sciconv.atu_to_second(FWHM_L)) + '\n')
-print 'TL_s = ', sciconv.atu_to_second(TL_au)
-print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
-print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
-print 'TL_au=', TL_au
+print('TL_s = ', sciconv.atu_to_second(TL_au))
+print('start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
+print('end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
+print('TL_au=', TL_au)
 outfile.write('start of IR pulse = ' + str( delta_t_s - sciconv.atu_to_second(TL_au/2))
               + '\n')
 outfile.write('end of IR pulse = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2))
@@ -129,7 +129,7 @@ VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 
 #cdg_au = rdg_au / ( q * np.pi * VEr_au)
 rdg_au = cdg_au * ( q * np.pi * VEr_au)
-print "rdg_au = ", rdg_au
+print("rdg_au = ", rdg_au)
 
 #-------------------------------------------------------------------------
 in_out.check_input(Er_au, E_fin_au, Gamma_au,
@@ -140,7 +140,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 # physical defintions of functions
 # functions for the XUV pulse shape
 if (X_sinsq):
-    print 'use sinsq function'
+    print('use sinsq function')
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
                           + 2
                           + np.exp(-2j * np.pi * (t1 + TX_au/2) /TX_au) )
@@ -148,13 +148,13 @@ if (X_sinsq):
     fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)
                                          + np.exp(-2j*np.pi* (t1 + TX_au/2) / TX_au) )
 elif (X_gauss):
-    print 'use gauss function'
+    print('use gauss function')
     f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
                        * np.exp(-t1**2 / (2*sigma**2)))
     fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
-    print 'no pulse shape selected'
+    print('no pulse shape selected')
 
 FX_t1 = lambda t1: (- A0X * np.cos(Omega_au * t1) * fp_t1(t1)
                     + A0X * Omega_au * np.sin(Omega_au * (t1)) * f_t1(t1)
@@ -301,11 +301,11 @@ if (Lshape == "sinsq"):
 
     #fourier_back = lambda x,k: 1./(2*np.pi*k/N_discr - gamma) \
     #                           * np.exp(1j * (x-delta_t_au) * (2*np.pi*k/N_discr - gamma))
-    integ_res = lambda t1: 1./(1j * 2*np.pi* ks / N_coeff - 1j*gamma) \
+    integ_res = lambda t1: 1./(1j * 2*np.pi* sort_freq - 1j*gamma) \
                            * (np.exp(1j * (t_au - delta_t_au)
-                                        * (2*np.pi * ks / N_coeff -gamma) )
+                                        * (2*np.pi * sort_freq -gamma) )
                              -np.exp(1j * (t1 - delta_t_au)
-                                        * (2*np.pi * ks / N_coeff -gamma) )
+                                        * (2*np.pi * sort_freq -gamma) )
                              )
     
 
@@ -402,11 +402,6 @@ elif (integ == 'analytic'):
 
 res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                              * res_inner_a(t1)
-                           #* inner_prefac(t_au) \
-                           #* ( 1./N_discr
-                           #    * np.exp(-1j * gamma * delta_t_au)
-                           #    * np.dot(fhat,integ_res(t1))
-                           #  )
 
 #-------------------------------------------------------------------------
 # initialization
@@ -432,7 +427,7 @@ while (E_kin_au <= E_max_au):
 
 N_Ekin = len(Ekins)
 d_tau_var = 1.
-tau_var = np.arange(0,np.ceil(TL_au / 2),d_tau_var)
+tau_var = np.arange(0,np.ceil(TL_au),d_tau_var)
 N_coeff = len(tau_var)
 #print "N_Ekin = ", N_Ekin
 #print "N_coeff = ", N_coeff
@@ -448,11 +443,17 @@ for E_ind in range (0,N_Ekin):
                         * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) \
              *np.exp(1j * alpha *2 / omega_au
                         * np.sin((omega_au) * tau_var + phi)) 
-     fhat = fft(f_grid)
+     fhat = fft.fft(f_grid)
      PSD = fhat * np.conj(fhat) / N_coeff           # Power spectrum (power per freq
      indices = PSD > 1.0       # Find all freqs with large power
      fhat = indices * fhat     # Zero out small Fourier coeffs. in Y
-     fourier_coeffs[E_ind,:] = fhat
+     sort_fhat = fft.fftshift(fhat)
+     fourier_coeffs[E_ind,:] = sort_fhat
+
+#print('frequencies')
+freq = fft.fftfreq(N_coeff,d_tau_var)
+#print('sorted frequencies')
+sort_freq = fft.fftshift(freq)
 
 #print fourier_coeffs
 ks = np.arange(N_coeff)
@@ -472,14 +473,14 @@ prefac_dir = 1j * cdg_au
 while (delta_t_au <= delta_t_max):
 #-------------------------------------------------------------------------
     outfile.write('after both pulses \n')
-    print 'after both pulses'
+    print('after both pulses')
 
     outlines = []
     squares = np.array([])
     E_kin_au = E_min_au
     E_ind = 0
     
-    print 'delta_t_s = ', sciconv.atu_to_second(delta_t_au)
+    print('delta_t_s = ', sciconv.atu_to_second(delta_t_au))
     outfile.write('delta_t_s = ' + str(sciconv.atu_to_second(delta_t_au)) + '\n')
     while (E_kin_au <= E_max_au):
 
@@ -556,7 +557,7 @@ while (delta_t_au <= delta_t_max):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins[max_pos[i]], squares[max_pos[i]]
+            print(Ekins[max_pos[i]], squares[max_pos[i]])
             outfile.write(str(Ekins[max_pos[i]]) + ' ' + str(squares[max_pos[i]]) + '\n')
 
     delta_t_au = delta_t_au + shift_step_au
