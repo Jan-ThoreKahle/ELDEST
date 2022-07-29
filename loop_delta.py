@@ -299,8 +299,6 @@ if (Lshape == "sinsq"):
                                 *(1j*(x-y)*np.sin((z-delta_t_au)*(x-y)+q*phi)+gamma*np.cos((z-delta_t_au)*(x-y)+q*phi))
                             )
 
-    #fourier_back = lambda x,k: 1./(2*np.pi*k/N_discr - gamma) \
-    #                           * np.exp(1j * (x-delta_t_au) * (2*np.pi*k/N_discr - gamma))
     integ_res = lambda t1: 1./(1j * 2*np.pi* sort_freq - 1j*gamma) \
                            * (np.exp(1j * (t_au - delta_t_au)
                                         * (2*np.pi * sort_freq -gamma) )
@@ -378,27 +376,6 @@ elif (integ == 'analytic'):
                                   * np.exp(-1j * gamma * delta_t_au)
                                   * np.dot(fourier_coeffs[E_ind,:],integ_res(t1))
                                 )
-#    res_inner_a = lambda t1: inner_prefac(t_au) \
-#                                *(inner_int_part_zero(t_au)-inner_int_part_zero(t1)    \
-#                                +inner_int_part_one((2*np.pi/(TL_au)+omega_au),t_au,1)    \
-#                                -inner_int_part_one((2*np.pi/TL_au+omega_au),t1,1)  \
-#                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t_au,(-1))    \
-#                                +inner_int_part_one((2*np.pi/TL_au-omega_au),t1,(-1))    \
-#                                +2*inner_int_part_one(omega_au,t_au,1)    \
-#                                -2*inner_int_part_one(omega_au,t1,1)    \
-#                                -inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t_au,1)  \
-#                                +inner_int_part_two_sq((2*np.pi/TL_au+omega_au),t1,1)  \
-#                                -inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t_au,(-1))  \
-#                                +inner_int_part_two_sq((2*np.pi/TL_au-omega_au),t1,(-1))  \
-#                                -4*inner_int_part_two_sq(omega_au,t_au,1)  \
-#                                +4*inner_int_part_two_sq(omega_au,t1,1)  \
-#                                +inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t_au,0,2) \
-#                                -inner_int_part_two((2*np.pi/TL_au+omega_au),(2*np.pi/TL_au-omega_au),t1,0,2) \
-#                                +2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t_au,2,0) \
-#                                -2*inner_int_part_two((2*np.pi/TL_au+omega_au),omega_au,t1,2,0) \
-#                                +2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t_au,0,(-2)) \
-#                                -2*inner_int_part_two((2*np.pi/TL_au-omega_au),omega_au,t1,0,(-2))
-#                                )
 
 res_outer_after = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                              * res_inner_a(t1)
@@ -429,8 +406,6 @@ N_Ekin = len(Ekins)
 d_tau_var = 1.
 tau_var = np.arange(0,np.ceil(TL_au),d_tau_var)
 N_coeff = len(tau_var)
-#print "N_Ekin = ", N_Ekin
-#print "N_coeff = ", N_coeff
 fourier_coeffs = np.zeros((N_Ekin,N_coeff), dtype=complex)
 
 for E_ind in range (0,N_Ekin):
@@ -489,31 +464,6 @@ while (delta_t_au <= delta_t_max):
         alpha = A0L*p_au/4 # Elke's alpha
         gamma = Er_au-E_kin_au-E_fin_au-1j*np.pi*VEr_au**2
 
-# put it here for proof of principle, move elsewhere later
-        #d_tau_var = 1.000
-        #tau_var = np.arange(0,26000,d_tau_var)
-        #f_grid = np.exp(1j * alpha / (2*np.pi / TL_au + omega_au)
-        #                   * np.sin((2*np.pi / TL_au + omega_au) * tau_var + phi)) \
-        #        *np.exp(1j * alpha / (2*np.pi / TL_au - omega_au)
-        #                   * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) \
-        #        *np.exp(1j * alpha *2 / omega_au
-        #                   * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) 
-        #N_discr = len(f_grid)
-        #fhat = fft(f_grid)
-        #PSD = fhat * np.conj(fhat) / N_discr           # Power spectrum (power per freq
-        #indices = PSD > 100       # Find all freqs with large power
-        #fhat = indices * fhat     # Zero out small Fourier coeffs. in Y
-        ##print np.sum(indices)
-
-        #ks = np.arange(N_discr)
-        #integ_res = lambda t1: 1./(1j * 2*np.pi* ks / N_discr - 1j*gamma) \
-        #                       * (np.exp(1j * (t_au - delta_t_au)
-        #                                    * (2*np.pi * ks / N_discr) -gamma )
-        #                         -np.exp(1j * (t1 - delta_t_au)
-        #                                    * (2*np.pi * ks / N_discr) -gamma )
-        #                         )
-        #res_outer_after_n = lambda t1: res_outer_after(t1) \
-        #                  * (np.dot(fhat,integ_res(t1)))
 
         #p_au = -A_IR(t_au) + np.sqrt(A_IR(t_au)**2 + 2 * E_kin_au) # only relevant when looking at times during the pulse
 
