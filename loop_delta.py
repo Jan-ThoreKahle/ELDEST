@@ -224,9 +224,27 @@ elif (Lshape == "gauss"):
                                       )
                                    )
 
+#    IR_after = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
+#                          *np.exp(-1j * E_fin_au * (t_au - t1)) \
+#                          * np.exp(-A0L * p_au / 4 * np.exp(1j*phi)
+#                                                   * np.exp(-sigma_L**2 * omega_au**2 / 2)
+#                                   * (erf((TL_au/2 - 1j*sigma_L**2 * omega_au)
+#                                           / np.sqrt(2) / sigma_L)
+#                                      -erf((t1 - delta_t_au - 1j*sigma_L**2 * omega_au) 
+#                                           / np.sqrt(2) / sigma_L)
+#                                     )
+#                                  ) \
+#                          * np.exp(-A0L * p_au / 4 * np.exp(-1j*phi)
+#                                                   * np.exp(-sigma_L**2 * omega_au**2 / 2)
+#                                   * (erf((TL_au/2 + 1j*sigma_L**2 * omega_au)
+#                                           / np.sqrt(2) / sigma_L)
+#                                      -erf((t1 - delta_t_au + 1j*sigma_L**2 * omega_au) 
+#                                           / np.sqrt(2) / sigma_L)
+#                                     )
+#                                  )
     IR_after = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                           *np.exp(-1j * E_fin_au * (t_au - t1)) \
-                          * np.exp(-A0L * p_au / 4 * np.exp(1j*phi)
+                          * np.exp(-A0L * p_au * np.sqrt(np.pi/8) *sigma_L * np.exp(1j*phi)
                                                    * np.exp(-sigma_L**2 * omega_au**2 / 2)
                                    * (erf((TL_au/2 - 1j*sigma_L**2 * omega_au)
                                            / np.sqrt(2) / sigma_L)
@@ -234,7 +252,7 @@ elif (Lshape == "gauss"):
                                            / np.sqrt(2) / sigma_L)
                                      )
                                   ) \
-                          * np.exp(-A0L * p_au / 4 * np.exp(-1j*phi)
+                          * np.exp(-A0L * p_au * np.sqrt(np.pi/8) *sigma_L * np.exp(-1j*phi)
                                                    * np.exp(-sigma_L**2 * omega_au**2 / 2)
                                    * (erf((TL_au/2 + 1j*sigma_L**2 * omega_au)
                                            / np.sqrt(2) / sigma_L)
@@ -279,28 +297,17 @@ if (Lshape == "sinsq"):
                             *np.sin(omega_au*TL_au/2+phi))
 
 
-    integ_res = lambda t1: 1./(1j * 2*np.pi* sort_freq - 1j*gamma) \
-                           * (np.exp(1j * (t_au - delta_t_au)
-                                        * (2*np.pi * sort_freq -gamma) )
-                             -np.exp(1j * (t1 - delta_t_au)
-                                        * (2*np.pi * sort_freq -gamma) )
-                             )
     
 
 elif (Lshape == "gauss"):
-    inner_prefac = lambda x,y:  np.exp(-1j * y * (p_au**2/2 + E_fin_au)) \
-                            * np.exp(-1j*A0L*p_au/4 * np.exp(1j*phi)
-                                                 * np.exp(-sigma_L**2 * omega_au**2 / 2)
-                                                 * erf((x - delta_t_au - 1j*sigma_L**2 * omega_au)
-                                                       / (np.sqrt(2) * sigma_L)
-                                                      )
-                                    ) \
-                            * np.exp(-1j*A0L*p_au/4 * np.exp(-1j*phi)
-                                                 * np.exp(-sigma_L**2 * omega_au**2 / 2)
-                                                 * erf((x - delta_t_au + 1j*sigma_L**2 * omega_au)
-                                                       / (np.sqrt(2) * sigma_L)
-                                                      )
-                                    )
+    inner_prefac = lambda t_au: np.exp(-1j*t_au*(E_kin_au+E_fin_au))    \
+                              * np.exp(-1j* alpha
+                                       * (np.exp(1j*phi) * erf((TL_au/2-delta_t_au)/np.sqrt(2)/sigma_L
+                                                              -1j*omega_au * sigma_L / np.sqrt(2))
+                                        +np.exp(-1j*phi) * erf((TL_au/2-delta_t_au) / np.sqrt(2) / sigma_L
+                                                               +1j*omega_au * sigma_L / np.sqrt(2))
+                                         )
+                                      )
 
     inner_int_part = lambda x,y: 1./(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)
                                   +1j*p_au*A0L/2 / np.sqrt(np.pi) * np.exp(1j*phi)
@@ -327,6 +334,7 @@ elif (Lshape == "gauss"):
                                       )
                                )
 
+
 res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
                            * IR_during(t2)
 
@@ -338,6 +346,12 @@ res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * VEr_au**2 + 1j*(Er_au))) \
 #    res_inner = lambda t1: inner_prefac(t_au,t_au) * \
 #                           (inner_int_part(t_au,t_au) - inner_int_part(t1,t1))
 
+integ_res = lambda t1: 1./(1j * 2*np.pi* sort_freq - 1j*gamma) \
+                       * (np.exp(1j * (t_au - delta_t_au)
+                                    * (2*np.pi * sort_freq -gamma) )
+                         -np.exp(1j * (t1 - delta_t_au)
+                                    * (2*np.pi * sort_freq -gamma) )
+                         )
 
 res_outer_fun = lambda t1: FX_t1(t1) * np.exp(t1 * (np.pi* VEr_au**2 + 1j*Er_au)) \
                            * res_inner(t1)
@@ -388,30 +402,41 @@ tau_var = np.arange(0,np.ceil(TL_au),d_tau_var)
 N_coeff = len(tau_var)
 fourier_coeffs = np.zeros((N_Ekin,N_coeff), dtype=complex)
 
+#--------------------------------------------------------------------------
+#determine Fourier coeffcients
 for E_ind in range (0,N_Ekin):
-     E_kin_au = E_min_au + E_ind * E_step_au
-     p_au = np.sqrt(2 * E_kin_au)
-     alpha = A0L*p_au/4 # Elke's alpha
-     f_grid = np.exp(1j * alpha / (2*np.pi / TL_au + omega_au)
-                        * np.sin((2*np.pi / TL_au + omega_au) * tau_var + phi)) \
-             *np.exp(1j * alpha / (2*np.pi / TL_au - omega_au)
-                        * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) \
-             *np.exp(1j * alpha *2 / omega_au
-                        * np.sin((omega_au) * tau_var + phi)) 
-     fhat = fft.fft(f_grid)
-     PSD = fhat * np.conj(fhat) / N_coeff           # Power spectrum (power per freq
-     indices = PSD > 1.0       # Find all freqs with large power
-     fhat = indices * fhat     # Zero out small Fourier coeffs. in Y
-     sort_fhat = fft.fftshift(fhat)
-     fourier_coeffs[E_ind,:] = sort_fhat
+    E_kin_au = E_min_au + E_ind * E_step_au
+    p_au = np.sqrt(2 * E_kin_au)
+    if (Lshape == "sinsq"):
+        alpha = A0L*p_au/4 # Elke's alpha
+        f_grid = np.exp(1j * alpha / (2*np.pi / TL_au + omega_au)
+                           * np.sin((2*np.pi / TL_au + omega_au) * tau_var + phi)) \
+                *np.exp(1j * alpha / (2*np.pi / TL_au - omega_au)
+                           * np.sin((2*np.pi / TL_au - omega_au) * tau_var - phi)) \
+                *np.exp(1j * alpha *2 / omega_au
+                           * np.sin((omega_au) * tau_var + phi)) 
+    elif (Lshape == "gauss"):
+        alpha = p_au * A0L * sigma_L * np.sqrt(np.pi/8) * np.exp(-omega_au**2 * sigma_L**2 / 2)
+        f_grid = np.exp(1j* alpha
+                        * (np.exp(1j*phi) * erf(tau_var/np.sqrt(2)/sigma_L
+                                               -1j*omega_au * sigma_L / np.sqrt(2))
+                         +np.exp(-1j*phi) * erf(tau_var / np.sqrt(2) / sigma_L
+                                                +1j*omega_au * sigma_L / np.sqrt(2))
+                          )
+                       )
+    fhat = fft.fft(f_grid)
+    PSD = fhat * np.conj(fhat) / N_coeff           # Power spectrum (power per freq
+    indices = PSD > 1.0       # Find all freqs with large power
+    fhat = indices * fhat     # Zero out small Fourier coeffs. in Y
+    sort_fhat = fft.fftshift(fhat)
+    fourier_coeffs[E_ind,:] = sort_fhat
+
 
 #print('frequencies')
 freq = fft.fftfreq(N_coeff,d_tau_var)
 #print('sorted frequencies')
 sort_freq = fft.fftshift(freq)
 
-#print fourier_coeffs
-ks = np.arange(N_coeff)
 
 
 #-------------------------------------------------------------------------
@@ -440,8 +465,10 @@ while (delta_t_au <= delta_t_max):
     while (E_kin_au <= E_max_au):
 
         p_au = np.sqrt(2 * E_kin_au)
-        #alpha = 1j*A0L*p_au/4 # Gurli's alpha
-        alpha = A0L*p_au/4 # Elke's alpha
+        if (Lshape == "sinsq"):
+           alpha = A0L*p_au/4 # Elke's alpha
+        elif (Lshape == "gauss"):
+           alpha = p_au * A0L * sigma_L * np.sqrt(np.pi/8) * np.exp(-omega_au**2 * sigma_L**2 / 2)
         gamma = Er_au-E_kin_au-E_fin_au-1j*np.pi*VEr_au**2
 
 
