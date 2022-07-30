@@ -278,26 +278,6 @@ if (Lshape == "sinsq"):
                             *np.exp(-1j*A0L*p_au/4*8*(np.pi)**2/(omega_au*(4*(np.pi)**2 - omega_au**2*TL_au**2))    \
                             *np.sin(omega_au*TL_au/2+phi))
 
-    inner_int_part_zero = lambda x: 1/(-1j*gamma)*np.exp(-1j*gamma*x)
-
-    inner_int_part_one = lambda x,y,z: A0L*p_au/(4*x)*np.exp(-1j*gamma*y)   \
-                            *(gamma*np.sin(x*(y-delta_t_au)+z*phi) - 1j*x*np.cos(x*(y-delta_t_au)+z*phi))  \
-                            *1/(x**2+(1j*(Er_au-E_kin_au-E_fin_au)+np.pi*VEr_au**2)**2)
-
-    inner_int_part_two_sq = lambda x,y,z: alpha**2/(2*2*1j*(x)**2*((2*(x))**2-gamma**2))    \
-                            *(2*1j*x*np.exp(-1j*gamma*y)*np.sin(2*(y-delta_t_au)*x+z*2*phi) \
-                            +gamma*np.exp(-1j*gamma*y)*np.cos(2*(y-delta_t_au)*x+z*2*phi)   \
-                            )  \
-                            +2*alpha**2*1j/(2*(2*1j)**2*x**2*gamma)*np.exp(-1j*gamma*y)
-
-    inner_int_part_two = lambda x,y,z,w,q: alpha**2/(x*y*(2*1j)**2)    \
-                            *(1/((x+y)**2-gamma**2)*2*1j*np.exp(-1j*gamma*z)    \
-                                *(-1j*(x+y)*np.sin((z-delta_t_au)*(x+y)+w*phi)   \
-                                -gamma*np.cos((z-delta_t_au)*(x+y)+w*phi)  \
-                                ) \
-                            +1/((x-y)**2-gamma**2)*2*1j*np.exp(-1j*gamma*z)     \
-                                *(1j*(x-y)*np.sin((z-delta_t_au)*(x-y)+q*phi)+gamma*np.cos((z-delta_t_au)*(x-y)+q*phi))
-                            )
 
     integ_res = lambda t1: 1./(1j * 2*np.pi* sort_freq - 1j*gamma) \
                            * (np.exp(1j * (t_au - delta_t_au)
