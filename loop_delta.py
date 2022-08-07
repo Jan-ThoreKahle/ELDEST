@@ -242,21 +242,26 @@ elif (Lshape == "gauss"):
 #                                           / np.sqrt(2) / sigma_L)
 #                                     )
 #                                  )
+
+#phi = 0
     IR_after = lambda t1: np.exp(-1j * p_au**2/2 * (t_au - t1)) \
                           *np.exp(-1j * E_fin_au * (t_au - t1)) \
-                          * np.exp(-A0L * p_au * np.sqrt(np.pi/8) *sigma_L * np.exp(1j*phi)
+                          * np.exp(-1j*A0L * p_au * np.sqrt(np.pi/8) *sigma_L
                                                    * np.exp(-sigma_L**2 * omega_au**2 / 2)
-                                   * (erf((TL_au/2 - 1j*sigma_L**2 * omega_au)
-                                           / np.sqrt(2) / sigma_L)
-                                      -erf((t1 - delta_t_au - 1j*sigma_L**2 * omega_au) 
-                                           / np.sqrt(2) / sigma_L)
-                                     )
+                                   * np.real(
+                                        erf((TL_au/2 -delta_t_au)/np.sqrt(2) / sigma_L
+                                            +
+                                             1j*sigma_L * omega_au / np.sqrt(2)
+                                           )
+                                            )
                                   ) \
-                          * np.exp(-A0L * p_au * np.sqrt(np.pi/8) *sigma_L * np.exp(-1j*phi)
+                          * np.exp(1j*A0L * p_au * np.sqrt(np.pi/8) *sigma_L 
                                                    * np.exp(-sigma_L**2 * omega_au**2 / 2)
-                                   * (erf((TL_au/2 + 1j*sigma_L**2 * omega_au)
-                                           / np.sqrt(2) / sigma_L)
-                                      -erf((t1 - delta_t_au + 1j*sigma_L**2 * omega_au) 
+                                      *np.real(
+                                           erf((t1 - delta_t_au
+                                               +
+                                                1j*sigma_L**2 * omega_au
+                                               )
                                            / np.sqrt(2) / sigma_L)
                                      )
                                   )
@@ -300,14 +305,22 @@ if (Lshape == "sinsq"):
     
 
 elif (Lshape == "gauss"):
+# for phi = 0
     inner_prefac = lambda t_au: np.exp(-1j*t_au*(E_kin_au+E_fin_au))    \
                               * np.exp(-1j* alpha
-                                       * (np.exp(1j*phi) * erf((TL_au/2-delta_t_au)/np.sqrt(2)/sigma_L
-                                                              -1j*omega_au * sigma_L / np.sqrt(2))
-                                        +np.exp(-1j*phi) * erf((TL_au/2-delta_t_au) / np.sqrt(2) / sigma_L
-                                                               +1j*omega_au * sigma_L / np.sqrt(2))
-                                         )
+                                       * np.real(erf((TL_au/2-delta_t_au)/np.sqrt(2)/sigma_L
+                                                              +1j*omega_au * sigma_L / np.sqrt(2))
+                                                )
                                       )
+
+#    inner_prefac = lambda t_au: np.exp(-1j*t_au*(E_kin_au+E_fin_au))    \
+#                              * np.exp(-1j* alpha
+#                                       * (np.exp(1j*phi) * erf((TL_au/2-delta_t_au)/np.sqrt(2)/sigma_L
+#                                                              -1j*omega_au * sigma_L / np.sqrt(2))
+#                                        +np.exp(-1j*phi) * erf((TL_au/2-delta_t_au) / np.sqrt(2) / sigma_L
+#                                                               +1j*omega_au * sigma_L / np.sqrt(2))
+#                                         )
+#                                      )
 
     inner_int_part = lambda x,y: 1./(complex(-np.pi * VEr_au**2, p_au**2/2 + E_fin_au - Er_au)
                                   +1j*p_au*A0L/2 / np.sqrt(np.pi) * np.exp(1j*phi)
@@ -417,13 +430,19 @@ for E_ind in range (0,N_Ekin):
                            * np.sin((omega_au) * tau_var + phi)) 
     elif (Lshape == "gauss"):
         alpha = p_au * A0L * sigma_L * np.sqrt(np.pi/8) * np.exp(-omega_au**2 * sigma_L**2 / 2)
+        # phi = 0
         f_grid = np.exp(1j* alpha
-                        * (np.exp(1j*phi) * erf(tau_var/np.sqrt(2)/sigma_L
-                                               -1j*omega_au * sigma_L / np.sqrt(2))
-                         +np.exp(-1j*phi) * erf(tau_var / np.sqrt(2) / sigma_L
-                                                +1j*omega_au * sigma_L / np.sqrt(2))
-                          )
+                        * np.real( erf(tau_var/np.sqrt(2)/sigma_L
+                                               +1j*omega_au * sigma_L / np.sqrt(2))
+                                 )
                        )
+        #f_grid = np.exp(1j* alpha
+        #                * (np.exp(1j*phi) * erf(tau_var/np.sqrt(2)/sigma_L
+        #                                       -1j*omega_au * sigma_L / np.sqrt(2))
+        #                 +np.exp(-1j*phi) * erf(tau_var / np.sqrt(2) / sigma_L
+        #                                        +1j*omega_au * sigma_L / np.sqrt(2))
+        #                  )
+        #               )
     fhat = fft.fft(f_grid)
     PSD = fhat * np.conj(fhat) / N_coeff           # Power spectrum (power per freq
     indices = PSD > 1.0       # Find all freqs with large power
@@ -502,6 +521,7 @@ while (delta_t_au <= delta_t_max):
         res_term = np.absolute(res_J)**2
         squares = np.append(squares, square)
 
+        #string = in_out.prep_output_comp(square, dir_term, E_kin_au, delta_t_au)
         string = in_out.prep_output_comp(square, res_term, E_kin_au, delta_t_au)
         outlines.append(string)
         
