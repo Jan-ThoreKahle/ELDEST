@@ -47,6 +47,12 @@ Xshape = 'convoluted'
 
 #-------------------------------------------------------------------------
 # read inputfile
+# (see next section for explanations of most symbols)
+# ( * X_sinsq, X_gauss are simply Booleans, possible contrast to figshare, v. i. ?)
+# ( * phi is some phase for the IR pulse ?)
+# ( * integ, integ_outer can be: analytic, quadrature, romberg)
+# (currently NOT in use: tau_a_s, interact_eV, Lshape, shift_step_s, mass1 and all following qnties)
+#
 #(rdg_au, cdg_au,
 # Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
 # interact_eV,
@@ -73,23 +79,23 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
-Er_a_au        = sciconv.ev_to_hartree(Er_a_eV)
-Er_b_au        = sciconv.ev_to_hartree(Er_b_eV)
-Er_au          = Er_a_au
-E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
-E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)
+Er_a_au        = sciconv.ev_to_hartree(Er_a_eV)     # resonance E for RICD + AI
+Er_b_au        = sciconv.ev_to_hartree(Er_b_eV)     # resonance E for ICD
+Er_au          = Er_a_au        # (initialize to Er_a, later use as either Er_a or Er_b)
+E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)    # (same as for Er)
+E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)    # final E for sRICD
 
-tau_au_1       = sciconv.second_to_atu(tau_s)
-tau_au         = tau_au_1
+tau_au_1       = sciconv.second_to_atu(tau_s)       # lifetime for sRICD res. st.
+tau_au         = tau_au_1                           # (same as for Er)
 Gamma_au       = 1. / tau_au
 Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 
-# second final state
+# second final state (e. g. from ICD)
 E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
 tau_au_b         = sciconv.second_to_atu(tau_b_s)
 Gamma_au_b       = 1. / tau_au_b
-outfile.write('Gamma_2_eV = ' + str(sciconv.hartree_to_ev(Gamma_au_b)) + '\n')
+outfile.write('Gamma_2_eV = ' + str(sciconv.hartree_to_ev(Gamma_au_b)) + '\n')  # Shouldn't this be Gamma_b_eV ?
 
 # final state of AI + pRICD
 tau_au_2         = sciconv.second_to_atu(tau_s_2)
@@ -98,7 +104,7 @@ outfile.write('Gamma_2_eV = ' + str(sciconv.hartree_to_ev(Gamma_au_2)) + '\n')
 
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
-if (X_sinsq):
+if (X_sinsq):                            # infile: bool, but figshare: only option X_shape (= gauss or sinsq) ? 
     TX_au     = n_X * 2 * np.pi / Omega_au
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
@@ -120,20 +126,20 @@ print 'A0X = ', A0X
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
 sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))
-a             = 5./2 * sigma_L_au
-print "FWHM_L = ", sciconv.atu_to_second(FWHM_L_au)
+a             = 5./2 * sigma_L_au       # in PRA 2020: small-delta t; N0 = NR(t = IR pulse center - a)
+print "FWHM_L = ", sciconv.atu_to_second(FWHM_L_au)     # Or just repeat FWHM_L (input already in s) ?
 print "sigma_L = ", sciconv.atu_to_second(sigma_L_au)
 TL_au         = n_L * 2 * np.pi / omega_au
 print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
-print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
+print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)  # Why not also into outfile ?
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
 print 'I_L = ', I_L
 print 'I_L_au = ', I_L_au
 E0L           = np.sqrt(I_L_au)
-print 'E0L', E0L
+print 'E0L', E0L                                        # Equal sign missing ? And why even print (cp. E0X) ?
 A0L           = E0L / omega_au
 print 'A0L = ', A0L
-delta_t_au    = sciconv.second_to_atu(delta_t_s)
+delta_t_au    = sciconv.second_to_atu(delta_t_s)        # t diff between the maxima of the two pulses
 
 # parameters of the simulation
 tmax_au       = sciconv.second_to_atu(tmax_s)
@@ -145,8 +151,8 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print 'VEr_au = ', VEr_au
-WEr_au        = np.sqrt(Gamma_au_b/ (2*np.pi))
-UEr_au        = np.sqrt(Gamma_au_2/ (2*np.pi))
+WEr_au        = np.sqrt(Gamma_au_b/ (2*np.pi))      # coupling element to second final state (ICD)
+UEr_au        = np.sqrt(Gamma_au_2/ (2*np.pi))      # coupling element to AI + pRICD final state
 
 VEr_au_1      = VEr_au
 
