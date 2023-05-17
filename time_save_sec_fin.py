@@ -48,9 +48,9 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # read inputfile
 # (see next section for explanations of most symbols)
-# ( * X_sinsq, X_gauss are simply Booleans, possible contrast to figshare, v. i. ?)
-# ( * phi is some phase for the IR pulse ?)
-# ( * integ, integ_outer can be: analytic, quadrature, romberg)
+# ( * X_sinsq, X_gauss are simply Booleans, created by in_out from X_shape)
+# ( * phi is the phase for the IR pulse potential cosine-oscillation)
+# ( * integ, integ_outer are integration schemes: [analytic,] quadrature, romberg)
 # (currently NOT in use: tau_a_s, interact_eV, Lshape, shift_step_s, mass1 and all following qnties)
 #
 #(rdg_au, cdg_au,
@@ -61,6 +61,10 @@ Xshape = 'convoluted'
 # tmax_s, timestep_s, E_step_eV,
 # E_min_eV, E_max_eV,
 # integ, integ_outer) = in_out.read_input(infile, outfile)
+#
+# ? Cp. definition below with return of in_out.read_input:
+# ... mass1, mass2, grad_delta, R_eq_AA,                                                                                                               gs_de, gs_a, gs_Req, gs_const,                                                                                                                   res_de, res_a, res_Req, res_const,                                                                                                               fin_a, fin_b, fin_c, fin_d, fin_pot_type                                                                                                         )                    
+# Not even the number of arguments match up: in_out.read_input returns 1 more!
 
 (rdg_au, cdg_au,
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
@@ -104,7 +108,7 @@ outfile.write('Gamma_2_eV = ' + str(sciconv.hartree_to_ev(Gamma_au_2)) + '\n')
 
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
-if (X_sinsq):                            # infile: bool, but figshare: only option X_shape (= gauss or sinsq) ? 
+if (X_sinsq):
     TX_au     = n_X * 2 * np.pi / Omega_au
 elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
@@ -174,19 +178,20 @@ if (X_sinsq):
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
                           + 2
                           + np.exp(-2j * np.pi * (t1 + TX_au/2) /TX_au) )
-
+    # fp_t1 = f'(t1)
     fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)
                                          + np.exp(-2j*np.pi* (t1 + TX_au/2) / TX_au) )
 elif (X_gauss):
     print 'use gauss function'
     f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
                        * np.exp(-t1**2 / (2*sigma**2)))
+    # fp_t1 = f'(t1)
     fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
     print 'no pulse shape selected'
 
-if (Xshape == 'convoluted'):
+if (Xshape == 'convoluted'):    # Calculate field strength EX = -(AX fX)'
     FX_t1 = lambda t1: (
                         0
                         - (A0X
@@ -195,7 +200,7 @@ if (Xshape == 'convoluted'):
                           )
                         + (A0X
                            * Omega_au
-                           * np.sin(Omega_au * (t1))
+                           * np.sin(Omega_au * t1)
                            * f_t1(t1)
                           )
                        )
@@ -207,7 +212,7 @@ elif (Xshape == 'infinite'):
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
                       * np.cos(omega_au * t3 + phi)
-integ_IR = lambda t3: (p_au + A_IR(t3))**2
+integ_IR = lambda t3: (p_au + A_IR(t3))**2      # Hamiltonian for one electron in EM field
 
 IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))# \
 
@@ -216,7 +221,7 @@ IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
 # population of the ICD initial state
 Mr = lambda t1: N0 * (1
                       - np.exp(-1./2 * (erf((t1 - delta_t_au) / np.sqrt(2) / sigma_L_au)
-                                       -erf(-a/ np.sqrt(2) / sigma_L_au))) )
+                                       -erf(-a/ np.sqrt(2) / sigma_L_au))) )    # No factor alpha in the exponent ?
 
 #-------------------------------------------------------------------------
 # technical defintions of functions
@@ -309,8 +314,8 @@ lower_E_min = sciconv.ev_to_hartree(0.45)
 lower_E_max = sciconv.ev_to_hartree(0.75)
 upper_E_min = sciconv.ev_to_hartree(4.6)
 upper_E_max = E_max_au
-Ekins1 = []
-Ekins2 = []
+Ekins1 = []     # will contain both E intervals
+Ekins2 = []     # will contain only lower E interval
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
     if (E_kin_au >= lower_E_min and E_kin_au <= lower_E_max):
