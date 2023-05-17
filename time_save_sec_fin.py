@@ -133,7 +133,7 @@ print('A0X = ', A0X)
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
 sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))      # assume Gaussian envelope for second pulse
-a             = 5./2 * sigma_L_au       # N0 = NR(t = IR_pulse_center - a); in PRA 2020: small-delta t; 
+a             = 5./2 * sigma_L_au       # half duration of IR pulse (delta_t - a, delta_t + a); in PRA 2020: small-delta t
 print("FWHM_L = ", sciconv.atu_to_second(FWHM_L_au))     # Or just repeat FWHM_L (input already in s) ?
 print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
 TL_au         = n_L * 2 * np.pi / omega_au
@@ -174,7 +174,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
                    omega_au, TL_au, A0L, delta_t_au,
                    tmax_au, timestep_au, E_step_au)
 #-------------------------------------------------------------------------
-# physical defintions of functions
+# physical definitions of functions
 # functions for the shape of the XUV pulse
 if (X_sinsq):
     print('use sinsq function')
@@ -227,7 +227,7 @@ Mr = lambda t1: N0 * (1
                                        -erf(-a/ np.sqrt(2) / sigma_L_au))) )    # No factor alpha in the exponent ?
 
 #-------------------------------------------------------------------------
-# technical defintions of functions
+# technical definitions of functions
 
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
@@ -350,6 +350,12 @@ N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
 print("VEr_au = ", VEr_au)
 print("UEr_au = ", UEr_au)
 
+########################################
+# now follow the integrals themselves, for the temporal phases:
+# 'during the first pulse' (-TX/2, TX/2)
+# 'between the pulses' (TX/2, delta_t - a)
+# 'during the second pulse' (delta_t - a, delta_t + a)
+# 'after the pulses' (delta_t + a, tmax)
 
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
