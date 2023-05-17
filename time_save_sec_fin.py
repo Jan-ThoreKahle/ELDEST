@@ -30,7 +30,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 infile = sys.argv[1]
-print infile
+print(infile)
 
 #-------------------------------------------------------------------------
 # open outputfile
@@ -78,7 +78,7 @@ Xshape = 'convoluted'
  V_RICD_in_a, V_RICD_in_b, V_RICD_in_c, V_RICD_in_d,
  V_fin_RICD_a, V_fin_RICD_b,
  V_ICD_in_a, V_ICD_in_b, V_ICD_in_c, V_ICD_in_d,
- V_fin_ICD_a, V_fin_ICD_b) = in_out.read_input(infile, outfile)
+ V_fin_ICD_a, V_fin_ICD_b, dummy) = in_out.read_input(infile, outfile)
 
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
@@ -114,35 +114,35 @@ elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
     FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
     TX_au     = 5 * sigma
-    print 'sigma = ', sciconv.atu_to_second(sigma)
-    print 'FWHM = ', sciconv.atu_to_second(FWHM)
+    print('sigma = ', sciconv.atu_to_second(sigma))
+    print('FWHM = ', sciconv.atu_to_second(FWHM))
     outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
-print 'end of the first pulse = ', sciconv.atu_to_second(TX_au/2)
+print('end of the first pulse = ', sciconv.atu_to_second(TX_au/2))
 outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
-print 'I_X = ', I_X
-print 'I_X_au = ', I_X_au
+print('I_X = ', I_X)
+print('I_X_au = ', I_X_au)
 E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_au
-print 'A0X = ', A0X
+print('A0X = ', A0X)
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
 sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))
 a             = 5./2 * sigma_L_au       # in PRA 2020: small-delta t; N0 = NR(t = IR pulse center - a)
-print "FWHM_L = ", sciconv.atu_to_second(FWHM_L_au)     # Or just repeat FWHM_L (input already in s) ?
-print "sigma_L = ", sciconv.atu_to_second(sigma_L_au)
+print("FWHM_L = ", sciconv.atu_to_second(FWHM_L_au))     # Or just repeat FWHM_L (input already in s) ?
+print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
 TL_au         = n_L * 2 * np.pi / omega_au
-print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
-print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)  # Why not also into outfile ?
+print('start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
+print('end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2))  # Why not also into outfile ?
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
-print 'I_L = ', I_L
-print 'I_L_au = ', I_L_au
+print('I_L = ', I_L)
+print('I_L_au = ', I_L_au)
 E0L           = np.sqrt(I_L_au)
-print 'E0L', E0L                                        # Equal sign missing ? And why even print (cp. E0X) ?
+print('E0L', E0L)                                        # Equal sign missing ? And why even print (cp. E0X) ?
 A0L           = E0L / omega_au
-print 'A0L = ', A0L
+print('A0L = ', A0L)
 delta_t_au    = sciconv.second_to_atu(delta_t_s)        # t diff between the maxima of the two pulses
 
 # parameters of the simulation
@@ -154,7 +154,7 @@ E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
-print 'VEr_au = ', VEr_au
+print('VEr_au = ', VEr_au)
 WEr_au        = np.sqrt(Gamma_au_b/ (2*np.pi))      # coupling element to second final state (ICD)
 UEr_au        = np.sqrt(Gamma_au_2/ (2*np.pi))      # coupling element to AI + pRICD final state
 
@@ -174,7 +174,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 # physical defintions of functions
 # functions for the shape of the XUV pulse
 if (X_sinsq):
-    print 'use sinsq function'
+    print('use sinsq function')
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
                           + 2
                           + np.exp(-2j * np.pi * (t1 + TX_au/2) /TX_au) )
@@ -182,14 +182,14 @@ if (X_sinsq):
     fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)
                                          + np.exp(-2j*np.pi* (t1 + TX_au/2) / TX_au) )
 elif (X_gauss):
-    print 'use gauss function'
+    print('use gauss function')
     f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
                        * np.exp(-t1**2 / (2*sigma**2)))
     # fp_t1 = f'(t1)
     fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
-    print 'no pulse shape selected'
+    print('no pulse shape selected')
 
 if (Xshape == 'convoluted'):    # Calculate field strength EX = -(AX fX)'
     FX_t1 = lambda t1: (
@@ -344,22 +344,22 @@ prefac_dir2 = 1j * cdg_au_W
 N0 = 1. / 4 * rdg_au**2 * np.exp(-sigma**2 * (Omega_au - Er_a_au)**2) \
      * np.exp(-Gamma_au * (delta_t_au - a))
 
-print "VEr_au = ", VEr_au
-print "UEr_au = ", UEr_au
+print("VEr_au = ", VEr_au)
+print("UEr_au = ", UEr_au)
 
 
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('during the first pulse \n')
-    print 'during the first pulse'
+    print('during the first pulse')
 
     outlines = []
     squares = np.array([])
     E_kin_au = E_min_au
     
     t_s = sciconv.atu_to_second(t_au)
-    print 't_s = ', sciconv.atu_to_second(t_au)
+    print('t_s = ', sciconv.atu_to_second(t_au))
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
@@ -417,7 +417,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins1[max_pos[i]], squares[max_pos[i]]
+            print(Ekins1[max_pos[i]], squares[max_pos[i]])
             outfile.write(str(Ekins1[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     
 
@@ -430,7 +430,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
-    print 'between the pulses'
+    print('between the pulses')
 
     outlines = []
     squares = np.array([])
@@ -438,7 +438,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
-    print 't_s = ', sciconv.atu_to_second(t_au)
+    print('t_s = ', sciconv.atu_to_second(t_au))
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
@@ -495,7 +495,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins1[max_pos[i]], squares[max_pos[i]]
+            print(Ekins1[max_pos[i]], squares[max_pos[i]])
             outfile.write(str(Ekins1[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
@@ -505,7 +505,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
 # make the setup array
 #-------------------------------------------------------------------------
-print 'set up array'
+print('set up array')
 
 t_before = t_au - timestep_au
 t_au = t_au - timestep_au
@@ -514,7 +514,7 @@ ress = []
 E_kin_au = E_min_au
 
 t_s = sciconv.atu_to_second(t_au)
-print 't_s = ', sciconv.atu_to_second(t_au)
+print('t_s = ', sciconv.atu_to_second(t_au))
 while (E_kin_au <= E_max_au):
     p_au = np.sqrt(2*E_kin_au)
 
@@ -564,7 +564,7 @@ t_before = t_au - timestep_au
 while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('during the second pulse \n')
-    print 'during the second pulse'
+    print('during the second pulse')
 
     outlines = []
     squares = np.array([])
@@ -572,7 +572,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
-    print 't_s = ', sciconv.atu_to_second(t_au)
+    print('t_s = ', sciconv.atu_to_second(t_au))
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     rdg_decay_au = np.sqrt(N0) \
                    * np.exp(-1./4 * 8 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
@@ -583,8 +583,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     #popint = ci.integrate.quad(popfun, delta_t_au - a, t_au)
     #rdg_decay_au = np.sqrt(N0) * np.exp(-1./2 * popint[0])
 
-    print "sqrt N0 = ", np.sqrt(N0)
-    print "rdg_decay_au = ", rdg_decay_au
+    print("sqrt N0 = ", np.sqrt(N0))
+    print("rdg_decay_au = ", rdg_decay_au)
     Mrt = np.sqrt(N0) - rdg_decay_au
     prefac_res1 = VEr_au * rdg_decay_au
     #prefac_dir1 = 1j * rdg_decay_au / q / np.pi / VEr_au
@@ -594,7 +594,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     prefac_res2 = WEr_au * (np.sqrt(N0) - rdg_decay_au)
     #prefac_res2 = WEr_au * np.sqrt(N0)
 
-    print "Mr(t) = ", (np.sqrt(N0) - rdg_decay_au)
+    print("Mr(t) = ", (np.sqrt(N0) - rdg_decay_au))
 
     popfile.write(str(sciconv.atu_to_second(t_au)) + '   ' + str(rdg_decay_au**2)
                   + '   ' + str(Mrt**2) + '\n')
@@ -686,7 +686,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins2[max_pos[i]], squares[max_pos[i]]
+            print(Ekins2[max_pos[i]], squares[max_pos[i]])
             outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     t_before = t_au
     t_au = t_au + timestep_au
@@ -700,7 +700,7 @@ prefac_res2 = WEr_au * np.sqrt(N0)
 while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('after the pulses \n')
-    print 'after the pulses'
+    print('after the pulses')
 
     outlines = []
     squares = np.array([])
@@ -708,7 +708,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
-    print 't_s = ', sciconv.atu_to_second(t_au)
+    print('t_s = ', sciconv.atu_to_second(t_au))
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     E_count = 0
     while (E_kin_au <= E_max_au):
@@ -787,7 +787,7 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins2[max_pos[i]], squares[max_pos[i]]
+            print(Ekins2[max_pos[i]], squares[max_pos[i]])
             outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
