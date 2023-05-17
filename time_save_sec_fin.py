@@ -63,8 +63,11 @@ Xshape = 'convoluted'
 # integ, integ_outer) = in_out.read_input(infile, outfile)
 #
 # ? Cp. definition below with return of in_out.read_input:
-# ... mass1, mass2, grad_delta, R_eq_AA,                                                                                                               gs_de, gs_a, gs_Req, gs_const,                                                                                                                   res_de, res_a, res_Req, res_const,                                                                                                               fin_a, fin_b, fin_c, fin_d, fin_pot_type                                                                                                         )                    
-# Not even the number of arguments match up: in_out.read_input returns 1 more!
+#   ... mass1, mass2, grad_delta, R_eq_AA,
+#   gs_de, gs_a, gs_Req, gs_const,
+#   res_de, res_a, res_Req, res_const,
+#   fin_a, fin_b, fin_c, fin_d, fin_pot_type)
+# Added dummy variable to match up number of arguments
 
 (rdg_au, cdg_au,
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
@@ -129,8 +132,8 @@ print('A0X = ', A0X)
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
-sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))
-a             = 5./2 * sigma_L_au       # in PRA 2020: small-delta t; N0 = NR(t = IR pulse center - a)
+sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))      # assume Gaussian envelope for second pulse
+a             = 5./2 * sigma_L_au       # N0 = NR(t = IR_pulse_center - a); in PRA 2020: small-delta t; 
 print("FWHM_L = ", sciconv.atu_to_second(FWHM_L_au))     # Or just repeat FWHM_L (input already in s) ?
 print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
 TL_au         = n_L * 2 * np.pi / omega_au
