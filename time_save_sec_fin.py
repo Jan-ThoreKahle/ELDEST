@@ -161,7 +161,7 @@ print('VEr_au = ', VEr_au)
 WEr_au        = np.sqrt(Gamma_au_b/ (2*np.pi))      # coupling element to second final state (ICD)
 UEr_au        = np.sqrt(Gamma_au_2/ (2*np.pi))      # coupling element to AI + pRICD final state
 
-VEr_au_1      = VEr_au
+VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
@@ -217,9 +217,9 @@ A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
                       * np.cos(omega_au * t3 + phi)
 integ_IR = lambda t3: (p_au + A_IR(t3))**2      # Hamiltonian for one electron in EM field
 
-IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))# \
+IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))
 
-IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) #\
+IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2))
 
 # population of the ICD initial state
 Mr = lambda t1: N0 * (1
@@ -227,7 +227,7 @@ Mr = lambda t1: N0 * (1
                                        -erf(-a/ np.sqrt(2) / sigma_L_au))) )    # No factor alpha in the exponent ?
 
 #-------------------------------------------------------------------------
-# technical definitions of functions
+# technical definitions of functions (remember: FX is the field strength EX)
 
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
@@ -271,7 +271,7 @@ res_inner_damp = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                                 - np.pi * (VEr_au**2 + UEr_au**2))
                         * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
                                               - np.pi * (VEr_au**2 + UEr_au**2)))
-                          - np.exp((t_before) * (1j*(E_kin_au + E_fin_au - Er_au)
+                          - np.exp((t_before) * (1j*(E_kin_au + E_fin_au - Er_au)   # Here's the difference to res_inner (t_before vs. t1)
                                               - np.pi * (VEr_au**2 + UEr_au**2))))
                         * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                        )
@@ -330,7 +330,7 @@ while (E_kin_au <= E_max_au):
 
 
 #-------------------------------------------------------------------------
-# constants / prefactors
+# constants / prefactors (remember: V -> sRICD, U -> pRICD & AI, W -> ICD)
 aV = VEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 aW = WEr_au / np.sqrt(VEr_au**2 + WEr_au**2)
 
@@ -356,6 +356,7 @@ print("UEr_au = ", UEr_au)
 # 'between the pulses' (TX/2, delta_t - a)
 # 'during the second pulse' (delta_t - a, delta_t + a)
 # 'after the pulses' (delta_t + a, tmax)
+# for every point in time, E is looped over the chosen E intervals
 
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
@@ -363,14 +364,13 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     outfile.write('during the first pulse \n')
     print('during the first pulse')
 
-    outlines = []
-    squares = np.array([])
+    outlines = []       # will contain lines containing triples of E_kin, time and signal intensity
+    squares = np.array([])  # signal intensity ( = |amplitude|**2 = |J|**2 )
     E_kin_au = E_min_au
     
     t_s = sciconv.atu_to_second(t_au)
-    print('t_s = ', sciconv.atu_to_second(t_au))
-    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
-    t_s = sciconv.atu_to_second(t_au)
+    print('t_s = ', t_s)
+    outfile.write('t_s = ' + str(t_s) + '\n')
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
@@ -380,14 +380,14 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         else:
 # integral 1
             if (integ_outer == "quadrature"):
-                E_fin_au = E_fin_au_1
+                E_fin_au = E_fin_au_1   # set params to values for sRICD
                 Er_au = Er_a_au
                 VEr_au = VEr_au_1
     
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                 res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
     
-                dir_J1 = prefac_dir1 * I1[0]
+                dir_J1 = prefac_dir1 * I1[0]        # [0] of quad integ result = integral (rest is est error & info)
                 res_J1 = prefac_res1 * res_I[0]
                 indir_J1 = prefac_indir1 * res_I[0]
                 mix_J1 = prefac_mix1 * res_I[0]
@@ -400,7 +400,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                 res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
         
-                dir_J1 = prefac_dir1 * I1
+                dir_J1 = prefac_dir1 * I1           # romberg has returns only the integral, so no [0] necessary
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
                 mix_J1 = prefac_mix1 * res_I
@@ -415,18 +415,20 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             square = np.absolute(J)**2
             squares = np.append(squares, square)
 
-            string = in_out.prep_output(square, E_kin_au, t_au)
+            string = in_out.prep_output(square, E_kin_au, t_au)     # returns str: E_kin_eV, t_s, square = intensity
             outlines.append(string)
+            # end of: if (E_kin < upper_E_min) else
         
         E_kin_au = E_kin_au + E_step_au
+        # end of: while (E_kin < E_max), i. e. loop of E at constant t
     
     
-    in_out.doout_1f(pure_out, outlines)
+    in_out.doout_1f(pure_out, outlines)     # writes each (E_kin, t = const, |J|**2) triple in a sep line into output file
     in_out.doout_movie(movie_out, outlines)
-    max_pos = argrelextrema(squares, np.greater)[0]
-    if (len(max_pos > 0)):
+    max_pos = argrelextrema(squares, np.greater)[0]      # finds position of relative (i. e. local) maxima of |J|**2 in an array
+    if (len(max_pos > 0)):                               # if there are such:
         for i in range (0, len(max_pos)):
-            print(Ekins1[max_pos[i]], squares[max_pos[i]])
+            print(Ekins1[max_pos[i]], squares[max_pos[i]])      # print all loc |J|**2 max & resp E_kin (Ekins1 contains all looped E)
             outfile.write(str(Ekins1[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     
 
