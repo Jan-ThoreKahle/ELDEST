@@ -233,7 +233,7 @@ Mr = lambda t1: N0 * (1
 fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
                                      * np.exp(1j * E_kin_au * (t1-t_au))
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                     * np.exp(1j * E_kin_au * (t1-t_au))
+                                     * np.exp(1j * E_kin_au * (t1-t_au))        # Same as fun_t_dir_1 - why keep ?
 
 dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
 dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
@@ -271,8 +271,8 @@ res_inner_damp = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                                 - np.pi * (VEr_au**2 + UEr_au**2))
                         * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
                                               - np.pi * (VEr_au**2 + UEr_au**2)))
-                          - np.exp((t_before) * (1j*(E_kin_au + E_fin_au - Er_au)   # Here's the difference to res_inner (t_before vs. t1)
-                                              - np.pi * (VEr_au**2 + UEr_au**2))))
+                          - np.exp((t_before) * (1j*(E_kin_au + E_fin_au - Er_au)   # only diff to res_inner (t_before vs. t1),
+                                              - np.pi * (VEr_au**2 + UEr_au**2))))  # where t_before = t_au - timestep_au
                         * np.exp(-1j*t_au * (E_kin_au + E_fin_au))
                        )
 
@@ -442,15 +442,16 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
     print('between the pulses')
-
+    
+    # all equal to during-1st-pulse section, except for integrating over entire XUV pulse now
     outlines = []
     squares = np.array([])
     E_kin_au = E_min_au
     
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
-    print('t_s = ', sciconv.atu_to_second(t_au))
-    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    print('t_s = ', t_s)
+    outfile.write('t_s = ' + str(t_s) + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
@@ -463,8 +464,8 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
                 Er_au = Er_a_au
                 VEr_au = VEr_au_1
     
-                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)      # same function as fun_t_dir_1 before,
+                res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)   # integrate over entire XUV pulse
     
                 dir_J1 = prefac_dir1 * I1[0]
                 res_J1 = prefac_res1 * res_I[0]
@@ -501,7 +502,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 
     
     
-    in_out.doout_1f(pure_out,outlines)
+    in_out.doout_1f(pure_out, outlines)
     in_out.doout_movie(movie_out, outlines)
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
@@ -518,14 +519,14 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
 print('set up array')
 
-t_before = t_au - timestep_au
-t_au = t_au - timestep_au
+t_before = t_au - timestep_au       # repeat calc of J for last t point (but now without direct integral)
+t_au = t_before
 ress = []
 
 E_kin_au = E_min_au
 
 t_s = sciconv.atu_to_second(t_au)
-print('t_s = ', sciconv.atu_to_second(t_au))
+print('t_s = ', t_s)                # prints out same time as the last printed time
 while (E_kin_au <= E_max_au):
     p_au = np.sqrt(2*E_kin_au)
 
@@ -561,16 +562,16 @@ while (E_kin_au <= E_max_au):
              + mix_J1
              )
 
-        ress.append(J)
+        ress.append(J)  # note: J is stored, not |J|**2; also nothing printed / written into any outfile
     
     E_kin_au = E_kin_au + E_step_au
 
-t_au = t_au + timestep_au
+t_au = t_au + timestep_au   # this concludes the re-calc of J for previous t without direct integral
 
 
 
 
-t_before = t_au - timestep_au
+t_before = t_au - timestep_au   # redundant, t_before is still the t for which J was just re-calced
 #-------------------------------------------------------------------------
 while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
@@ -583,8 +584,8 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
-    print('t_s = ', sciconv.atu_to_second(t_au))
-    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    print('t_s = ', t_s)
+    outfile.write('t_s = ' + str(t_s) + '\n')
     rdg_decay_au = np.sqrt(N0) \
                    * np.exp(-1./4 * 8 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
                                     -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
