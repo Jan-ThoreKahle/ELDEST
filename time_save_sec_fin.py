@@ -222,7 +222,7 @@ IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))
 
 IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2))
 
-# population of the ICD initial state
+# population of the ICD initial state - this is never used ?
 Mr = lambda t1: N0 * (1
                       - np.exp(-1./2 * (erf((t1 - delta_t_au) / np.sqrt(2) / sigma_L_au)
                                        -erf(-a/ np.sqrt(2) / sigma_L_au))) )    # No factor alpha in the exponent ?
@@ -587,9 +587,11 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     print('t_s = ', t_s)
     outfile.write('t_s = ' + str(t_s) + '\n')
+    
+    # replace rdg-like terms with sqrt(pop of resonant state): rdg_decay with sRICD, Mrt with ICD
     rdg_decay_au = np.sqrt(N0) \
                    * np.exp(-1./4 * 8 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
-                                    -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
+                                          -erf(-a/ np.sqrt(2) / sigma_L_au) ) )   # remember: delta_t = XUV-IR t diff
     #rdg_decay_au = np.sqrt(N0) \
     #               * np.exp(-1./4 *  (erf((t_au - delta_t_au) / np.sqrt(2) / sigma_L_au)
     #                                -erf(-a/ np.sqrt(2) / sigma_L_au) ) )
@@ -598,20 +600,21 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
 
     print("sqrt N0 = ", np.sqrt(N0))
     print("rdg_decay_au = ", rdg_decay_au)
-    Mrt = np.sqrt(N0) - rdg_decay_au
-    prefac_res1 = VEr_au * rdg_decay_au
+    Mrt = np.sqrt(N0 - rdg_decay_au**2)     # sqrt(ICD-res) = sqrt(N0 - sRICD-res),
+    #Mrt = np.sqrt(N0) - rdg_decay_au       # sqrt(ICD-res) != sqrt(N0) - sqrt(sRICD-res)
+    prefac_res1 = VEr_au * rdg_decay_au     # redefine prefacs with rdg_decay instead of rdg
     #prefac_dir1 = 1j * rdg_decay_au / q / np.pi / VEr_au
     prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
     prefac_mix1 = -1j * VEr_au * rdg_decay_au / q
 
-    prefac_res2 = WEr_au * (np.sqrt(N0) - rdg_decay_au)
+    prefac_res2 = WEr_au * Mrt
     #prefac_res2 = WEr_au * np.sqrt(N0)
 
-    print("Mr(t) = ", (np.sqrt(N0) - rdg_decay_au))
+    print("Mr(t) = ", Mrt)
 
-    popfile.write(str(sciconv.atu_to_second(t_au)) + '   ' + str(rdg_decay_au**2)
-                  + '   ' + str(Mrt**2) + '\n')
-
+    popfile.write(str(format(t_s, '.18f')) + '   ' + str(format(rdg_decay_au**2, '.19f'))
+                  + '   ' + str(format(Mrt**2, '.19f')) + '\n')
+    
     E_count = 0
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
