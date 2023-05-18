@@ -51,7 +51,8 @@ Xshape = 'convoluted'
 # ( * X_sinsq, X_gauss are simply Booleans, created by in_out from X_shape)
 # ( * phi is the phase for the IR pulse potential cosine-oscillation)
 # ( * integ, integ_outer are integration schemes: [analytic,] quadrature, romberg)
-# (currently NOT in use: tau_a_s, interact_eV, Lshape, shift_step_s, mass1 and all following qnties)
+# (currently NOT in use: cdg_au, tau_a_s, interact_eV, Lshape, shift_step_s, mass1 and all following qnties)
+# (q is explicit input, not calced as q = rdg / (cdg pi VEr) = sqrt(2 tau / pi) rdg / cdg )
 #
 #(rdg_au, cdg_au,
 # Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
