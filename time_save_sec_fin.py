@@ -63,7 +63,7 @@ Xshape = 'convoluted'
 # E_min_eV, E_max_eV,
 # integ, integ_outer) = in_out.read_input(infile, outfile)
 #
-# ? Cp. definition below with return of in_out.read_input:
+# Compare definition below with return of in_out.read_input:
 #   ... mass1, mass2, grad_delta, R_eq_AA,
 #   gs_de, gs_a, gs_Req, gs_const,
 #   res_de, res_a, res_Req, res_const,
@@ -103,7 +103,7 @@ outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
 tau_au_b         = sciconv.second_to_atu(tau_b_s)
 Gamma_au_b       = 1. / tau_au_b
-outfile.write('Gamma_2_eV = ' + str(sciconv.hartree_to_ev(Gamma_au_b)) + '\n')  # Shouldn't this be Gamma_b_eV ?
+outfile.write('Gamma_b_eV = ' + str(sciconv.hartree_to_ev(Gamma_au_b)) + '\n')
 
 # final state of AI + pRICD
 tau_au_2         = sciconv.second_to_atu(tau_s_2)
