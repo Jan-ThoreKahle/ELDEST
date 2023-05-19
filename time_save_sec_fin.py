@@ -285,7 +285,7 @@ res_inner_sec = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                                                   - np.pi * (VEr_au**2)))
                               - np.exp((t1-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au)  # and from t1 here
                                                   - np.pi * (VEr_au**2))))
-                            * np.exp(-1j*(t_au) * (E_kin_au + E_fin_au))                    # (but not from t here) ?
+                            * np.exp(-1j*(t_au) * (E_kin_au + E_fin_au))                    # (but not from t here) ? why even do ?
                            )
 
 res_outer_fun = lambda t1: FX_t1(t1) \
@@ -294,7 +294,7 @@ res_outer_fun = lambda t1: FX_t1(t1) \
 
 res_outer_fun_damp = lambda t1: FX_t1(t1) \
                            * np.exp(t1 * (np.pi* (VEr_au**2 + UEr_au**2) + 1j*Er_au)) \
-                           * res_inner_damp(t1)
+                           * res_inner_damp(t1)                                             # diff: uses res_inner_damp
 
 second_outer_fun = lambda t1: A0X \
                               * np.exp((t1) * (np.pi* (VEr_au**2) + 1j*Er_au)) \
@@ -431,7 +431,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]      # finds position of relative (i. e. local) maxima of |J|**2 in an array
     if (len(max_pos > 0)):                               # if there are such:
         for i in range (0, len(max_pos)):
-            print(Ekins1[max_pos[i]], squares[max_pos[i]])      # print all loc |J|**2 max & resp E_kin (Ekins1 contains all looped E)
+            print(Ekins1[max_pos[i]], squares[max_pos[i]])      # print all loc max & resp E_kin (Ekins2 contains all upper looped E)
             outfile.write(str(Ekins1[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     
 
@@ -651,7 +651,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
             string = in_out.prep_output(square, E_kin_au, t_au)
             outlines.append(string)
 
-        elif (E_kin_au >= upper_E_min and E_kin_au <= upper_E_max):
+        elif (E_kin_au >= upper_E_min and E_kin_au <= upper_E_max): # upper E range = sRICD range -> sRICD params
 # integral 1
             if (integ_outer == "quadrature"):
                 E_fin_au = E_fin_au_1
@@ -659,7 +659,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                 VEr_au = VEr_au_1
     
                 I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                res_I = ci.complex_quadrature(res_outer_fun_damp, (-TX_au/2), TX_au/2)
+                res_I = ci.complex_quadrature(res_outer_fun_damp, (-TX_au/2), TX_au/2)  # damp: inner int from t_before instead of t1
     
                 dir_J1 = prefac_dir1 * I1[0]
                 res_J1 = prefac_res1 * res_I[0]
@@ -705,7 +705,7 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print(Ekins2[max_pos[i]], squares[max_pos[i]])
+            print(Ekins2[max_pos[i]], squares[max_pos[i]])  # now with Ekins2 which contains all (lower & upper) looped E
             outfile.write(str(Ekins2[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     t_before = t_au
     t_au = t_au + timestep_au
