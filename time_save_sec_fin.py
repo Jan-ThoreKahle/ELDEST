@@ -260,7 +260,7 @@ if (integ == 'romberg'):
 elif (integ == 'quadrature'):
     res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
 elif (integ == 'analytic'):
-# analytic inner integral
+    # analytic inner integral
     res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                                     - np.pi * (VEr_au**2 + UEr_au**2))
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
@@ -280,12 +280,12 @@ res_inner_damp = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                        )
 
 res_inner_sec = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
-                                    - np.pi * (VEr_au**2))
-                            * (np.exp((t_au-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au)
+                                - np.pi * (VEr_au**2))                          # diffs to res_inner: discard all UEr,
+                            * (np.exp((t_au-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au) # subtract delta_t from t here
                                                   - np.pi * (VEr_au**2)))
-                              - np.exp((t1-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au)
+                              - np.exp((t1-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au)  # and from t1 here
                                                   - np.pi * (VEr_au**2))))
-                            * np.exp(-1j*(t_au) * (E_kin_au + E_fin_au))
+                            * np.exp(-1j*(t_au) * (E_kin_au + E_fin_au))                    # (but not from t here) ?
                            )
 
 res_outer_fun = lambda t1: FX_t1(t1) \
@@ -298,7 +298,7 @@ res_outer_fun_damp = lambda t1: FX_t1(t1) \
 
 second_outer_fun = lambda t1: A0X \
                               * np.exp((t1) * (np.pi* (VEr_au**2) + 1j*Er_au)) \
-                              * res_inner_sec(t1) #\
+                              * res_inner_sec(t1) #\                                        # why A0X and not FX_t1(t1) ?
                               #* np.exp(-(t1 - delta_t_au)**2 / 2 / sigma_L_au**2)# \
                               #/ np.sqrt(2*np.pi * sigma_L_au**2)
 
@@ -381,7 +381,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         if (E_kin_au < upper_E_min):
             square = 0.0
         else:
-# integral 1
+# integral 1    # there is never an integral 2, always only integral 1 ?
             if (integ_outer == "quadrature"):
                 E_fin_au = E_fin_au_1   # set params to values for sRICD
                 Er_au = Er_a_au
@@ -609,15 +609,16 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
     prefac_indir1 = -1j * VEr_au * rdg_decay_au / q
     prefac_mix1 = -1j * VEr_au * rdg_decay_au / q
 
-    prefac_res2 = WEr_au * Mrt
+    prefac_res2 = WEr_au * Mrt              # remember: WEr is VEr for ICD-res to continuum
     #prefac_res2 = WEr_au * np.sqrt(N0)
 
     print("Mr(t) = ", Mrt)
 
-    popfile.write(str(format(t_s, '.18f')) + '   ' + str(format(rdg_decay_au**2, '.19f'))
+    popfile.write(str(format(t_s, '.18f'))
+                  + '   ' + str(format(rdg_decay_au**2, '.19f'))
                   + '   ' + str(format(Mrt**2, '.19f')) + '\n')
     
-    E_count = 0
+    E_count = 0         # counts all visited E_kin values if in the upper selected E range (for a given t)
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
@@ -625,14 +626,14 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
             square = 0.0
         elif (E_kin_au > lower_E_max and E_kin_au < upper_E_min):
             square = 0.0
-        elif (E_kin_au >= lower_E_min and E_kin_au <= lower_E_max):
+        elif (E_kin_au >= lower_E_min and E_kin_au <= lower_E_max): # lower E range = ICD range -> use ICD params
 # integral 1
             if (integ_outer == "quadrature"):
                 E_fin_au = E_fin_au_2
                 Er_au = Er_b_au
                 VEr_au = WEr_au
     
-                res_I = ci.complex_quadrature(second_outer_fun, (- a),
+                res_I = ci.complex_quadrature(second_outer_fun, (- a),  # i would have added delta_t to both limits ?
                                                                 (t_au-delta_t_au))
                 res_J2   = prefac_res2 * res_I[0]
             
