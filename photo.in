@@ -31,8 +31,8 @@ FWHM_L        = 7.0E-15
 #
 # parameters of the simulation
 tmax_s        = 70.0E-15       # simulate until time tmax in seconds
-timestep_s    = 400.0E-17     # evaluate expression every timestep_s seconds 
-E_step_eV     = 0.1          # energy difference between different evaluated Omegas
+timestep_s    = 400.0E-18     # evaluate expression every timestep_s seconds 
+E_step_eV     = 0.01          # energy difference between different evaluated Omegas
 #
 E_min_eV      =  0.0
 E_max_eV      =  6.0
