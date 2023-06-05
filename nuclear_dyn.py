@@ -31,7 +31,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 infile = sys.argv[1]
-print infile
+print(infile)
 
 #-------------------------------------------------------------------------
 # open outputfile
@@ -89,35 +89,35 @@ elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
     FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
     TX_au     = 5 * sigma
-    print 'sigma = ', sciconv.atu_to_second(sigma)
-    print 'FWHM = ', sciconv.atu_to_second(FWHM)
+    print('sigma = ', sciconv.atu_to_second(sigma))
+    print('FWHM = ', sciconv.atu_to_second(FWHM))
     outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
-print 'end of the first pulse = ', sciconv.atu_to_second(TX_au/2)
+print('end of the first pulse = ', sciconv.atu_to_second(TX_au/2))
 outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
-print 'I_X = ', I_X
-print 'I_X_au = ', I_X_au
+print('I_X = ', I_X)
+print('I_X_au = ', I_X_au)
 E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_au
-print 'A0X = ', A0X
+print('A0X = ', A0X)
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
 sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))
 a             = 5./2 * sigma_L_au
-print "FWHM_L = ", sciconv.atu_to_second(FWHM_L_au)
-print "sigma_L = ", sciconv.atu_to_second(sigma_L_au)
+print("FWHM_L = ", sciconv.atu_to_second(FWHM_L_au))
+print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
 TL_au         = n_L * 2 * np.pi / omega_au
-print 'start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2)
-print 'end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2)
+print('start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
+print('end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
-print 'I_L = ', I_L
-print 'I_L_au = ', I_L_au
+print('I_L = ', I_L)
+print('I_L_au = ', I_L_au)
 E0L           = np.sqrt(I_L_au)
-print 'E0L', E0L
+print('E0L', E0L)
 A0L           = E0L / omega_au
-print 'A0L = ', A0L
+print('A0L = ', A0L)
 delta_t_au    = sciconv.second_to_atu(delta_t_s)
 
 # parameters of the simulation
@@ -129,7 +129,7 @@ E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
-print 'VEr_au = ', VEr_au
+print('VEr_au = ', VEr_au)
 
 VEr_au_1      = VEr_au
 
@@ -139,20 +139,20 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 #-------------------------------------------------------------------------
 # Potential details
 # vibrational energies of Morse potentials
-print
-print '----------------------------------------------------------------'
+print()
+print('----------------------------------------------------------------')
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 red_mass = wf.red_mass_au(mass1,mass2)
-print "red_mass = ", red_mass
+print("red_mass = ", red_mass)
 #ground state
-print "Ground state"
+print("Ground state")
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
 E_kappas = []
-print "n_gs_max = ", n_gs_max
+print("n_gs_max = ", n_gs_max)
 
-print '----------------------------------------------------------------'
-print "Energies of vibrational states of the ground state"
+print('----------------------------------------------------------------')
+print("Energies of vibrational states of the ground state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the ground state" + '\n')
 outfile.write('n_gs  ' + 'E [au]' + 'E [eV]' + '\n')
@@ -160,27 +160,27 @@ for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)
     E_kappas.append(ev)
     outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
-    print '{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev))
+    print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 #resonant state
-print "Resonant state"
-print '----------------------------------------------------------------'
-print "Energies of vibrational states of the resonant state"
+print("Resonant state")
+print('----------------------------------------------------------------')
+print("Energies of vibrational states of the resonant state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the resonant state" + '\n')
 outfile.write('n_res  ' + 'E [au]' + 'E [eV]' + '\n')
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
 n_res_max = int(lambda_param_res - 0.5)
 E_lambdas = []
-print "n_res_max = ", n_res_max
+print("n_res_max = ", n_res_max)
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
     outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
-    print '{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev))
+    print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 #final state
-print "Final state"
-print '----------------------------------------------------------------'
-print "Energies of vibrational states of the final state"
+print("Final state")
+print('----------------------------------------------------------------')
+print("Energies of vibrational states of the final state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the final state" + '\n')
 outfile.write('n_gs  ' + 'E [au]' + 'E [eV]' + '\n')
@@ -192,12 +192,12 @@ if (fin_pot_type == 'morse'):
     lambda_param_fin = np.sqrt(2*red_mass*fin_de) / fin_a
     n_fin_max = int(lambda_param_fin - 0.5)
     E_mus = []
-    print "n_fin_max = ", n_fin_max
+    print("n_fin_max = ", n_fin_max)
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
         E_mus.append(ev)
         outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
-        print '{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev))
+        print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -208,9 +208,9 @@ gs_fin =  []
 res_fin = []
 R_min = sciconv.angstrom_to_bohr(1.5)
 R_max = sciconv.angstrom_to_bohr(30.0)
-print
-print '----------------------------------------------------------------'
-print "Franck Condon overlaps between ground and resonant state"
+print()
+print('----------------------------------------------------------------')
+print("Franck Condon overlaps between ground and resonant state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Franck Condon overlaps between ground and resonant state" + '\n')
 outfile.write('n_gs  ' +'n_res  ' + '<res|gs>' + '\n')
@@ -223,15 +223,15 @@ for i in range (0,n_gs_max+1):
         #                 i,gs_a,gs_Req,gs_de,R_min,R_max))
         tmp.append(FC)
         outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
-        print ('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC))
+        print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
     gs_res.append(tmp)
-#print "gs_res"
-#print gs_res
+#print("gs_res")
+#print(gs_res)
     
 # ground state - final state <mu|kappa>
-print
-print '----------------------------------------------------------------'
-print "Franck Condon overlaps between ground and final state"
+print()
+print('----------------------------------------------------------------')
+print("Franck Condon overlaps between ground and final state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Franck Condon overlaps between ground and final state" + '\n')
 outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
@@ -243,15 +243,15 @@ if fin_pot_type == 'morse':
                        i,gs_a,gs_Req,gs_de,R_min,R_max)
             tmp.append(FC)
             outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
-            print ('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC))
+            print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
         gs_fin.append(tmp)
-#    print "gs_fin"
-#    print gs_fin
+#    print("gs_fin")
+#    print(gs_fin)
 
 # resonant state - final state <mu|lambdaa>
-print
-print '----------------------------------------------------------------'
-print "Franck Condon overlaps between final and resonant state"
+print()
+print('----------------------------------------------------------------')
+print("Franck Condon overlaps between final and resonant state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Franck Condon overlaps between final and resonant state" + '\n')
 outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
@@ -263,10 +263,10 @@ if fin_pot_type == 'morse':
                        i,res_a,res_Req,res_de,R_min,R_max)
             tmp.append(FC)
             outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
-            print ('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC))
+            print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
         res_fin.append(tmp)
-#    print "res_fin"
-#    print res_fin
+#    print("res_fin")
+#    print(res_fin)
 
 # sum over mup of product <lambda|mup><mup|kappa>
 indir_FCsums = []
@@ -276,14 +276,14 @@ for i in range (0,n_res_max+1):
         tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]
         indir_FCsum = indir_FCsum + tmp
     indir_FCsums.append(indir_FCsum)
-#print indir_FCsums
-print
-print '----------------------------------------------------------------'
+#print(indir_FCsums)
+print()
+print('----------------------------------------------------------------')
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 
 #-------------------------------------------------------------------------
 # determine total decay width matrix element
-print 'Effective decay widths in eV and lifetimes in s:'
+print('Effective decay widths in eV and lifetimes in s:')
 outfile.write('Effective decay widths in eV and lifetimes in s:' + '\n')
 if fin_pot_type == 'morse':
     W_lambda = []
@@ -293,7 +293,7 @@ if fin_pot_type == 'morse':
             tmp = tmp + VEr_au**2 * (res_fin[i][j])**2
         W_lambda.append(tmp)
         ttmp = 1./ (2 * np.pi * tmp)
-        print sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp)
+        print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
         outfile.write( str(sciconv.hartree_to_ev(tmp))
                      + str(sciconv.atu_to_second(ttmp)) + '\n')
 
@@ -308,7 +308,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 # physical defintions of functions
 # functions for the shape of the XUV pulse
 if (X_sinsq):
-    print 'use sinsq function'
+    print('use sinsq function')
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
                           + 2
                           + np.exp(-2j * np.pi * (t1 + TX_au/2) /TX_au) )
@@ -316,13 +316,13 @@ if (X_sinsq):
     fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)
                                          + np.exp(-2j*np.pi* (t1 + TX_au/2) / TX_au) )
 elif (X_gauss):
-    print 'use gauss function'
+    print('use gauss function')
     f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
                        * np.exp(-t1**2 / (2*sigma**2)))
     fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
-    print 'no pulse shape selected'
+    print('no pulse shape selected')
 
 if (Xshape == 'convoluted'):
     FX_t1 = lambda t1: (
@@ -399,14 +399,14 @@ prefac_dir1 = 1j * cdg_au_V
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('during the first pulse \n')
-    print 'during the first pulse'
+    print('during the first pulse')
 
     outlines = []
     squares = np.array([])
     E_kin_au = E_min_au
     
     t_s = sciconv.atu_to_second(t_au)
-    print 't_s = ', sciconv.atu_to_second(t_au)
+    print('t_s = ', sciconv.atu_to_second(t_au))
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
@@ -465,7 +465,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins[max_pos[i]], squares[max_pos[i]]
+            print(Ekins[max_pos[i]], squares[max_pos[i]])
             outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     
 
@@ -478,7 +478,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
-    print 'between the pulses'
+    print('between the pulses')
 
     outlines = []
     squares = np.array([])
@@ -486,7 +486,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
-    print 't_s = ', sciconv.atu_to_second(t_au)
+    print('t_s = ', sciconv.atu_to_second(t_au))
     outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
@@ -545,7 +545,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
     max_pos = argrelextrema(squares, np.greater)[0]
     if (len(max_pos > 0)):
         for i in range (0, len(max_pos)):
-            print Ekins[max_pos[i]], squares[max_pos[i]]
+            print(Ekins[max_pos[i]], squares[max_pos[i]])
             outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
 
     t_au = t_au + timestep_au
