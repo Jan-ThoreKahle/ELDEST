@@ -78,8 +78,8 @@ Xshape = 'convoluted'
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
 Er_a_au        = sciconv.ev_to_hartree(Er_a_eV)     # resonance E for RICD + AI
-Er_b_au        = sciconv.ev_to_hartree(Er_b_eV)     # resonance E for ICD
-Er_au          = Er_a_au        # (initialize to Er_a, later use as either Er_a or Er_b)
+#Er_b_au        = sciconv.ev_to_hartree(Er_b_eV)     # resonance E for ICD
+Er_au          = Er_a_au        # ? One could delete Er_a_au altogether
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)    # (same as for Er)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)    # final E for sRICD
 
@@ -90,9 +90,9 @@ Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 
 # second final state
-E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
-tau_au_2         = sciconv.second_to_atu(tau_s_2)
-Gamma_au_2       = 1. / tau_au_2
+#E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
+#tau_au_2         = sciconv.second_to_atu(tau_s_2)
+#Gamma_au_2       = 1. / tau_au_2
 
 # laser parameters
 Omega_au      = sciconv.ev_to_hartree(Omega_eV)
@@ -116,21 +116,21 @@ A0X           = E0X / Omega_au
 print('A0X = ', A0X)
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
-FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
-sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))      # assume Gaussian envelope for second pulse
-a             = 5./2 * sigma_L_au       # half duration of IR pulse (delta_t - a, delta_t + a); in PRA 2020: small-delta t
-print("FWHM_L = ", FWHM_L)
-print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
+#FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
+#sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))      # assume Gaussian envelope for second pulse
+#a             = 5./2 * sigma_L_au       # half duration of IR pulse (delta_t - a, delta_t + a); in PRA 2020: small-delta t
+#print("FWHM_L = ", FWHM_L)
+#print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
 TL_au         = n_L * 2 * np.pi / omega_au
-print('start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
-print('end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
+#print('start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
+#print('end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
-print('I_L = ', I_L)
-print('I_L_au = ', I_L_au)
+#print('I_L = ', I_L)
+#print('I_L_au = ', I_L_au)
 E0L           = np.sqrt(I_L_au)
-#print('E0L = ', E0L)
+##print('E0L = ', E0L)
 A0L           = E0L / omega_au
-print('A0L = ', A0L)
+#print('A0L = ', A0L)
 delta_t_au    = sciconv.second_to_atu(delta_t_s)        # t diff between the maxima of the two pulses
 
 # parameters of the simulation
@@ -144,7 +144,7 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
 
-VEr_au_1      = VEr_au      # (same as for Er)
+#VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
@@ -493,7 +493,9 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
 
 #-------------------------------------------------------------------------
-while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
+while (t_au >= TX_au/2\
+#        and (t_au <= (delta_t_au - a))\
+        and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
     print('between the pulses')
