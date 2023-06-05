@@ -5,8 +5,8 @@
 #        Investigating Electronic Decay Processes with Streaking         #
 ##########################################################################
 # Purpose:                                                               #
-#          - A program to simulate the streaking process of electronic   #
-#            decay processes.                                            #
+#          - A program to simulate the time-resolved RICD spectroscopy   #
+#            including classical nuclear dynamics.                       #
 #                                                                        #
 ##########################################################################
 # written by: Elke Fasshauer November 2020                               #
@@ -46,6 +46,19 @@ outfile.write("The results were obtained with nuclear_dyn.py \n")
 Xshape = 'convoluted'
 
 #-------------------------------------------------------------------------
+# read inputfile
+# (see next section for explanations of most symbols)
+# ( * X_sinsq, X_gauss are simply Booleans, created by in_out from X_shape)
+# ( * phi is the phase for the IR pulse potential cosine-oscillation, a remnant from PRA 2020)
+# ( * integ, integ_outer are integration schemes: [analytic,] quadrature, romberg)
+# (currently NOT in use: cdg_au, tau_a_s, tau_b_s interact_eV, Lshape, shift_step_s, phi, grad_delta, R_eq_AA, gs_const, res_const)
+# ( * Er_b_eV and E_fin_eV_2 will be converted to au, but these will not be used afterwards)
+# ( * tau_s_2 will be converted to au at this to Gamma, but this will not be used afterwards)
+# ( * omega_eV will be converted to au, from which TL and A0L are calculated, but other than being used for needless printing and for check_input, they will not be used afterwards)
+# ( * n_L and I_L only lead to related qnts like TL, E0L and A0L, for which above holds)
+# ( * FWHM_L will be converted to au and this printed, but not be used afterwards)
+
+# (q is explicit input, not calced as q = rdg / (cdg pi VEr) = sqrt(2 tau / pi) rdg / cdg )
 
 (rdg_au, cdg_au,
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
@@ -64,14 +77,14 @@ Xshape = 'convoluted'
 #-------------------------------------------------------------------------
 # Convert input parameters to atomic units
 #-------------------------------------------------------------------------
-Er_a_au        = sciconv.ev_to_hartree(Er_a_eV)
-Er_b_au        = sciconv.ev_to_hartree(Er_b_eV)
-Er_au          = Er_a_au
-E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)
-E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)
+Er_a_au        = sciconv.ev_to_hartree(Er_a_eV)     # resonance E for RICD + AI
+Er_b_au        = sciconv.ev_to_hartree(Er_b_eV)     # resonance E for ICD
+Er_au          = Er_a_au        # (initialize to Er_a, later use as either Er_a or Er_b)
+E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)    # (same as for Er)
+E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)    # final E for sRICD
 
-tau_au_1       = sciconv.second_to_atu(tau_s)
-tau_au         = tau_au_1
+tau_au_1       = sciconv.second_to_atu(tau_s)       # lifetime for sRICD res. st.
+tau_au         = tau_au_1                           # (same as for Er)
 Gamma_au       = 1. / tau_au
 Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
@@ -104,9 +117,9 @@ print('A0X = ', A0X)
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
-sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))
-a             = 5./2 * sigma_L_au
-print("FWHM_L = ", sciconv.atu_to_second(FWHM_L_au))
+sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))      # assume Gaussian envelope for second pulse
+a             = 5./2 * sigma_L_au       # half duration of IR pulse (delta_t - a, delta_t + a); in PRA 2020: small-delta t
+print("FWHM_L = ", FWHM_L)
 print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
 TL_au         = n_L * 2 * np.pi / omega_au
 print('start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
@@ -115,10 +128,10 @@ I_L_au        = sciconv.Wcm2_to_aiu(I_L)
 print('I_L = ', I_L)
 print('I_L_au = ', I_L_au)
 E0L           = np.sqrt(I_L_au)
-print('E0L', E0L)
+#print('E0L = ', E0L)
 A0L           = E0L / omega_au
 print('A0L = ', A0L)
-delta_t_au    = sciconv.second_to_atu(delta_t_s)
+delta_t_au    = sciconv.second_to_atu(delta_t_s)        # t diff between the maxima of the two pulses
 
 # parameters of the simulation
 tmax_au       = sciconv.second_to_atu(tmax_s)
@@ -131,7 +144,7 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
 
-VEr_au_1      = VEr_au
+VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
@@ -305,7 +318,7 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
                    omega_au, TL_au, A0L, delta_t_au,
                    tmax_au, timestep_au, E_step_au)
 #-------------------------------------------------------------------------
-# physical defintions of functions
+# physical definitions of functions
 # functions for the shape of the XUV pulse
 if (X_sinsq):
     print('use sinsq function')
@@ -324,7 +337,7 @@ elif (X_gauss):
 else:
     print('no pulse shape selected')
 
-if (Xshape == 'convoluted'):
+if (Xshape == 'convoluted'):    # Calculate field strength EX = -(AX fX)'
     FX_t1 = lambda t1: (
                         0
                         - (A0X
@@ -333,7 +346,7 @@ if (Xshape == 'convoluted'):
                           )
                         + (A0X
                            * Omega_au
-                           * np.sin(Omega_au * (t1))
+                           * np.sin(Omega_au * t1)
                            * f_t1(t1)
                           )
                        )
@@ -343,12 +356,12 @@ elif (Xshape == 'infinite'):
                        
 
 #-------------------------------------------------------------------------
-# technical defintions of functions
+# technical definitions of functions (remember: FX is the field strength EX)
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
                                      * np.exp(1j * E_kin_au * (t1-t_au))
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                     * np.exp(1j * E_kin_au * (t1-t_au))
+                                     * np.exp(1j * E_kin_au * (t1-t_au))        # Same as fun_t_dir_1 - why keep ?
 
 #res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * W_au + 1j*(Er_au))) \
 #                           * IR_during(t2)
@@ -358,7 +371,7 @@ if (integ == 'romberg'):
 elif (integ == 'quadrature'):
     res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
 elif (integ == 'analytic'):
-# analytic inner integral
+    # analytic inner integral
     res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au - E_lambda)
                                     - np.pi * W_au)
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au
@@ -381,6 +394,7 @@ res_outer_fun = lambda t1: FX_t1(t1) \
 t_au = -TX_au/2
 
 
+# construct list of energy points
 Ekins = []
 E_kin_au = E_min_au
 while (E_kin_au <= E_max_au):
@@ -395,20 +409,24 @@ prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 prefac_dir1 = 1j * cdg_au_V
 
 
+########################################
+# now follow the integrals themselves, for the temporal phases:
+# 'during the first pulse' (-TX/2, TX/2)
+# 'between the pulses' (TX/2, tmax)
+
 #-------------------------------------------------------------------------
 while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('during the first pulse \n')
     print('during the first pulse')
 
-    outlines = []
-    squares = np.array([])
+    outlines = []       # will contain lines containing triples of E_kin, time and signal intensity
+    squares = np.array([])  # signal intensity ( = |amplitude|**2 = |J|**2 )
     E_kin_au = E_min_au
     
     t_s = sciconv.atu_to_second(t_au)
-    print('t_s = ', sciconv.atu_to_second(t_au))
-    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
-    t_s = sciconv.atu_to_second(t_au)
+    print('t_s = ', t_s)
+    outfile.write('t_s = ' + str(t_s) + '\n')
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
@@ -419,11 +437,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             Er_au = Er_a_au
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
+                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info)
     
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-                dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
+                dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
         
             J = 0
             for nlambda in range (0,n_res_max+1):
@@ -454,18 +472,18 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             sum_square = sum_square + square
         squares = np.append(squares, sum_square)
 
-        string = in_out.prep_output(sum_square, E_kin_au, t_au)
+        string = in_out.prep_output(sum_square, E_kin_au, t_au)     # returns str: E_kin_eV, t_s, square = intensity
         outlines.append(string)
         
         E_kin_au = E_kin_au + E_step_au
     
     
-    in_out.doout_1f(pure_out, outlines)
+    in_out.doout_1f(pure_out, outlines)     # writes each (E_kin, t = const, |J|**2) triple in a sep line into output file
     in_out.doout_movie(movie_out, outlines)
-    max_pos = argrelextrema(squares, np.greater)[0]
-    if (len(max_pos > 0)):
+    max_pos = argrelextrema(squares, np.greater)[0]      # finds position of relative (i. e. local) maxima of |J|**2 in an array
+    if (len(max_pos > 0)):                               # if there are such:
         for i in range (0, len(max_pos)):
-            print(Ekins[max_pos[i]], squares[max_pos[i]])
+            print(Ekins[max_pos[i]], squares[max_pos[i]])      # print all loc max & resp E_kin
             outfile.write(str(Ekins[max_pos[i]]) + '  ' + str(squares[max_pos[i]]) + '\n')
     
 
@@ -479,15 +497,16 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
     print('between the pulses')
-
+    
+    # all equal to during-1st-pulse section, except for integrating over entire XUV pulse now
     outlines = []
     squares = np.array([])
     E_kin_au = E_min_au
     
     t_s = sciconv.atu_to_second(t_au)
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
-    print('t_s = ', sciconv.atu_to_second(t_au))
-    outfile.write('t_s = ' + str(sciconv.atu_to_second(t_au)) + '\n')
+    print('t_s = ', t_s)
+    outfile.write('t_s = ' + str(t_s) + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
@@ -496,7 +515,7 @@ while (t_au >= TX_au/2 and (t_au <= (delta_t_au - a)) and (t_au <= tmax_au)):
             E_fin_au = E_fin_au_1 + E_mus[nmu]
             Er_au = Er_a_au
             if (integ_outer == "quadrature"):
-                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
+                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)      # same function as fun_t_dir_1 before,
                 dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
             
             elif (integ_outer == "romberg"):
