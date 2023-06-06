@@ -157,23 +157,24 @@ print('----------------------------------------------------------------')
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 red_mass = wf.red_mass_au(mass1,mass2)
 print("red_mass = ", red_mass)
+
 #ground state
 print("Ground state")
-lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
-n_gs_max = int(lambda_param_gs - 0.5)
-E_kappas = []
-print("n_gs_max = ", n_gs_max)
-
 print('----------------------------------------------------------------')
 print("Energies of vibrational states of the ground state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the ground state" + '\n')
 outfile.write('n_gs  ' + 'E [au]' + 'E [eV]' + '\n')
+lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
+n_gs_max = int(lambda_param_gs - 0.5)
+print("n_gs_max = ", n_gs_max)
+E_kappas = []   # collects vibr energies of GS
 for n in range (0,n_gs_max+1):
-    ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)
+    ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)   # ev stands for eigenvalue, not for electronvolt (it is, in fact, in au!)
     E_kappas.append(ev)
     outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
     print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
+
 #resonant state
 print("Resonant state")
 print('----------------------------------------------------------------')
@@ -183,13 +184,14 @@ outfile.write("Energies of vibrational states of the resonant state" + '\n')
 outfile.write('n_res  ' + 'E [au]' + 'E [eV]' + '\n')
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
 n_res_max = int(lambda_param_res - 0.5)
-E_lambdas = []
 print("n_res_max = ", n_res_max)
+E_lambdas = []
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
     outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
     print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
+
 #final state
 print("Final state")
 print('----------------------------------------------------------------')
@@ -204,8 +206,8 @@ if (fin_pot_type == 'morse'):
     fin_const = fin_d
     lambda_param_fin = np.sqrt(2*red_mass*fin_de) / fin_a
     n_fin_max = int(lambda_param_fin - 0.5)
-    E_mus = []
     print("n_fin_max = ", n_fin_max)
+    E_mus = []
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
         E_mus.append(ev)
@@ -215,18 +217,19 @@ if (fin_pot_type == 'morse'):
 #-------------------------------------------------------------------------
 # Franck-Condon factors
 #-------------------------------------------------------------------------
-# ground state - resonant state <lambda|kappa>
-gs_res =  []
+gs_res =  []    # collects lists of FC: [<l1|k1>, <l2|k1>, ...], [<l1|k2, <l2|k2>, ...], ...
 gs_fin =  []
 res_fin = []
 R_min = sciconv.angstrom_to_bohr(1.5)
 R_max = sciconv.angstrom_to_bohr(30.0)
+
+# ground state - resonant state <lambda|kappa>
 print()
 print('----------------------------------------------------------------')
-print("Franck Condon overlaps between ground and resonant state")
+print("Franck-Condon overlaps between ground and resonant state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
-outfile.write("Franck Condon overlaps between ground and resonant state" + '\n')
-outfile.write('n_gs  ' +'n_res  ' + '<res|gs>' + '\n')
+outfile.write("Franck-Condon overlaps between ground and resonant state" + '\n')
+outfile.write('n_gs  ' + 'n_res  ' + '<res|gs>' + '\n')
 for i in range (0,n_gs_max+1):
     tmp = []
     for j in range (0,n_res_max+1):
@@ -244,9 +247,9 @@ for i in range (0,n_gs_max+1):
 # ground state - final state <mu|kappa>
 print()
 print('----------------------------------------------------------------')
-print("Franck Condon overlaps between ground and final state")
+print("Franck-Condon overlaps between ground and final state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
-outfile.write("Franck Condon overlaps between ground and final state" + '\n')
+outfile.write("Franck-Condon overlaps between ground and final state" + '\n')
 outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 if fin_pot_type == 'morse':
     for i in range (0,n_gs_max+1):
@@ -261,12 +264,12 @@ if fin_pot_type == 'morse':
 #    print("gs_fin")
 #    print(gs_fin)
 
-# resonant state - final state <mu|lambdaa>
+# resonant state - final state <mu|lambda>
 print()
 print('----------------------------------------------------------------')
-print("Franck Condon overlaps between final and resonant state")
+print("Franck-Condon overlaps between final and resonant state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
-outfile.write("Franck Condon overlaps between final and resonant state" + '\n')
+outfile.write("Franck-Condon overlaps between final and resonant state" + '\n')
 outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
 if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
@@ -281,14 +284,14 @@ if fin_pot_type == 'morse':
 #    print("res_fin")
 #    print(res_fin)
 
-# sum over mup of product <lambda|mup><mup|kappa>
+# sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
 for i in range (0,n_res_max+1):
     indir_FCsum = 0
     for j in range (0,n_fin_max+1):
-        tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]
-        indir_FCsum = indir_FCsum + tmp
-    indir_FCsums.append(indir_FCsum)
+        tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]     # = <mu_j|lambda_i>* <mu_j|kappa_0> = <lambda_i|mu_j><mu_j|kappa_0> = <li|mj><mj|k0>
+        indir_FCsum = indir_FCsum + tmp                 # = sum_j <li|mj><mj|k0>
+    indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
 #print(indir_FCsums)
 print()
 print('----------------------------------------------------------------')
@@ -299,13 +302,13 @@ outfile.write('\n' + "--------------------------------------------------------" 
 print('Effective decay widths in eV and lifetimes in s:')
 outfile.write('Effective decay widths in eV and lifetimes in s:' + '\n')
 if fin_pot_type == 'morse':
-    W_lambda = []
+    W_lambda = []   # [W_(l=0), W_(l=1), ...]
     for i in range (0,n_res_max+1):
         tmp = 0
         for j in range (0,n_fin_max+1):
-            tmp = tmp + VEr_au**2 * (res_fin[i][j])**2
+            tmp = tmp + VEr_au**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
         W_lambda.append(tmp)
-        ttmp = 1./ (2 * np.pi * tmp)
+        ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
         print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
         outfile.write( str(sciconv.hartree_to_ev(tmp))
                      + str(sciconv.atu_to_second(ttmp)) + '\n')
