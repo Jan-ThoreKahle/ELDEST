@@ -652,8 +652,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                 Er_au = Er_b_au
                 VEr_au = WEr_au
     
-                res_I = ci.complex_romberg(second_outer_fun, (- a),
-                                                             (t_au - delta_t_au))
+                res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a), t_au)
+#                res_I = ci.complex_romberg(second_outer_fun, (- a),
+#                                                             (t_au - delta_t_au))
                 res_J2   = prefac_res2 * res_I
     
             square = np.absolute(res_J2)**2
@@ -764,8 +765,9 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
                 Er_au = Er_b_au
                 VEr_au = WEr_au
     
-                res_I = ci.complex_romberg(second_outer_fun, (- a),
-                                                             (a))
+                res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a), (delta_t_au + a))
+#                res_I = ci.complex_romberg(second_outer_fun, (- a),
+#                                                             (a))
                 res_J2   = prefac_res2 * res_I
     
             square = np.absolute(res_J2)**2
