@@ -412,7 +412,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                 res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
         
-                dir_J1 = prefac_dir1 * I1           # romberg has returns only the integral, so no [0] necessary
+                dir_J1 = prefac_dir1 * I1           # romberg returns only the integral, so no [0] necessary
                 res_J1 = prefac_res1 * res_I
                 indir_J1 = prefac_indir1 * res_I
                 mix_J1 = prefac_mix1 * res_I
