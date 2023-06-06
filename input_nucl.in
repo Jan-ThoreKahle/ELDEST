@@ -1,0 +1,64 @@
+# transitions dipole moments
+rdg_au        = 0.70          # transition dipole moment into the resonant state
+cdg_au        = 0.5           # transition dipole moment into any continuum state
+q             = 10
+# parameters of the investigated system
+# the ground state energy is being defined as Eg = 0
+Er_a_eV       =  49.9910672298       # resonance energy in eV
+Er_b_eV       =   0 
+E_fin_eV      =  39.8914078179      # final state energy in eV
+tau_s         =  20E-15       # lifetime
+E_fin_eV_2    =   0.0 
+tau_a_s       =   0.0
+tau_b_s       =   0.0
+tau_s_2       =   0.0
+interact_eV   =   0.0
+#
+# laser parameters
+Omega_eV      = 50.0         # mean photon energy of the XUV pulse in eV
+n_X           = 10
+I_X           = 5.0E8       # intensity of the XUV pulse in W/cm^2
+X_shape       = gauss         # options: gauss, sinsq
+Xshape        = convoluted
+#
+# dressing laser parameters
+omega_eV      = 1E-10           # IR pulse
+n_L           = 0
+I_L           = 0.0 
+delta_t_s     = 0.0 
+shift_step_s  = 0.0
+phi           = 0
+FWHM_L        = 0
+#
+# parameters of the simulation
+tmax_s        = 70.0E-15       # simulate until time tmax in seconds
+timestep_s    = 400.0E-17     # evaluate expression every timestep_s seconds 
+E_step_eV     = 0.1          # energy difference between different evaluated Omegas
+#
+E_min_eV      =  0.0
+E_max_eV      =  6.0
+#
+integ         = analytic      # options: analytic, quadrature, romberg
+integ_outer   = quadrature
+#
+# parameters for the nuclear dynamics
+mass1         = 20.1797 # in g/mol
+mass2         = 20.1797 # in g/mol
+grad_delta    = 0.001
+R_eq_AA       = 3.08
+# GS Parameters # use atomic units
+gs_de         = 1.0E-12
+gs_a          = 1.3E-4
+gs_Req        = 0
+gs_const      = 47.6930
+# resonant state parameters
+res_de        = 0.0003674932
+res_a         = 4.9512
+res_Req       = 0
+res_const     = 47.6930
+# final state parameters
+fin_a         = 0.0040424255
+fin_b         = 21.6296
+fin_c         = 0
+fin_d         = 47.6930
+fin_pot_type  = morse
