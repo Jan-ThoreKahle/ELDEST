@@ -363,7 +363,7 @@ elif (Xshape == 'infinite'):
 # technical definitions of functions (remember: FX is the field strength EX)
 #direct ionization
 fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
-                                     * np.exp(1j * E_kin_au * (t1-t_au))
+                                     * np.exp(1j * E_kin_au * (t1-t_au))        # Note: before any of these fncts are called, E_fin is redefined to also include E_mu
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
                                      * np.exp(1j * E_kin_au * (t1-t_au))        # Same as fun_t_dir_1 - why keep ?
 
@@ -376,7 +376,7 @@ elif (integ == 'quadrature'):
     res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
 elif (integ == 'analytic'):
     # analytic inner integral
-    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au - E_lambda)     # ? Where is -E_mu here and hereafter?
+    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au - E_lambda)     # See the above note on E_fin also including E_mu
                                     - np.pi * W_au)
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au
                                                   - Er_au - E_lambda)
@@ -435,18 +435,21 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
-        sum_square = 0
-        for nmu in range (0,n_fin_max+1):
-            E_fin_au = E_fin_au_1 + E_mus[nmu]
-            Er_au = Er_a_au
+        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
+        for nmu in range (0,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+            E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
+#            Er_au = Er_a_au
+            
+            # Direct term
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info)
+                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
     
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
-        
+             
+            # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
             J = 0
             for nlambda in range (0,n_res_max+1):
                 E_lambda = E_lambdas[nlambda]
@@ -472,14 +475,14 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                      + indir_J1
                      )
     
-            square = np.absolute(J + dir_J1)**2
-            sum_square = sum_square + square
+            square = np.absolute(J + dir_J1)**2     # |J_mu|**2
+            sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
         squares = np.append(squares, sum_square)
 
-        string = in_out.prep_output(sum_square, E_kin_au, t_au)     # returns str: E_kin_eV, t_s, square = intensity
+        string = in_out.prep_output(sum_square, E_kin_au, t_au)     # returns str: E_kin_eV, t_s, sum_square = intensity
         outlines.append(string)
         
-        E_kin_au = E_kin_au + E_step_au
+        E_kin_au = E_kin_au + E_step_au     # @ t = const.
     
     
     in_out.doout_1f(pure_out, outlines)     # writes each (E_kin, t = const, |J|**2) triple in a sep line into output file
@@ -510,16 +513,18 @@ while (t_au >= TX_au/2\
     E_kin_au = E_min_au
     
     t_s = sciconv.atu_to_second(t_au)
-    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     print('t_s = ', t_s)
     outfile.write('t_s = ' + str(t_s) + '\n')
+    movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
 
         sum_square = 0
         for nmu in range (0,n_fin_max+1):
             E_fin_au = E_fin_au_1 + E_mus[nmu]
-            Er_au = Er_a_au
+#            Er_au = Er_a_au
+            
+            # Direct term
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)      # same function as fun_t_dir_1 before,
                 dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
@@ -528,6 +533,7 @@ while (t_au >= TX_au/2\
                 I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
                 dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
 
+            # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
             J = 0
             for nlambda in range (0,n_res_max+1):
                 E_lambda = E_lambdas[nlambda]
