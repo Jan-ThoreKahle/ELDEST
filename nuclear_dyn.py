@@ -328,13 +328,14 @@ if (X_sinsq):
     f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
                           + 2
                           + np.exp(-2j * np.pi * (t1 + TX_au/2) /TX_au) )
-
+    # fp_t1 = f'(t1)
     fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)
                                          + np.exp(-2j*np.pi* (t1 + TX_au/2) / TX_au) )
 elif (X_gauss):
     print('use gauss function')
     f_t1  = lambda t1: ( 1./ np.sqrt(2*np.pi * sigma**2)
                        * np.exp(-t1**2 / (2*sigma**2)))
+    # fp_t1 = f'(t1)
     fp_t1 = lambda t1: ( -t1 / np.sqrt(2*np.pi) / sigma**3
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
@@ -369,13 +370,13 @@ fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
 #res_inner_fun = lambda t2: np.exp(-t2 * (np.pi * W_au + 1j*(Er_au))) \
 #                           * IR_during(t2)
 
-if (integ == 'romberg'):
+if (integ == 'romberg'):                                                        # numerical inner int not possible (res_inner_fun deactivated) ?
     res_inner = lambda t1: integrate.romberg(res_inner_fun, t1, t_au)
 elif (integ == 'quadrature'):
     res_inner = lambda t1: integrate.quad(res_inner_fun, t1, t_au)[0]
 elif (integ == 'analytic'):
     # analytic inner integral
-    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au - E_lambda)
+    res_inner = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au - E_lambda)     # ? Where is -E_mu here and hereafter?
                                     - np.pi * W_au)
                             * (np.exp(t_au * (1j*(E_kin_au + E_fin_au
                                                   - Er_au - E_lambda)
@@ -387,7 +388,7 @@ elif (integ == 'analytic'):
                            )
 
 res_outer_fun = lambda t1: FX_t1(t1) \
-                           * np.exp(t1 * (np.pi* (W_au) + 1j*(Er_au+E_lambda))) \
+                           * np.exp(t1 * (np.pi* W_au + 1j*(Er_au + E_lambda))) \
                            * res_inner(t1)
 
 
