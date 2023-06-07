@@ -108,7 +108,7 @@ elif(X_gauss):
     outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
 print('end of the first pulse = ', sciconv.atu_to_second(TX_au/2))
-outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
+outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 print('I_X = ', I_X)
 print('I_X_au = ', I_X_au)
