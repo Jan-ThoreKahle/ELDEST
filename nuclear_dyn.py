@@ -57,6 +57,7 @@ Xshape = 'convoluted'
 # ( * omega_eV will be converted to au, from which TL and A0L are calculated, but other than being used for needless printing and for check_input, they will not be used afterwards)
 # ( * n_L and I_L only lead to related qnts like TL, E0L and A0L, for which above holds)
 # ( * FWHM_L will be converted to au and this printed, but not be used afterwards)
+# ( * fin_d will be used to bind fin_const for Morse final potential, but both will not be used afterwards)
 
 # (q is explicit input, not calced as q = rdg / (cdg pi VEr) = sqrt(2 tau / pi) rdg / cdg )
 
