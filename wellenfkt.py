@@ -10,9 +10,9 @@
 # written by: Elke Fasshauer August 2019                                 #
 ##########################################################################
 
-import scipy.misc
 import scipy.integrate as integrate
-from scipy.special import gamma
+#from scipy.special import gamma
+from scipy.special import factorial
 #from scipy.special import eval_genlaguerre
 #from scipy.special import genlaguerre
 import numpy as np
@@ -70,7 +70,7 @@ def sqrt_fact(real):
     if (np.absolute(1 - real) < 1.0E-7):
         return np.sqrt(real)
     elif real < 1.0:
-        return np.sqrt(scipy.misc.factorial(real) )
+        return np.sqrt(factorial(real) )
     else:
         return np.sqrt(real) * sqrt_fact(real-1)
 
