@@ -164,7 +164,7 @@ print('----------------------------------------------------------------')
 print("Energies of vibrational states of the ground state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the ground state" + '\n')
-outfile.write('n_gs  ' + 'E [au]' + 'E [eV]' + '\n')
+outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
 print("n_gs_max = ", n_gs_max)
@@ -181,7 +181,7 @@ print('----------------------------------------------------------------')
 print("Energies of vibrational states of the resonant state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the resonant state" + '\n')
-outfile.write('n_res  ' + 'E [au]' + 'E [eV]' + '\n')
+outfile.write('n_res  ' + 'E [au]            ' + 'E [eV]' + '\n')
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
 n_res_max = int(lambda_param_res - 0.5)
 print("n_res_max = ", n_res_max)
@@ -189,7 +189,7 @@ E_lambdas = []
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
-    outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
+    outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
     print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 #final state
@@ -198,7 +198,7 @@ print('----------------------------------------------------------------')
 print("Energies of vibrational states of the final state")
 outfile.write('\n' + "--------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the final state" + '\n')
-outfile.write('n_gs  ' + 'E [au]' + 'E [eV]' + '\n')
+outfile.write('n_fin  ' + 'E [au]            ' + 'E [eV]' + '\n')
 if (fin_pot_type == 'morse'):
     fin_de    = fin_a
     fin_a     = fin_b
@@ -211,7 +211,7 @@ if (fin_pot_type == 'morse'):
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
         E_mus.append(ev)
-        outfile.write('{:4d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
+        outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
         print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 #-------------------------------------------------------------------------
@@ -238,7 +238,7 @@ for i in range (0,n_gs_max+1):
         #tmp.append(wf.FC(j,res_a,res_Req,res_de,red_mass,
         #                 i,gs_a,gs_Req,gs_de,R_min,R_max))
         tmp.append(FC)
-        outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
+        outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
         print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
     gs_res.append(tmp)
 #print("gs_res")
@@ -258,7 +258,7 @@ if fin_pot_type == 'morse':
             FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                        i,gs_a,gs_Req,gs_de,R_min,R_max)
             tmp.append(FC)
-            outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
+            outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
             print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
         gs_fin.append(tmp)
 #    print("gs_fin")
@@ -278,7 +278,7 @@ if fin_pot_type == 'morse':
             FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                        i,res_a,res_Req,res_de,R_min,R_max)
             tmp.append(FC)
-            outfile.write('{:4d}  {:4d}  {:14.10E}\n'.format(i,j,FC))
+            outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
             print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
         res_fin.append(tmp)
 #    print("res_fin")
@@ -310,7 +310,7 @@ if fin_pot_type == 'morse':
         W_lambda.append(tmp)
         ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
         print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
-        outfile.write( str(sciconv.hartree_to_ev(tmp))
+        outfile.write( str(sciconv.hartree_to_ev(tmp)) + ' '
                      + str(sciconv.atu_to_second(ttmp)) + '\n')
 
 
