@@ -17,7 +17,7 @@ interact_eV   =   0.0
 # laser parameters
 Omega_eV      = 50.0         # mean photon energy of the XUV pulse in eV
 n_X           = 10
-I_X           = 5.0E8       # intensity of the XUV pulse in W/cm^2
+I_X           = 1.0E12       # intensity of the XUV pulse in W/cm^2
 X_shape       = gauss         # options: gauss, sinsq
 Xshape        = convoluted
 #
@@ -31,12 +31,12 @@ phi           = 0
 FWHM_L        = 0
 #
 # parameters of the simulation
-tmax_s        = 70.0E-15       # simulate until time tmax in seconds
-timestep_s    = 400.0E-17     # evaluate expression every timestep_s seconds 
-E_step_eV     = 0.1          # energy difference between different evaluated Omegas
+tmax_s        = 150.0E-15        # simulate until time tmax in seconds
+timestep_s    =  10.0E-15        # evaluate expression every timestep_s seconds 
 #
-E_min_eV      =  0.0
-E_max_eV      =  6.0
+E_min_eV      =   9.0
+E_max_eV      =  11.0
+E_step_eV     =   0.05          # energy difference between different evaluated Omegas
 #
 integ         = analytic      # options: analytic, quadrature, romberg
 integ_outer   = quadrature
