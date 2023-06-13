@@ -329,11 +329,11 @@ in_out.check_input(Er_au, E_fin_au, Gamma_au,
 # functions for the shape of the XUV pulse
 if (X_sinsq):
     print('use sinsq function')
-    f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au)
-                          + 2
+    f_t1  = lambda t1: 1./4 * ( np.exp(2j * np.pi * (t1 + TX_au/2) / TX_au) # There should be a minus sign in front [from (1/2i)**2]
+                          + 2                                               # & this 2 be negative [sin**2 = (exp - exp*)**2 = exp**2 - 2 exp exp* + (exp*)**2]
                           + np.exp(-2j * np.pi * (t1 + TX_au/2) /TX_au) )
     # fp_t1 = f'(t1)
-    fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)
+    fp_t1 = lambda t1: np.pi/(2j*TX_au) * ( - np.exp(2j*np.pi* (t1 + TX_au/2) / TX_au)  # Accordingly, these signs must be flipped
                                          + np.exp(-2j*np.pi* (t1 + TX_au/2) / TX_au) )
 elif (X_gauss):
     print('use gauss function')
