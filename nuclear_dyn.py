@@ -160,6 +160,7 @@ red_mass = wf.red_mass_au(mass1,mass2)
 print("red_mass = ", red_mass)
 
 #ground state
+print()
 print("Ground state")
 print('----------------------------------------------------------------')
 print("Energies of vibrational states of the ground state")
@@ -177,6 +178,7 @@ for n in range (0,n_gs_max+1):
     print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 #resonant state
+print()
 print("Resonant state")
 print('----------------------------------------------------------------')
 print("Energies of vibrational states of the resonant state")
@@ -194,6 +196,7 @@ for n in range (0,n_res_max+1):
     print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 #final state
+print()
 print("Final state")
 print('----------------------------------------------------------------')
 print("Energies of vibrational states of the final state")
@@ -313,7 +316,7 @@ if fin_pot_type == 'morse':
         print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
         outfile.write( str(sciconv.hartree_to_ev(tmp)) + ' '
                      + str(sciconv.atu_to_second(ttmp)) + '\n')
-
+print()
 
 
 #-------------------------------------------------------------------------
@@ -341,6 +344,8 @@ elif (X_gauss):
                        * np.exp(-t1**2 / (2*sigma**2)))
 else:
     print('no pulse shape selected')
+
+print()
 
 if (Xshape == 'convoluted'):    # Calculate field strength EX = -(AX fX)'
     FX_t1 = lambda t1: (
