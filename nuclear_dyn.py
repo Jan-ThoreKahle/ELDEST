@@ -6,7 +6,7 @@
 ##########################################################################
 # Purpose:                                                               #
 #          - A program to simulate the time-resolved RICD spectroscopy   #
-#            including classical nuclear dynamics.                       #
+#            including quantum nuclear dynamics.                         #
 #                                                                        #
 ##########################################################################
 # written by: Elke Fasshauer November 2020                               #
