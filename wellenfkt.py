@@ -20,7 +20,8 @@ import sciconv as sc
 #import in_out
 #import sys
 #import warnings
-#import potentials
+import potentials
+import complex_integration as ci
 
 #-------------------------------------------------------------------------
 
@@ -121,7 +122,49 @@ def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
     tmp = integrate.quad(func, R_min, R_max)
     FC = tmp[0]
     return FC
-    
+
+
+def psi_freehyp(R,a,b,mass,R_start):    # model: free particle with energy corresponding to a point (at R_start) on a hyperbola, psi = 0 for section left of R_start
+    a_eV = sc.hartree_to_ev(a)
+    b_eV = sc.hartree_to_ev(b)
+    E_au = potentials.hyperbel(a_eV,b_eV,R_start) - b 
+    if (R <= R_start):
+        psi = 0
+    else:
+        norm = 1    # normalization factor
+        psi = norm * np.exp(1.j * np.sqrt(2*mass*E_au) * (R - R_start))
+    return psi
+
+
+def psi_hyp(R,a,b,mass,R_start):
+    a_eV = sc.hartree_to_ev(a)
+    b_eV = sc.hartree_to_ev(b)
+    V_au = potentials.hyperbel(a_eV,b_eV,R)
+    if (R <= R_start):
+        psi = 0
+    else:
+        norm = 1    # normalization factor
+        psi = norm * stuff
+    return psi
+
+
+def FCmor_freehyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
+    mass = 2*red_mass
+    lim = kwargs.get("limit", 50)
+    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
+                            * psi_freehyp(R,V2a,V2b,mass,R_start) )
+    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    FC = tmp[0]
+    return FC
+
+
+def FCmor_hyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max):
+    mass = 2*red_mass
+    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
+                            * psi_hyp(R,V2a,V2b,mass,R_start) )
+    tmp = ci.complex_quadrature(func, R_min, R_max)
+    FC = tmp[0]
+    return FC
 
 
 #R_min = sc.angstrom_to_bohr(1.5)
