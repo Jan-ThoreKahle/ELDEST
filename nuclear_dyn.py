@@ -154,17 +154,17 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 # Potential details
 # vibrational energies of Morse potentials
 print()
-print('----------------------------------------------------------------')
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+print('-----------------------------------------------------------------')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 red_mass = wf.red_mass_au(mass1,mass2)
 print("red_mass = ", red_mass)
 
 #ground state
 print()
 print("Ground state")
-print('----------------------------------------------------------------')
+print('-----------------------------------------------------------------')
 print("Energies of vibrational states of the ground state")
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the ground state" + '\n')
 outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
@@ -180,9 +180,9 @@ for n in range (0,n_gs_max+1):
 #resonant state
 print()
 print("Resonant state")
-print('----------------------------------------------------------------')
+print('-----------------------------------------------------------------')
 print("Energies of vibrational states of the resonant state")
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the resonant state" + '\n')
 outfile.write('n_res  ' + 'E [au]            ' + 'E [eV]' + '\n')
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
@@ -198,12 +198,12 @@ for n in range (0,n_res_max+1):
 #final state
 print()
 print("Final state")
-print('----------------------------------------------------------------')
+print('-----------------------------------------------------------------')
 print("Energies of vibrational states of the final state")
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Energies of vibrational states of the final state" + '\n')
-outfile.write('n_fin  ' + 'E [au]            ' + 'E [eV]' + '\n')
 if (fin_pot_type == 'morse'):
+    outfile.write('n_fin  ' + 'E [au]            ' + 'E [eV]' + '\n')
     fin_de    = fin_a
     fin_a     = fin_b
     fin_Req   = fin_c
@@ -217,6 +217,15 @@ if (fin_pot_type == 'morse'):
         E_mus.append(ev)
         outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
         print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
+if (fin_pot_type == 'hyperbel'):
+    outfile.write('Final state is repulsive' + '\n')
+    fin_hyp_a = fin_a
+    fin_hyp_b = fin_b
+    E_hyp_step = fin_c
+    outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
+        E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
+    print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
+        E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -229,9 +238,9 @@ R_max = sciconv.angstrom_to_bohr(30.0)
 
 # ground state - resonant state <lambda|kappa>
 print()
-print('----------------------------------------------------------------')
+print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and resonant state")
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Franck-Condon overlaps between ground and resonant state" + '\n')
 outfile.write('n_gs  ' + 'n_res  ' + '<res|gs>' + '\n')
 for i in range (0,n_gs_max+1):
@@ -250,12 +259,12 @@ for i in range (0,n_gs_max+1):
     
 # ground state - final state <mu|kappa>
 print()
-print('----------------------------------------------------------------')
+print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and final state")
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Franck-Condon overlaps between ground and final state" + '\n')
-outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 if fin_pot_type == 'morse':
+    outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
     for i in range (0,n_gs_max+1):
         tmp = []
         for j in range (0,n_fin_max+1):
@@ -267,15 +276,18 @@ if fin_pot_type == 'morse':
         gs_fin.append(tmp)
 #    print("gs_fin")
 #    print(gs_fin)
+if fin_pot_type == 'hyperbel':
+    outfile.write('will be calculated on the fly')
+    print('will be calculated on the fly')
 
 # resonant state - final state <mu|lambda>
 print()
-print('----------------------------------------------------------------')
+print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between final and resonant state")
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Franck-Condon overlaps between final and resonant state" + '\n')
-outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
 if fin_pot_type == 'morse':
+    outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
     for i in range (0,n_res_max+1):
         tmp = []
         for j in range (0,n_fin_max+1):
@@ -287,6 +299,9 @@ if fin_pot_type == 'morse':
         res_fin.append(tmp)
 #    print("res_fin")
 #    print(res_fin)
+if fin_pot_type == 'hyperbel':
+    outfile.write('will be calculated on the fly')
+    print('will be calculated on the fly')
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
@@ -298,8 +313,8 @@ for i in range (0,n_res_max+1):
     indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
 #print(indir_FCsums)
 print()
-print('----------------------------------------------------------------')
-outfile.write('\n' + "--------------------------------------------------------" + '\n')
+print('-----------------------------------------------------------------')
+outfile.write('\n' + "---------------------------------------------------------" + '\n')
 
 #-------------------------------------------------------------------------
 # determine total decay width matrix element
