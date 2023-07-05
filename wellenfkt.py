@@ -124,15 +124,15 @@ def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
     return FC
 
 
-def psi_freehyp(R,a,b,mass,R_start,phase=0):    # model: free particle with energy corresponding to a point (at R_start) on a hyperbola, psi = 0 for section left of R_start
+def psi_freehyp(R,a,b,red_mass,R_start,phase=0):    # model: free particle with energy corresponding to a point (at R_start) on a hyperbola, psi = 0 for section left of R_start
     a_eV = sc.hartree_to_ev(a)
     b_eV = sc.hartree_to_ev(b)
     E_au = potentials.hyperbel(a_eV,b_eV,R_start) - b 
     if (R <= R_start):
         psi = 0
     else:
-        norm = 1    # normalization factor
-        p_au = np.sqrt(2 * mass * E_au)
+        p_au = np.sqrt(2 * red_mass * E_au)
+        norm = np.sqrt(red_mass / (2 * np.pi * p_au))    # normalization factor for energy-normalized plane wave
         psi = norm * np.exp(1.j * (p_au * (R - R_start) + phase))
     return psi
 
@@ -150,23 +150,52 @@ def psi_hyp(R,a,b,mass,R_start):
 
 
 def FCmor_freehyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
-    mass = 2*red_mass
     lim = kwargs.get("limit", 50)
     phi = kwargs.get("phase", 0)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
-                            * psi_freehyp(R,V2a,V2b,mass,R_start,phi) )
+                            * psi_freehyp(R,V2a,V2b,red_mass,R_start,phi) )
+    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    FC = tmp[0]
+    return FC
+
+
+def FCfreehyp_freehyp(V1a,V1b,R_start1,red_mass,V2a,V2b,R_start2,R_min,R_max,**kwargs):
+    lim = kwargs.get("limit", 50)
+    phi1 = kwargs.get("phase1", 0)
+    phi2 = kwargs.get("phase2", 0)
+    func = lambda R: (np.conj(psi_freehyp(R,V1a,V1b,red_mass,R_start1,phi1))
+                            * psi_freehyp(R,V2a,V2b,red_mass,R_start2,phi2) )
     tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
     FC = tmp[0]
     return FC
 
 
 def FCmor_hyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max):
-    mass = 2*red_mass
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                             * psi_hyp(R,V2a,V2b,mass,R_start) )
     tmp = ci.complex_quadrature(func, R_min, R_max)
     FC = tmp[0]
     return FC
+
+
+def psi_free(R,a,b,red_mass,R_start,phase=0):    # model: free particle with energy corresponding to a point (at R_start) on a hyperbola, psi = 0 for section left of R_start
+    a_eV = sc.hartree_to_ev(a)
+    b_eV = sc.hartree_to_ev(b)
+    E_au = potentials.hyperbel(a_eV,b_eV,R_start) - b 
+    p_au = np.sqrt(2 * red_mass * E_au)
+    norm = np.sqrt(red_mass / (2 * np.pi * p_au))    # normalization factor for energy-normalized plane wave
+    psi = norm * np.exp(1.j * (p_au * (R - R_start) + phase))
+    return psi
+
+def norm_free(R,a,b,red_mass,R_start,**kwargs):
+    lim = kwargs.get("limit", 50)
+    phi = kwargs.get("phase", 0)
+    func = lambda R: (np.conj(psi_free(R,a,b,red_mass,R_start,phi))
+                            * psi_free(R,a,b,red_mass,R_start,phi) )
+    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    FC = tmp[0]
+    return FC
+
 
 
 #R_min = sc.angstrom_to_bohr(1.5)

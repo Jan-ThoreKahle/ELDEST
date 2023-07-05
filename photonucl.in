@@ -61,4 +61,4 @@ fin_a         = 0.0036749322473
 fin_b         = 21.7512
 fin_c         = 6.0
 fin_d         = 0.0
-fin_pot_type  = morse
+fin_pot_type  = hyperbel
