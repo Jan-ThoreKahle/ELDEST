@@ -280,13 +280,22 @@ res_inner_damp = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
                        )
 
 res_inner_sec = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
-                                - np.pi * (VEr_au**2))                          # diffs to res_inner: discard all UEr,
-                            * (np.exp((t_au-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au) # subtract delta_t from t here
+                                - np.pi * (VEr_au**2))
+                            * (np.exp(t_au * (1j*(E_kin_au + E_fin_au - Er_au)
                                                   - np.pi * (VEr_au**2)))
-                              - np.exp((t1-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au)  # and from t1 here
+                              - np.exp(t1 * (1j*(E_kin_au + E_fin_au - Er_au)
                                                   - np.pi * (VEr_au**2))))
-                            * np.exp(-1j*(t_au) * (E_kin_au + E_fin_au))                    # (but not from t here) ? why even do ?
+                            * np.exp(-1j*(t_au) * (E_kin_au + E_fin_au))
                            )
+
+#res_inner_sec = lambda t1: (1./(1j*(E_kin_au + E_fin_au - Er_au)
+#                                - np.pi * (VEr_au**2))                          # diffs to res_inner: discard all UEr,
+#                            * (np.exp((t_au-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au) # subtract delta_t from t here
+#                                                  - np.pi * (VEr_au**2)))
+#                              - np.exp((t1-delta_t_au) * (1j*(E_kin_au + E_fin_au - Er_au)  # and from t1 here
+#                                                  - np.pi * (VEr_au**2))))
+#                            * np.exp(-1j*(t_au) * (E_kin_au + E_fin_au))                    # (but not from t here) ? why even do ?
+#                           )
 
 res_outer_fun = lambda t1: FX_t1(t1) \
                            * np.exp(t1 * (np.pi* (VEr_au**2 + UEr_au**2) + 1j*Er_au)) \
@@ -633,8 +642,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                 Er_au = Er_b_au
                 VEr_au = WEr_au
     
-                res_I = ci.complex_quadrature(second_outer_fun, (- a),  # i would have added delta_t to both limits ?
-                                                                (t_au-delta_t_au))
+                res_I = ci.complex_quadrature(second_outer_fun, (delta_t_au - a), t_au)
+#                res_I = ci.complex_quadrature(second_outer_fun, (- a),  # i would have added delta_t to both limits ?
+#                                                                (t_au-delta_t_au))
                 res_J2   = prefac_res2 * res_I[0]
             
             elif (integ_outer == "romberg"):
@@ -642,8 +652,9 @@ while (t_au >= (delta_t_au - a) and (t_au <= (delta_t_au + a)) and (t_au <= tmax
                 Er_au = Er_b_au
                 VEr_au = WEr_au
     
-                res_I = ci.complex_romberg(second_outer_fun, (- a),
-                                                             (t_au - delta_t_au))
+                res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a), t_au)
+#                res_I = ci.complex_romberg(second_outer_fun, (- a),
+#                                                             (t_au - delta_t_au))
                 res_J2   = prefac_res2 * res_I
     
             square = np.absolute(res_J2)**2
@@ -744,8 +755,9 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
                 Er_au = Er_b_au
                 VEr_au = WEr_au
     
-                res_I = ci.complex_quadrature(second_outer_fun, (- a),
-                                                                (+a))
+                res_I = ci.complex_quadrature(second_outer_fun, (delta_t_au - a), (delta_t_au + a))
+#                res_I = ci.complex_quadrature(second_outer_fun, (- a),
+#                                                                (+a))
                 res_J2   = prefac_res2 * res_I[0]
             
             elif (integ_outer == "romberg"):
@@ -753,8 +765,9 @@ while (t_au >= (delta_t_au + a) and (t_au <= tmax_au)):
                 Er_au = Er_b_au
                 VEr_au = WEr_au
     
-                res_I = ci.complex_romberg(second_outer_fun, (- a),
-                                                             (a))
+                res_I = ci.complex_romberg(second_outer_fun, (delta_t_au - a), (delta_t_au + a))
+#                res_I = ci.complex_romberg(second_outer_fun, (- a),
+#                                                             (a))
                 res_J2   = prefac_res2 * res_I
     
             square = np.absolute(res_J2)**2
