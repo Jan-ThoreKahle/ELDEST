@@ -209,7 +209,7 @@ if (fin_pot_type == 'morse'):
     fin_Req   = fin_c
     fin_const = fin_d
     lambda_param_fin = np.sqrt(2*red_mass*fin_de) / fin_a
-    n_fin_max = int(lambda_param_fin - 0.5)
+    n_fin_max = int(lambda_param_fin - 0.5)     # Maximum quantum number = n_fin_max -> number of states = n_fin_max + 1
     print("n_fin_max = ", n_fin_max)
     E_mus = []
     for n in range (0,n_fin_max+1):
@@ -221,11 +221,18 @@ if (fin_pot_type == 'hyperbel'):
     outfile.write('Final state is repulsive' + '\n')
     fin_hyp_a = fin_a
     fin_hyp_b = fin_b
+    E_fin_au = fin_hyp_b        # Since for an all-repulsive state there is no minimum (E_fin), E_fin is set to the final potential at infinite distance, i.e. fin_hyp_b
+    E_fin_au_1 = fin_hyp_b
     E_hyp_step = fin_c
+    n_fin_max = []              # Max quantum number considered for each lambda (all vibr fin states above the resp res state are discarded)
+    for E_l in E_lambdas:
+        n_fin_max.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
     outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
+    outfile.write('Thus, up to {} final vibrational states will be considered\n'.format(n_fin_max[-1]))
+    print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
+    print('Thus, up to {} final vibrational states will be considered'.format(n_fin_max[-1]))
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -248,14 +255,10 @@ for i in range (0,n_gs_max+1):
     for j in range (0,n_res_max+1):
         FC = wf.FC(j,res_a,res_Req,res_de,red_mass,
                    i,gs_a,gs_Req,gs_de,R_min,R_max)
-        #tmp.append(wf.FC(j,res_a,res_Req,res_de,red_mass,
-        #                 i,gs_a,gs_Req,gs_de,R_min,R_max))
         tmp.append(FC)
         outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
         print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
     gs_res.append(tmp)
-#print("gs_res")
-#print(gs_res)
     
 # ground state - final state <mu|kappa>
 print()
@@ -263,7 +266,7 @@ print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and final state")
 outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Franck-Condon overlaps between ground and final state" + '\n')
-if fin_pot_type == 'morse':
+if (fin_pot_type == 'morse'):
     outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
     for i in range (0,n_gs_max+1):
         tmp = []
@@ -274,9 +277,7 @@ if fin_pot_type == 'morse':
             outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
             print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
         gs_fin.append(tmp)
-#    print("gs_fin")
-#    print(gs_fin)
-if fin_pot_type == 'hyperbel':
+if (fin_pot_type == 'hyperbel'):
     outfile.write('will be calculated on the fly')
     print('will be calculated on the fly')
 
@@ -286,7 +287,7 @@ print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between final and resonant state")
 outfile.write('\n' + "---------------------------------------------------------" + '\n')
 outfile.write("Franck-Condon overlaps between final and resonant state" + '\n')
-if fin_pot_type == 'morse':
+if (fin_pot_type == 'morse'):
     outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
     for i in range (0,n_res_max+1):
         tmp = []
@@ -297,21 +298,22 @@ if fin_pot_type == 'morse':
             outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
             print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
         res_fin.append(tmp)
-#    print("res_fin")
-#    print(res_fin)
-if fin_pot_type == 'hyperbel':
+if (fin_pot_type == 'hyperbel'):
     outfile.write('will be calculated on the fly')
     print('will be calculated on the fly')
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
-for i in range (0,n_res_max+1):
-    indir_FCsum = 0
-    for j in range (0,n_fin_max+1):
-        tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]     # = <mu_j|lambda_i>* <mu_j|kappa_0> = <lambda_i|mu_j><mu_j|kappa_0> = <li|mj><mj|k0>
-        indir_FCsum = indir_FCsum + tmp                 # = sum_j <li|mj><mj|k0>
-    indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
-#print(indir_FCsums)
+if (fin_pot_type == 'morse'):
+    for i in range (0,n_res_max+1):
+        indir_FCsum = 0
+        for j in range (0,n_fin_max+1):
+            tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]     # = <mu_j|lambda_i>* <mu_j|kappa_0> = <lambda_i|mu_j><mu_j|kappa_0> = <li|mj><mj|k0>
+            indir_FCsum = indir_FCsum + tmp                 # = sum_j <li|mj><mj|k0>
+        indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
+if (fin_pot_type == 'hyperbel'):
+    # ???
+    pass
 print()
 print('-----------------------------------------------------------------')
 outfile.write('\n' + "---------------------------------------------------------" + '\n')
