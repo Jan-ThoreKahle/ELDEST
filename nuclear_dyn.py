@@ -155,7 +155,7 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 # vibrational energies of Morse potentials
 print()
 print('-----------------------------------------------------------------')
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 red_mass = wf.red_mass_au(mass1,mass2)
 print("red_mass = ", red_mass)
 
@@ -164,13 +164,14 @@ print()
 print("Ground state")
 print('-----------------------------------------------------------------')
 print("Energies of vibrational states of the ground state")
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Energies of vibrational states of the ground state" + '\n')
-outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
 print("n_gs_max = ", n_gs_max)
 E_kappas = []   # collects vibr energies of GS
+print('n_gs  ' + 'E [au]            ' + 'E [eV]')
+outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
 for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)   # ev stands for eigenvalue, not for electronvolt (it is, in fact, in au!)
     E_kappas.append(ev)
@@ -182,28 +183,28 @@ print()
 print("Resonant state")
 print('-----------------------------------------------------------------')
 print("Energies of vibrational states of the resonant state")
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Energies of vibrational states of the resonant state" + '\n')
-outfile.write('n_res  ' + 'E [au]            ' + 'E [eV]' + '\n')
 lambda_param_res = np.sqrt(2*red_mass*res_de) / res_a
 n_res_max = int(lambda_param_res - 0.5)
 print("n_res_max = ", n_res_max)
 E_lambdas = []
+outfile.write('n_res  ' + 'E [au]            ' + 'E [eV]' + '\n')
+print('n_res  ' + 'E [au]            ' + 'E [eV]')
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
     outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
-    print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
+    print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 #final state
 print()
 print("Final state")
 print('-----------------------------------------------------------------')
 print("Energies of vibrational states of the final state")
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Energies of vibrational states of the final state" + '\n')
 if (fin_pot_type == 'morse'):
-    outfile.write('n_fin  ' + 'E [au]            ' + 'E [eV]' + '\n')
     fin_de    = fin_a
     fin_a     = fin_b
     fin_Req   = fin_c
@@ -212,27 +213,35 @@ if (fin_pot_type == 'morse'):
     n_fin_max = int(lambda_param_fin - 0.5)     # Maximum quantum number = n_fin_max -> number of states = n_fin_max + 1
     print("n_fin_max = ", n_fin_max)
     E_mus = []
+    print('n_fin  ' + 'E [au]            ' + 'E [eV]')
+    outfile.write('n_fin  ' + 'E [au]            ' + 'E [eV]' + '\n')
     for n in range (0,n_fin_max+1):
         ev = wf.eigenvalue(n,fin_de,fin_a,red_mass)
         E_mus.append(ev)
         outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
-        print('{:4d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
+        print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 if (fin_pot_type == 'hyperbel'):
+    print('Final state is repulsive')
     outfile.write('Final state is repulsive' + '\n')
     fin_hyp_a = fin_a
     fin_hyp_b = fin_b
     E_fin_au = fin_hyp_b        # Since for an all-repulsive state there is no minimum (E_fin), E_fin is set to the final potential at infinite distance, i.e. fin_hyp_b
     E_fin_au_1 = fin_hyp_b
     E_hyp_step = fin_c
-    n_fin_max = []              # Max quantum number considered for each lambda (all vibr fin states above the resp res state are discarded)
+    n_fin_max_list = []              # Max quantum number considered for each lambda (all vibr fin states above the resp res state are discarded)
     for E_l in E_lambdas:
-        n_fin_max.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
+        n_fin_max_list.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
     outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    outfile.write('Thus, up to {} final vibrational states will be considered\n'.format(n_fin_max[-1]))
+    outfile.write('Thus, up to {} final vibrational states will be considered\n'.format(n_fin_max_list[-1]))
     print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    print('Thus, up to {} final vibrational states will be considered'.format(n_fin_max[-1]))
+    print('Thus, up to {} final vibrational states will be considered'.format(n_fin_max_list[-1]))
+    E_mus = []
+    E_mu = fin_hyp_b
+    for n in range (0,n_fin_max_list[-1]+1):
+        E_mus.append(E_mu)
+        E_mu = E_mu + E_hyp_step
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -247,7 +256,8 @@ R_max = sciconv.angstrom_to_bohr(30.0)
 print()
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and resonant state")
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+print('n_gs  ' + 'n_res  ' + '<res|gs>')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between ground and resonant state" + '\n')
 outfile.write('n_gs  ' + 'n_res  ' + '<res|gs>' + '\n')
 for i in range (0,n_gs_max+1):
@@ -257,82 +267,113 @@ for i in range (0,n_gs_max+1):
                    i,gs_a,gs_Req,gs_de,R_min,R_max)
         tmp.append(FC)
         outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
-        print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
+        print(('{:4d}  {:5d}  {:14.10E}'.format(i,j,FC)))
     gs_res.append(tmp)
     
 # ground state - final state <mu|kappa>
 print()
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and final state")
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between ground and final state" + '\n')
-if (fin_pot_type == 'morse'):
-    outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
-    for i in range (0,n_gs_max+1):
-        tmp = []
-        for j in range (0,n_fin_max+1):
+if (fin_pot_type == 'hyperbel'):
+    n_fin_max = n_fin_max_list[-1]      # Calculate FC for all final states ever to be considered, so get highest n_fin_max
+print('n_gs  ' +'n_fin  ' + '<fin|gs>')
+outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
+for i in range (0,n_gs_max+1):
+    tmp = []
+    for j in range (0,n_fin_max+1):
+        if (fin_pot_type == 'morse'):
             FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
-                       i,gs_a,gs_Req,gs_de,R_min,R_max)
+                i,gs_a,gs_Req,gs_de,R_min,R_max)
             tmp.append(FC)
             outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
-            print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
-        gs_fin.append(tmp)
-if (fin_pot_type == 'hyperbel'):
-    outfile.write('will be calculated on the fly')
-    print('will be calculated on the fly')
+            print(('{:4d}  {:5d}  {:14.10E}'.format(i,j,FC)))
+        elif (fin_pot_type == 'hyperbel'):
+            if (j == 0):
+                R_start = np.inf        # Technically that is the vibr ground state for the elec final state
+            else:
+                R_start = fin_hyp_a / (E_mus[j] - fin_hyp_b)
+            FC = wf.FCmor_freehyp(i,gs_a,gs_Req,gs_de,red_mass,
+                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+            tmp.append(FC)
+            if (j == 0 or j == n_fin_max-1 or j == n_fin_max):      # Don't print all the FC, just the first two and last two (per GS vibr state)
+                outfile.write('{:4d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
+                print(('{:4d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
+            elif (j == 1):
+                outfile.write('{:4d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
+                outfile.write('   ...\n')
+                print(('{:4d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
+                print('   ...')
+    gs_fin.append(tmp)
 
 # resonant state - final state <mu|lambda>
 print()
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between final and resonant state")
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between final and resonant state" + '\n')
-if (fin_pot_type == 'morse'):
-    outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
-    for i in range (0,n_res_max+1):
-        tmp = []
-        for j in range (0,n_fin_max+1):
+if (fin_pot_type == 'hyperbel'):
+    n_fin_max = n_fin_max_list[-1]
+print('n_res  ' +'n_fin  ' + '<fin|res>')
+outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
+for i in range (0,n_res_max+1):
+    tmp = []
+    for j in range (0,n_fin_max+1):
+        if (fin_pot_type == 'morse'):
             FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                        i,res_a,res_Req,res_de,R_min,R_max)
             tmp.append(FC)
             outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
-            print(('{:4d}  {:4d}  {:14.10E}'.format(i,j,FC)))
-        res_fin.append(tmp)
-if (fin_pot_type == 'hyperbel'):
-    outfile.write('will be calculated on the fly')
-    print('will be calculated on the fly')
+            print(('{:5d}  {:5d}  {:14.10E}'.format(i,j,FC)))
+        elif (fin_pot_type == 'hyperbel'):
+            if (j == 0):
+                R_start = np.inf
+            else:
+                R_start = fin_hyp_a / (E_mus[j] - fin_hyp_b)
+            FC = wf.FCmor_freehyp(i,res_a,res_Req,res_de,red_mass,
+                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+            tmp.append(FC)
+            if (j == 0 or j == n_fin_max-1 or j == n_fin_max):
+                outfile.write('{:5d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
+                print(('{:5d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
+            elif (j == 1):
+                outfile.write('{:5d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
+                outfile.write('    ...\n')
+                print(('{:5d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
+                print('    ...')
+    res_fin.append(tmp)
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
-if (fin_pot_type == 'morse'):
-    for i in range (0,n_res_max+1):
-        indir_FCsum = 0
-        for j in range (0,n_fin_max+1):
-            tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]     # = <mu_j|lambda_i>* <mu_j|kappa_0> = <lambda_i|mu_j><mu_j|kappa_0> = <li|mj><mj|k0>
-            indir_FCsum = indir_FCsum + tmp                 # = sum_j <li|mj><mj|k0>
-        indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
-if (fin_pot_type == 'hyperbel'):
-    # ???
-    pass
+for i in range (0,n_res_max+1):
+    indir_FCsum = 0
+    if (fin_pot_type == 'hyperbel'):
+        n_fin_max = n_fin_max_list[i]
+    for j in range (0,n_fin_max+1):
+        tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]     # = <mu_j|lambda_i>* <mu_j|kappa_0> = <lambda_i|mu_j><mu_j|kappa_0> = <li|mj><mj|k0>
+        indir_FCsum = indir_FCsum + tmp                 # = sum_j <li|mj><mj|k0>
+    indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
 print()
 print('-----------------------------------------------------------------')
-outfile.write('\n' + "---------------------------------------------------------" + '\n')
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 
 #-------------------------------------------------------------------------
 # determine total decay width matrix element
 print('Effective decay widths in eV and lifetimes in s:')
 outfile.write('Effective decay widths in eV and lifetimes in s:' + '\n')
-if fin_pot_type == 'morse':
-    W_lambda = []   # [W_(l=0), W_(l=1), ...]
-    for i in range (0,n_res_max+1):
-        tmp = 0
-        for j in range (0,n_fin_max+1):
-            tmp = tmp + VEr_au**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
-        W_lambda.append(tmp)
-        ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
-        print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
-        outfile.write( str(sciconv.hartree_to_ev(tmp)) + ' '
-                     + str(sciconv.atu_to_second(ttmp)) + '\n')
+W_lambda = []   # [W_(l=0), W_(l=1), ...]
+for i in range (0,n_res_max+1):
+    tmp = 0
+    if (fin_pot_type == 'hyperbel'):
+        n_fin_max = n_fin_max_list[i]       # To each lambda their own n_fin_max (v.s.)
+    for j in range (0,n_fin_max+1):
+        tmp = tmp + VEr_au**2 * np.abs(res_fin[i][j])**2      # W_li = sum_j ( VEr**2 |<mj|li>|**2 )
+    W_lambda.append(tmp)
+    ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
+    print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
+    outfile.write( str(sciconv.hartree_to_ev(tmp)) + ' '
+                 + str(sciconv.atu_to_second(ttmp)) + '\n')
 print()
 
 
@@ -435,6 +476,7 @@ prefac_res1 = VEr_au * rdg_au
 prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 prefac_dir1 = 1j * cdg_au_V
 
+threshold = 1E-3
 
 ########################################
 # now follow the integrals themselves, for the temporal phases:
@@ -457,49 +499,95 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
-
-        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
-        for nmu in range (0,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
-            E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
-#            Er_au = Er_a_au
-            
-            # Direct term
-            if (integ_outer == "quadrature"):
-                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
-    
-            elif (integ_outer == "romberg"):
-                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-                dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
-             
-            # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
-            J = 0
-            for nlambda in range (0,n_res_max+1):
-                E_lambda = E_lambdas[nlambda]
-                W_au = W_lambda[nlambda]
-                if (integ_outer == "quadrature"):
-                    res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
-    
-                    res_J1 = (prefac_res1 * res_I[0]
-                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                    indir_J1 = (prefac_indir1 * res_I[0]
-                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-    
-                elif (integ_outer == "romberg"):
-                    res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+        
+        if (fin_pot_type == 'morse'):
+            sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
+            for nmu in range (0,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+                E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
+    #            Er_au = Er_a_au
                 
-                    res_J1 = (prefac_res1 * res_I
-                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                    indir_J1 = (prefac_indir1 * res_I
-                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-    
-                J = (J
-                     + res_J1
-                     + indir_J1
-                     )
-    
-            square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-            sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
+                # Direct term
+                if (integ_outer == "quadrature"):
+                    I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
+        
+                elif (integ_outer == "romberg"):
+                    I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
+                 
+                # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
+                J = 0
+                for nlambda in range (0,n_res_max+1):
+                    E_lambda = E_lambdas[nlambda]
+                    W_au = W_lambda[nlambda]
+                    if (integ_outer == "quadrature"):
+                        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+        
+                        res_J1 = (prefac_res1 * res_I[0]
+                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                        indir_J1 = (prefac_indir1 * res_I[0]
+                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+        
+                    elif (integ_outer == "romberg"):
+                        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                    
+                        res_J1 = (prefac_res1 * res_I
+                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                        indir_J1 = (prefac_indir1 * res_I
+                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+        
+                    J = (J
+                         + res_J1
+                         + indir_J1
+                         )
+        
+                square = np.absolute(J + dir_J1)**2     # |J_mu|**2
+                sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
+        
+        if (fin_pot_type == 'hyperbel'):
+            sum_square = 0      # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
+                while ???           # Cap the sum when n_fin > highest n_fin_max and J_dir fell under threshold
+                E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
+    #            Er_au = Er_a_au
+                
+                # Direct term
+                if (integ_outer == "quadrature"):
+                    I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
+        
+                elif (integ_outer == "romberg"):
+                    I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
+                 
+                # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
+                J = 0
+                for nlambda in range (0,n_res_max+1):
+                    E_lambda = E_lambdas[nlambda]
+                    W_au = W_lambda[nlambda]
+                    if (integ_outer == "quadrature"):
+                        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+        
+                        res_J1 = (prefac_res1 * res_I[0]
+                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                        indir_J1 = (prefac_indir1 * res_I[0]
+                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+        
+                    elif (integ_outer == "romberg"):
+                        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                    
+                        res_J1 = (prefac_res1 * res_I
+                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                        indir_J1 = (prefac_indir1 * res_I
+                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+        
+                    J = (J
+                         + res_J1
+                         + indir_J1
+                         )
+        
+                square = np.absolute(J + dir_J1)**2     # |J_mu|**2
+                sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
+
         squares = np.append(squares, sum_square)
 
         string = in_out.prep_output(sum_square, E_kin_au, t_au)     # returns str: E_kin_eV, t_s, sum_square = intensity
