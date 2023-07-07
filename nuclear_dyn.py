@@ -500,6 +500,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
         
+
         if (fin_pot_type == 'morse'):
             sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
             for nmu in range (0,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
@@ -544,24 +545,28 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 square = np.absolute(J + dir_J1)**2     # |J_mu|**2
                 sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
         
+
         if (fin_pot_type == 'hyperbel'):
             sum_square = 0      # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
-                while ???           # Cap the sum when n_fin > highest n_fin_max and J_dir fell under threshold
-                E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
+            dir_J1 = threshold + 5  # Initialize J_dir arbitrarily above threshold for inital "while" check in next line
+            while (nmu <= n_fin_max_list[-1]) and (dir_J1 >= threshold): # Cap sum if n_fin > highest n_fin_max & J_dir fell under threshold
+                E_fin_au = E_fin_au_1 + E_mus[nmu]      # Again: E_fin_au_1 is the potential at infinity
     #            Er_au = Er_a_au
                 
                 # Direct term
                 if (integ_outer == "quadrature"):
                     I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
+                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
         
                 elif (integ_outer == "romberg"):
                     I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
+                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
                  
                 # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
                 J = 0
                 for nlambda in range (0,n_res_max+1):
+                    if nmu > n_fin_max_list[nlambda]:   # J_nondir,mu,lambda = 0 if |fin>|mu> lies higher than |res>|lambda>
+                        continue
                     E_lambda = E_lambdas[nlambda]
                     W_au = W_lambda[nlambda]
                     if (integ_outer == "quadrature"):
@@ -587,6 +592,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         
                 square = np.absolute(J + dir_J1)**2     # |J_mu|**2
                 sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
+                nmu = nmu + 1
 
         squares = np.append(squares, sum_square)
 
@@ -617,6 +623,7 @@ while (t_au >= TX_au/2\
 #-------------------------------------------------------------------------
     outfile.write('between the pulses \n')
     print('between the pulses')
+    
     
     # all equal to during-1st-pulse section, except for integrating over entire XUV pulse now
     outlines = []
@@ -700,4 +707,3 @@ while (t_au >= TX_au/2\
 
 outfile.close
 pure_out.close
-movie_out.close
