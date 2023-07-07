@@ -551,15 +551,16 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             sum_square = 0      # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
             dir_J1 = threshold + 5  # Initialize J_dir arbitrarily above threshold (to pass initial subsequent "while" check)
             nmu = 0
-            while (nmu <= n_fin_max_list[-1]) or (dir_J1 >= threshold): # Cap sum if n_fin > highest n_fin_max & J_dir fell under threshold
-                E_fin_au = E_fin_au_1 + E_mus[nmu]      # Again: E_fin_au_1 is the potential at infinity
-    #            Er_au = Er_a_au
-                if (nmu > n_fin_max_list[-1]):          # If precalced list of gs-fin-FCF is exhausted but still J_dir >= threshold, calc FCF
-                    for i in range (0,n_gs_max+1):
-                        R_start = fin_hyp_a / (E_mus[j] - fin_hyp_b)
+            while (nmu <= n_fin_max_list[-1]) or (np.abs(dir_J1) >= threshold): # Cap sum if n_fin > max n_fin_max & J_dir fell sub-threshold
+                if (nmu > n_fin_max_list[-1]):           # If precalced list of gs-fin-FCF is exhausted but still J_dir >= threshold:
+                    E_mus.append(E_mus[-1] + E_hyp_step) # a) calc new E_mu (above even highest |res>|lambda>), 1 step above prev max E_mu
+                    for i in range (0,n_gs_max+1):       # b) calc new gs-fin-FCF (one for each gs vibr state kappa)
+                        R_start = fin_hyp_a / (E_mus[nmu] - fin_hyp_b)
                         FC = wf.FCmor_freehyp(i,gs_a,gs_Req,gs_de,red_mass,
                                                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
-                        gs_fin[i].append(FC)            # Append each k-list of <k|m> by one value (with the current mu)
+                        gs_fin[i].append(FC)             # Append each k-list of <k|m> by one value (with the current mu)
+                E_fin_au = E_fin_au_1 + E_mus[nmu]       # Again: E_fin_au_1 is the potential at infinity
+    #            Er_au = Er_a_au
                 
                 # Direct term
                 if (integ_outer == "quadrature"):
