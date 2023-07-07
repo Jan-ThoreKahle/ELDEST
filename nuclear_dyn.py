@@ -476,7 +476,8 @@ prefac_res1 = VEr_au * rdg_au
 prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 prefac_dir1 = 1j * cdg_au_V
 
-threshold = 1E-3
+if (fin_pot_type == 'hyperbel'):
+    threshold = fin_d
 
 ########################################
 # now follow the integrals themselves, for the temporal phases:
@@ -548,10 +549,17 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
         if (fin_pot_type == 'hyperbel'):
             sum_square = 0      # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
-            dir_J1 = threshold + 5  # Initialize J_dir arbitrarily above threshold for inital "while" check in next line
-            while (nmu <= n_fin_max_list[-1]) and (dir_J1 >= threshold): # Cap sum if n_fin > highest n_fin_max & J_dir fell under threshold
+            dir_J1 = threshold + 5  # Initialize J_dir arbitrarily above threshold (to pass initial subsequent "while" check)
+            nmu = 0
+            while (nmu <= n_fin_max_list[-1]) or (dir_J1 >= threshold): # Cap sum if n_fin > highest n_fin_max & J_dir fell under threshold
                 E_fin_au = E_fin_au_1 + E_mus[nmu]      # Again: E_fin_au_1 is the potential at infinity
     #            Er_au = Er_a_au
+                if (nmu > n_fin_max_list[-1]):          # If precalced list of gs-fin-FCF is exhausted but still J_dir >= threshold, calc FCF
+                    for i in range (0,n_gs_max+1):
+                        R_start = fin_hyp_a / (E_mus[j] - fin_hyp_b)
+                        FC = wf.FCmor_freehyp(i,gs_a,gs_Req,gs_de,red_mass,
+                                               fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+                        gs_fin[i].append(FC)            # Append each k-list of <k|m> by one value (with the current mu)
                 
                 # Direct term
                 if (integ_outer == "quadrature"):
@@ -566,7 +574,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 J = 0
                 for nlambda in range (0,n_res_max+1):
                     if nmu > n_fin_max_list[nlambda]:   # J_nondir,mu,lambda = 0 if |fin>|mu> lies higher than |res>|lambda>
-                        continue
+                        continue                        # -> Also no new res-FCF must be calced, since if list is exhausted, all J_nondir = 0
                     E_lambda = E_lambdas[nlambda]
                     W_au = W_lambda[nlambda]
                     if (integ_outer == "quadrature"):
