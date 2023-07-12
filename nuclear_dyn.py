@@ -247,7 +247,7 @@ if (fin_pot_type == 'hyperbel'):
     outfile.write('Thus, the highest considered n_fin_max = {}\n'.format(n_fin_max_max))
     print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_list_max))
+    print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_max))
     E_mus = []
     E_mu = fin_hyp_b
     for n in range (0,n_fin_max_max+1):
@@ -342,10 +342,10 @@ if (fin_pot_type == 'hyperbel'):
     n_fin_max = n_fin_max_max
 for k in range(0,n_gs_max+1):
     for m in range(n_fin_min,n_fin_max+1):
-        FC = gs_fin[k][m]
-        outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(k,m,FC))
+        FC = gs_fin[k][m - n_fin_min]
+        outfile.write('{:4d}  {:5d}  {: 14.10E}\n'.format(k,m,FC))
         if (fin_pot_type == 'morse'):
-            print(('{:4d}  {:5d}  {:14.10E}'.format(k,m,FC)))
+            print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
         elif (fin_pot_type == 'hyperbel'):
             if (m == n_fin_min or m == n_fin_max-1 or m == n_fin_max):      # Don't print all the FC, just the first two and last two (per GS vibr state)
                 print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
@@ -365,10 +365,10 @@ for l in range(0,n_res_max+1):
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[l]
     for m in range(n_fin_min,n_fin_max+1):
-        FC = res_fin[l][m]
-        outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(l,m,FC))
+        FC = res_fin[l][m - n_fin_min]
+        outfile.write('{:5d}  {:5d}  {: 14.10E}\n'.format(l,m,FC))
         if (fin_pot_type == 'morse'):
-            print(('{:5d}  {:5d}  {:14.10E}'.format(l,m,FC)))
+            print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
         elif (fin_pot_type == 'hyperbel'):
             if (m == n_fin_min or m == n_fin_max-1 or m == n_fin_max):
                 print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
@@ -382,7 +382,7 @@ for i in range (0,n_res_max+1):
     indir_FCsum = 0
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[i]
-    for j in range (n_fin_min,n_fin_max+1):
+    for j in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):
         tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]     # = <mu_j|lambda_i>* <mu_j|kappa_0> = <lambda_i|mu_j><mu_j|kappa_0> = <li|mj><mj|k0>
         indir_FCsum = indir_FCsum + tmp                 # = sum_j <li|mj><mj|k0>
     indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
@@ -399,13 +399,12 @@ for i in range (0,n_res_max+1):
     tmp = 0
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[i]       # To each lambda their own n_fin_max (v.s.)
-    for j in range (n_fin_min,n_fin_max+1):
+    for j in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):
         tmp = tmp + VEr_au**2 * np.abs(res_fin[i][j])**2      # W_li = sum_j ( VEr**2 |<mj|li>|**2 )
     W_lambda.append(tmp)
     ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
-    print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
-    outfile.write( str(sciconv.hartree_to_ev(tmp)) + ' '
-                 + str(sciconv.atu_to_second(ttmp)) + '\n')
+    print(f'{i}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
+    outfile.write(f'{i}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}\n')
 print()
 
 
@@ -534,7 +533,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
         if (fin_pot_type == 'morse'):
             sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
-            for nmu in range (n_fin_min,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+            for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
                 E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
     #            Er_au = Er_a_au
                 
