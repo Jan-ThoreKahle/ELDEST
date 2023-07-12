@@ -10,6 +10,7 @@
 #                                                                        #
 ##########################################################################
 # written by: Elke Fasshauer November 2020                               #
+# extended by: Alexander Riegel July 2023                                #
 ##########################################################################
 
 import scipy
@@ -103,35 +104,43 @@ elif(X_gauss):
     sigma     = np.pi * n_X / (Omega_au * np.sqrt(np.log(2)))
     FWHM      = 2 * np.sqrt( 2 * np.log(2)) * sigma
     TX_au     = 5 * sigma
-    print('sigma = ', sciconv.atu_to_second(sigma))
-    print('FWHM = ', sciconv.atu_to_second(FWHM))
-    outfile.write('sigma = ' + str(sciconv.atu_to_second(sigma)) + '\n')
-    outfile.write('FWHM = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
-print('end of the first pulse = ', sciconv.atu_to_second(TX_au/2))
-outfile.write('end of the first pulse = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
+    sigma_E   = 1. / (2 * sigma)
+    width_E   = 5 * sigma_E
+    print('sigma [s] = ', sciconv.atu_to_second(sigma))
+    print('FWHM [s] = ', sciconv.atu_to_second(FWHM))
+    print('sigma_E [eV] = ', sciconv.hartree_to_ev(sigma_E))
+    print('XUV ranges from {:5.5f} eV to {:5.5f} eV'.format(
+        sciconv.hartree_to_ev(Omega_au - 0.5 * width_E), sciconv.hartree_to_ev(Omega_au + 0.5 * width_E)))
+    outfile.write('sigma [s] = ' + str(sciconv.atu_to_second(sigma)) + '\n')
+    outfile.write('FWHM [s] = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
+    outfile.write('sigma_E [eV] = ' + str(sciconv.hartree_to_ev(sigma_E)) + '\n')
+    outfile.write('XUV ranges from {:5.5f} eV to {:5.5f} eV\n'.format(
+        sciconv.hartree_to_ev(Omega_au - 0.5 * width_E), sciconv.hartree_to_ev(Omega_au + 0.5 * width_E)))
+print('end of the first pulse [s] = ', sciconv.atu_to_second(TX_au/2))
+outfile.write('end of the first pulse [s] = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
-print('I_X = ', I_X)
+print('I_X [W/cm^2] = ', I_X)
 print('I_X_au = ', I_X_au)
 E0X           = np.sqrt(I_X_au)
 A0X           = E0X / Omega_au
-print('A0X = ', A0X)
+print('A0X [au] = ', A0X)
 
 omega_au      = sciconv.ev_to_hartree(omega_eV)
 #FWHM_L_au     = sciconv.second_to_atu(FWHM_L)
 #sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))      # assume Gaussian envelope for second pulse
 #a             = 5./2 * sigma_L_au       # half duration of IR pulse (delta_t - a, delta_t + a); in PRA 2020: small-delta t
-#print("FWHM_L = ", FWHM_L)
-#print("sigma_L = ", sciconv.atu_to_second(sigma_L_au))
+#print("FWHM_L [s] = ", FWHM_L)
+#print("sigma_L [s] = ", sciconv.atu_to_second(sigma_L_au))
 TL_au         = n_L * 2 * np.pi / omega_au
-#print('start of IR pulse = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
-#print('end of IR pulse = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
+#print('start of IR pulse [s] = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
+#print('end of IR pulse [s] = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
-#print('I_L = ', I_L)
+#print('I_L [W/cm^2] = ', I_L)
 #print('I_L_au = ', I_L_au)
 E0L           = np.sqrt(I_L_au)
-##print('E0L = ', E0L)
+##print('E0L [au] = ', E0L)
 A0L           = E0L / omega_au
-#print('A0L = ', A0L)
+#print('A0L [au] = ', A0L)
 delta_t_au    = sciconv.second_to_atu(delta_t_s)        # t diff between the maxima of the two pulses
 
 # parameters of the simulation
@@ -157,7 +166,7 @@ print()
 print('-----------------------------------------------------------------')
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 red_mass = wf.red_mass_au(mass1,mass2)
-print("red_mass = ", red_mass)
+print("red_mass [au] = ", red_mass)
 
 #ground state
 print()
@@ -500,7 +509,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
-        #print(E_kin_au, t_s) #?
+        print(sciconv.hartree_to_ev(E_kin_au)) #?
 
         if (fin_pot_type == 'morse'):
             sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
@@ -646,7 +655,7 @@ while (t_au >= TX_au/2\
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
-        #print(E_kin_au, t_s) #?
+        print(sciconv.hartree_to_ev(E_kin_au)) #?
         
 
         if (fin_pot_type == 'morse'):
