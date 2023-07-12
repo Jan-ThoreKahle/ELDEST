@@ -210,10 +210,10 @@ for n in range (0,n_res_max+1):
 print()
 print("Final state")
 print('-----------------------------------------------------------------')
-print("Energies of vibrational states of the final state")
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
-outfile.write("Energies of vibrational states of the final state" + '\n')
 if (fin_pot_type == 'morse'):
+    print("Energies of vibrational states of the final state")
+    outfile.write("Energies of vibrational states of the final state" + '\n')
     fin_de    = fin_a
     fin_a     = fin_b
     fin_Req   = fin_c
@@ -237,29 +237,36 @@ if (fin_pot_type == 'hyperbel'):
     E_fin_au = fin_hyp_b        # Since for an all-repulsive state there is no minimum (E_fin), E_fin is set to the final potential at infinite distance, i.e. fin_hyp_b
     E_fin_au_1 = fin_hyp_b
     E_hyp_step = fin_c
+    threshold = fin_d   # If, coming from high mu, for a certain mu all |<mu|kappa>| and |<mu|lambda>| are < threshold, don't calc FCF and integrals for all mu < that mu
     n_fin_max_list = []              # Max quantum number considered for each lambda (all vibr fin states above the resp res state are discarded)
     for E_l in E_lambdas:
         n_fin_max_list.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
+    n_fin_max_max = n_fin_max_list[-1]
     outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    outfile.write('Thus, up to {} final vibrational states will be considered\n'.format(n_fin_max_list[-1]))
+    outfile.write('Thus, the highest considered n_fin_max = {}\n'.format(n_fin_max_max))
     print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    print('Thus, up to {} final vibrational states will be considered'.format(n_fin_max_list[-1]))
+    print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_list_max))
     E_mus = []
     E_mu = fin_hyp_b
-    for n in range (0,n_fin_max_list[-1]+1):
+    for n in range (0,n_fin_max_max+1):
         E_mus.append(E_mu)
         E_mu = E_mu + E_hyp_step
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
 #-------------------------------------------------------------------------
-gs_res =  []    # collects lists of FC: [<l1|k1>, <l2|k1>, ...], [<l1|k2, <l2|k2>, ...], ...
+gs_res =  []    # collects sub-lists of FC overlaps: [<l1|k1>, <l2|k1>, ...], [<l1|k2, <l2|k2>, ...], ...
 gs_fin =  []
 res_fin = []
 R_min = sciconv.angstrom_to_bohr(1.5)
 R_max = sciconv.angstrom_to_bohr(30.0)
+
+for k in range(0,n_gs_max+1):   # prepare the above (empty) sub-lists
+    gs_fin.append(list())
+for l in range(0,n_res_max+1):
+    res_fin.append(list())
 
 # ground state - resonant state <lambda|kappa>
 print()
@@ -279,44 +286,73 @@ for i in range (0,n_gs_max+1):
         print(('{:4d}  {:5d}  {:14.10E}'.format(i,j,FC)))
     gs_res.append(tmp)
     
-# ground state - final state <mu|kappa>
+# ground state - final state <mu|kappa>   and   resonant state - final state <mu|lambda>
+if (fin_pot_type == 'hyperbel'):
+    n_fin_max = n_fin_max_max      # Calculate FC for all final states ever to be considered, so get highest n_fin_max
+thresh_flag = 0     # Initialize flag for FC-calc stop. For Morse: irrelevant; for hyperbel: counts how often in a (mu) row all FC fall below threshold
+m = n_fin_max       # Start FC calc at highest (considered) mu and walk down the progression
+
+while (thresh_flag < 3):  # For hyperbel: stop FC calc if all |FC| < threshold for 3 consecutive mu
+    for k in range(0,n_gs_max+1):
+        if (fin_pot_type == 'morse'):
+            FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
+                k,gs_a,gs_Req,gs_de,R_min,R_max)
+            gs_fin[k].insert(0,FC)
+        elif (fin_pot_type == 'hyperbel'):
+            if (m == 0):
+                R_start = np.inf        # Technically that is the vibr ground state for the elec final state
+            else:
+                R_start = fin_hyp_a / (E_mus[m] - fin_hyp_b)
+            FC = wf.FCmor_freehyp(k,gs_a,gs_Req,gs_de,red_mass,
+                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+            gs_fin[k].insert(0,FC)
+    for l in range(0,n_res_max+1):
+        if (fin_pot_type == 'morse'):
+            FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
+                       l,res_a,res_Req,res_de,R_min,R_max)
+            res_fin[l].insert(0,FC)
+        elif (fin_pot_type == 'hyperbel'):
+            if (m == 0):
+                R_start = np.inf
+            else:
+                R_start = fin_hyp_a / (E_mus[m] - fin_hyp_b)
+            FC = wf.FCmor_freehyp(l,res_a,res_Req,res_de,red_mass,
+                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+            res_fin[l].insert(0,FC)
+    if (fin_pot_type == 'hyperbel'):
+        if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
+            all(np.abs(res_fin[k][0]) < threshold for k in range(0,n_res_max+1)) ):
+            thresh_flag = thresh_flag + 1
+        else:
+            thresh_flag = 0     # If any FC overlap > threshold, reset flag -> only (mu-)consecutive threshold check passes shall stop calc
+    if (m == 0):        # If vibr ground state (for the elec final state) is reached, stop FC calc (next step would be mu = -1)
+        thresh_flag = 10
+    m = m - 1
+n_fin_min = m + 1   # After while-loop end: m = highest mu for which no more FC was calced -> m+1 = lowest mu for which it was still calced
+
 print()
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and final state")
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between ground and final state" + '\n')
-if (fin_pot_type == 'hyperbel'):
-    n_fin_max = n_fin_max_list[-1]      # Calculate FC for all final states ever to be considered, so get highest n_fin_max
 print('n_gs  ' +'n_fin  ' + '<fin|gs>')
 outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
-for i in range (0,n_gs_max+1):
-    tmp = []
-    for j in range (0,n_fin_max+1):
-        if (fin_pot_type == 'morse'):
-            FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
-                i,gs_a,gs_Req,gs_de,R_min,R_max)
-            tmp.append(FC)
-            outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
-            print(('{:4d}  {:5d}  {:14.10E}'.format(i,j,FC)))
-        elif (fin_pot_type == 'hyperbel'):
-            if (j == 0):
-                R_start = np.inf        # Technically that is the vibr ground state for the elec final state
-            else:
-                R_start = fin_hyp_a / (E_mus[j] - fin_hyp_b)
-            FC = wf.FCmor_freehyp(i,gs_a,gs_Req,gs_de,red_mass,
-                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
-            tmp.append(FC)
-            if (j == 0 or j == n_fin_max-1 or j == n_fin_max):      # Don't print all the FC, just the first two and last two (per GS vibr state)
-                outfile.write('{:4d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
-                print(('{:4d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
-            elif (j == 1):
-                outfile.write('{:4d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
-                outfile.write('   ...\n')
-                print(('{:4d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
-                print('   ...')
-    gs_fin.append(tmp)
 
-# resonant state - final state <mu|lambda>
+if (fin_pot_type == 'hyperbel'):
+    n_fin_max = n_fin_max_max
+for k in range(0,n_gs_max+1):
+    for m in range(n_fin_min,n_fin_max+1):
+        FC = gs_fin[k][m]
+        outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(k,m,FC))
+        if (fin_pot_type == 'morse'):
+            print(('{:4d}  {:5d}  {:14.10E}'.format(k,m,FC)))
+        elif (fin_pot_type == 'hyperbel'):
+            if (m == n_fin_min or m == n_fin_max-1 or m == n_fin_max):      # Don't print all the FC, just the first two and last two (per GS vibr state)
+                print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
+            elif (m == n_fin_min+1):
+                print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
+                print('   ...')
+
 print()
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between final and resonant state")
@@ -324,34 +360,21 @@ outfile.write('\n' + '----------------------------------------------------------
 outfile.write("Franck-Condon overlaps between final and resonant state" + '\n')
 print('n_res  ' +'n_fin  ' + '<fin|res>')
 outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
-for i in range (0,n_res_max+1):
-    tmp = []
+
+for l in range(0,n_res_max+1):
     if (fin_pot_type == 'hyperbel'):
-        n_fin_max = n_fin_max_list[i]
-    for j in range (0,n_fin_max+1):
+        n_fin_max = n_fin_max_list[l]
+    for m in range(n_fin_min,n_fin_max+1):
+        FC = res_fin[l][m]
+        outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(l,m,FC))
         if (fin_pot_type == 'morse'):
-            FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
-                       i,res_a,res_Req,res_de,R_min,R_max)
-            tmp.append(FC)
-            outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
-            print(('{:5d}  {:5d}  {:14.10E}'.format(i,j,FC)))
+            print(('{:5d}  {:5d}  {:14.10E}'.format(l,m,FC)))
         elif (fin_pot_type == 'hyperbel'):
-            if (j == 0):
-                R_start = np.inf
-            else:
-                R_start = fin_hyp_a / (E_mus[j] - fin_hyp_b)
-            FC = wf.FCmor_freehyp(i,res_a,res_Req,res_de,red_mass,
-                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
-            tmp.append(FC)
-            if (j == 0 or j == n_fin_max-1 or j == n_fin_max):
-                outfile.write('{:5d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
-                print(('{:5d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
-            elif (j == 1):
-                outfile.write('{:5d}  {:5d}  {: 14.10E}\n'.format(i,j,FC))
-                outfile.write('    ...\n')
-                print(('{:5d}  {:5d}  {: 14.10E}'.format(i,j,FC)))
-                print('    ...')
-    res_fin.append(tmp)
+            if (m == n_fin_min or m == n_fin_max-1 or m == n_fin_max):
+                print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
+            elif (m == n_fin_min+1):
+                print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
+                print('   ...')
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
@@ -359,7 +382,7 @@ for i in range (0,n_res_max+1):
     indir_FCsum = 0
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[i]
-    for j in range (0,n_fin_max+1):
+    for j in range (n_fin_min,n_fin_max+1):
         tmp = np.conj(res_fin[i][j]) * gs_fin[0][j]     # = <mu_j|lambda_i>* <mu_j|kappa_0> = <lambda_i|mu_j><mu_j|kappa_0> = <li|mj><mj|k0>
         indir_FCsum = indir_FCsum + tmp                 # = sum_j <li|mj><mj|k0>
     indir_FCsums.append(indir_FCsum)                    # = [sum_j <l1|mj><mj|k0>, sum_j <l2|mj><mj|k0>, ...]
@@ -376,7 +399,7 @@ for i in range (0,n_res_max+1):
     tmp = 0
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[i]       # To each lambda their own n_fin_max (v.s.)
-    for j in range (0,n_fin_max+1):
+    for j in range (n_fin_min,n_fin_max+1):
         tmp = tmp + VEr_au**2 * np.abs(res_fin[i][j])**2      # W_li = sum_j ( VEr**2 |<mj|li>|**2 )
     W_lambda.append(tmp)
     ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
@@ -485,8 +508,6 @@ prefac_res1 = VEr_au * rdg_au
 prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 prefac_dir1 = 1j * cdg_au_V
 
-if (fin_pot_type == 'hyperbel'):
-    threshold = fin_d
 
 ########################################
 # now follow the integrals themselves, for the temporal phases:
@@ -513,7 +534,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
 
         if (fin_pot_type == 'morse'):
             sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
-            for nmu in range (0,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+            for nmu in range (n_fin_min,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
                 E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
     #            Er_au = Er_a_au
                 
