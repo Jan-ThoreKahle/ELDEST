@@ -31,12 +31,13 @@ phi           = 0
 FWHM_L        = 0
 #
 # parameters of the simulation
-tmax_s        = 150.0E-15        # simulate until time tmax in seconds
+tmax_s        = 150.0E-15        # simulate until time tmax in s
 timestep_s    =   5.0E-15        # evaluate expression every timestep_s seconds 
 #
 E_min_eV      =  0.
 E_max_eV      = 11.
 E_step_eV     =  1.00            # energy difference between different evaluated electron kinetic energies
+#
 integ         = analytic         # options: analytic, (quadrature, romberg - both currently unavailable)
 integ_outer   = quadrature       # options: quadrature, romberg
 #
