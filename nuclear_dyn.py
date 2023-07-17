@@ -106,16 +106,18 @@ elif(X_gauss):
     TX_au     = 5 * sigma
     sigma_E   = 1. / (2 * sigma)
     width_E   = 5 * sigma_E
+    EX_min_au = Omega_au - 0.5 * width_E
+    EX_max_au = Omega_au + 0.5 * width_E
     print('sigma [s] = ', sciconv.atu_to_second(sigma))
     print('FWHM [s] = ', sciconv.atu_to_second(FWHM))
     print('sigma_E [eV] = ', sciconv.hartree_to_ev(sigma_E))
     print('XUV ranges from {:5.5f} eV to {:5.5f} eV'.format(
-        sciconv.hartree_to_ev(Omega_au - 0.5 * width_E), sciconv.hartree_to_ev(Omega_au + 0.5 * width_E)))
+        sciconv.hartree_to_ev(EX_min_au), sciconv.hartree_to_ev(EX_max_au)))
     outfile.write('sigma [s] = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM [s] = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
     outfile.write('sigma_E [eV] = ' + str(sciconv.hartree_to_ev(sigma_E)) + '\n')
     outfile.write('XUV ranges from {:5.5f} eV to {:5.5f} eV\n'.format(
-        sciconv.hartree_to_ev(Omega_au - 0.5 * width_E), sciconv.hartree_to_ev(Omega_au + 0.5 * width_E)))
+        sciconv.hartree_to_ev(EX_min_au), sciconv.hartree_to_ev(EX_max_au)))
 print('end of the first pulse [s] = ', sciconv.atu_to_second(TX_au/2))
 outfile.write('end of the first pulse [s] = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
@@ -238,19 +240,20 @@ if (fin_pot_type == 'hyperbel'):
     E_fin_au_1 = fin_hyp_b
     E_hyp_step = fin_c
     threshold = fin_d   # If, coming from high mu, for a certain mu all |<mu|kappa>| and |<mu|lambda>| are < threshold, don't calc FCF and integrals for all mu < that mu
-    n_fin_max_list = []              # Max quantum number considered for each lambda (all vibr fin states above the resp res state are discarded)
+    n_fin_max_list = []              # Max quantum number considered in non-direct ionization for each lambda (all vibr fin states above the resp res state are discarded)
     for E_l in E_lambdas:
         n_fin_max_list.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
-    n_fin_max_max = n_fin_max_list[-1]
+    n_fin_min_X = int((EX_min_au - E_fin_au) / E_hyp_step)      # For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
+    n_fin_max_X = int((EX_max_au - E_fin_au) / E_hyp_step)
     outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    outfile.write('Thus, the highest considered n_fin_max = {}\n'.format(n_fin_max_max))
+    outfile.write('Thus, the highest considered n_fin_max = {}\n'.format(n_fin_max_X))  # Assume XUV goes higher than highest vibr res state -> n_fin_max_X > max n_fin_max(lambda)
     print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
         E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_max))
+    print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_X))
     E_mus = []
     E_mu = fin_hyp_b
-    for n in range (0,n_fin_max_max+1):
+    for n in range (0,n_fin_max_X+1):
         E_mus.append(E_mu)
         E_mu = E_mu + E_hyp_step
 
@@ -288,7 +291,7 @@ for i in range (0,n_gs_max+1):
     
 # ground state - final state <mu|kappa>   and   resonant state - final state <mu|lambda>
 if (fin_pot_type == 'hyperbel'):
-    n_fin_max = n_fin_max_max      # Calculate FC for all final states ever to be considered, so get highest n_fin_max
+    n_fin_max = n_fin_max_X      # Calculate FC for all final states ever to be considered, so get highest n_fin_max
 thresh_flag = 0     # Initialize flag for FC-calc stop. For Morse: irrelevant; for hyperbel: counts how often in a (mu) row all FC fall below threshold
 m = n_fin_max       # Start FC calc at highest (considered) mu and walk down the progression
 
@@ -339,7 +342,7 @@ print('n_gs  ' +'n_fin  ' + '<fin|gs>')
 outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 
 if (fin_pot_type == 'hyperbel'):
-    n_fin_max = n_fin_max_max
+    n_fin_max = n_fin_max_X
 for k in range(0,n_gs_max+1):
     for m in range(n_fin_min,n_fin_max+1):
         FC = gs_fin[k][m - n_fin_min]
@@ -522,6 +525,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     outlines = []       # will contain lines containing triples of E_kin, time and signal intensity
     squares = np.array([])  # signal intensity ( = |amplitude|**2 = |J|**2 )
     E_kin_au = E_min_au
+    if (fin_pot_type == 'hyperbel'):
+        n_fin_max = n_fin_max_X
     
     t_s = sciconv.atu_to_second(t_au)
     print('t_s = ', t_s)
@@ -530,14 +535,16 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
         print(sciconv.hartree_to_ev(E_kin_au)) #?
+        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)  # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
 
-        if (fin_pot_type == 'morse'):
-            sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
-            for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
-                E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
+        for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+            E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: vibrational eigenvalues of fin state
     #            Er_au = Er_a_au
-                
-                # Direct term
+            
+            # Direct term
+            if (fin_pot_type == 'hyperbel' and (E_fin_au < EX_min_au or E_fin_au > EX_max_au)):     # J_dir,mu = 0 if repulsive |fin>|mu> cannot be reached by XUV
+                dir_J1 = 0
+            else:
                 if (integ_outer == "quadrature"):
                     I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                     dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
@@ -545,94 +552,37 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 elif (integ_outer == "romberg"):
                     I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                     dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
-
-                # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
-                J = 0
-                for nlambda in range (0,n_res_max+1):
-                    E_lambda = E_lambdas[nlambda]
-                    W_au = W_lambda[nlambda]
-                    if (integ_outer == "quadrature"):
-                        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
-        
-                        res_J1 = (prefac_res1 * res_I[0]
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I[0]
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    elif (integ_outer == "romberg"):
-                        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
-                    
-                        res_J1 = (prefac_res1 * res_I
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    J = (J
-                         + res_J1
-                         + indir_J1
-                         )
-        
-                square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-                sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
-        
-
-        if (fin_pot_type == 'hyperbel'):
-            sum_square = 0      # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
-            dir_J1 = threshold + 5  # Initialize J_dir arbitrarily above threshold (to pass initial subsequent "while" check)
-            nmu = 0
-            while (nmu <= n_fin_max_list[-1]) or (np.abs(dir_J1) >= threshold): # Cap sum if n_fin > max n_fin_max & J_dir fell sub-threshold
-                if (nmu > n_fin_max_list[-1]):           # If precalced list of gs-fin-FCF is exhausted but still J_dir >= threshold:
-                    E_mus.append(E_mus[-1] + E_hyp_step) # a) calc new E_mu (above even highest |res>|lambda>), 1 step above prev max E_mu
-                    for i in range (0,n_gs_max+1):       # b) calc new gs-fin-FCF (one for each gs vibr state kappa)
-                        R_start = fin_hyp_a / (E_mus[nmu] - fin_hyp_b)
-                        FC = wf.FCmor_freehyp(i,gs_a,gs_Req,gs_de,red_mass,
-                                               fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
-                        gs_fin[i].append(FC)             # Append each k-list of <k|m> by one value (with the current mu)
-                        #print(nmu, E_mus[-1], gs_fin[0][-1])   #?
-                E_fin_au = E_fin_au_1 + E_mus[nmu]       # Again: E_fin_au_1 is the potential at infinity
-    #            Er_au = Er_a_au
-                
-                # Direct term
+             
+            # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
+            J = 0
+            for nlambda in range (0,n_res_max+1):
+                if (fin_pot_type == 'hyperbel' and nmu > n_fin_max_list[nlambda]):  # J_nondir,mu,lambda = 0 if repulsive |fin>|mu> lies higher than |res>|lambda>
+                    continue
+                E_lambda = E_lambdas[nlambda]
+                W_au = W_lambda[nlambda]
                 if (integ_outer == "quadrature"):
-                    I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
-                    #print(nmu, np.abs(dir_J1)) #?
-        
+                    res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
+    
+                    res_J1 = (prefac_res1 * res_I[0]
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I[0]
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+    
                 elif (integ_outer == "romberg"):
-                    I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
-                 
-                # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
-                J = 0
-                for nlambda in range (0,n_res_max+1):
-                    if nmu > n_fin_max_list[nlambda]:   # J_nondir,mu,lambda = 0 if |fin>|mu> lies higher than |res>|lambda>
-                        continue                        # -> Also no new res-FCF must be calced, since if list is exhausted, all J_nondir = 0
-                    E_lambda = E_lambdas[nlambda]
-                    W_au = W_lambda[nlambda]
-                    if (integ_outer == "quadrature"):
-                        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), t_au)
-        
-                        res_J1 = (prefac_res1 * res_I[0]
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I[0]
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    elif (integ_outer == "romberg"):
-                        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
-                    
-                        res_J1 = (prefac_res1 * res_I
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    J = (J
-                         + res_J1
-                         + indir_J1
-                         )
-        
-                square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-                sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
-                nmu = nmu + 1
+                    res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
+                
+                    res_J1 = (prefac_res1 * res_I
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+    
+                J = (J
+                     + res_J1
+                     + indir_J1
+                     )
+    
+            square = np.absolute(J + dir_J1)**2     # |J_mu|**2
+            sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
 
         squares = np.append(squares, sum_square)
 
@@ -668,6 +618,8 @@ while (t_au >= TX_au/2\
     outlines = []       # will contain lines containing triples of E_kin, time and signal intensity
     squares = np.array([])  # signal intensity ( = |amplitude|**2 = |J|**2 )
     E_kin_au = E_min_au
+    if (fin_pot_type == 'hyperbel'):
+        n_fin_max = n_fin_max_X
     
     t_s = sciconv.atu_to_second(t_au)
     print('t_s = ', t_s)
@@ -676,110 +628,54 @@ while (t_au >= TX_au/2\
     while (E_kin_au <= E_max_au):
         p_au = np.sqrt(2*E_kin_au)
         print(sciconv.hartree_to_ev(E_kin_au)) #?
-        
+        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)  # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
 
-        if (fin_pot_type == 'morse'):
-            sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)
-            for nmu in range (0,n_fin_max+1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
-                E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: Morse vibrational eigenvalues of fin state
+        for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+            E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: vibrational eigenvalues of fin state
     #            Er_au = Er_a_au
-                
-                # Direct term
-                if (integ_outer == "quadrature"):
-                    I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)      # same function as fun_t_dir_1 before,
-                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
-    
-                elif (integ_outer == "romberg"):
-                    I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
-
-                # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
-                J = 0
-                for nlambda in range (0,n_res_max+1):
-                    E_lambda = E_lambdas[nlambda]
-                    W_au = W_lambda[nlambda]
-                    if (integ_outer == "quadrature"):
-                        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-        
-                        res_J1 = (prefac_res1 * res_I[0]
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I[0]
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    elif (integ_outer == "romberg"):
-                        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-                    
-                        res_J1 = (prefac_res1 * res_I
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    J = (J
-                         + res_J1
-                         + indir_J1
-                         )
-        
-                square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-                sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
-        
-
-        if (fin_pot_type == 'hyperbel'):
-            sum_square = 0      # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
-            dir_J1 = threshold + 5  # Initialize J_dir arbitrarily above threshold (to pass initial subsequent "while" check)
-            nmu = 0
-            while (nmu <= n_fin_max_list[-1]) or (np.abs(dir_J1) >= threshold): # Cap sum if n_fin > max n_fin_max & J_dir fell sub-threshold
-                if (nmu > n_fin_max_list[-1]):           # If precalced list of gs-fin-FCF is exhausted but still J_dir >= threshold:
-                    E_mus.append(E_mus[-1] + E_hyp_step) # a) calc new E_mu (above even highest |res>|lambda>), 1 step above prev max E_mu
-                    for i in range (0,n_gs_max+1):       # b) calc new gs-fin-FCF (one for each gs vibr state kappa)
-                        R_start = fin_hyp_a / (E_mus[nmu] - fin_hyp_b)
-                        FC = wf.FCmor_freehyp(i,gs_a,gs_Req,gs_de,red_mass,
-                                               fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
-                        gs_fin[i].append(FC)             # Append each k-list of <k|m> by one value (with the current mu)
-                        #print(nmu, E_mus[-1], gs_fin[0][-1])   #?
-                E_fin_au = E_fin_au_1 + E_mus[nmu]       # Again: E_fin_au_1 is the potential at infinity
-    #            Er_au = Er_a_au
-                
-                # Direct term
+            
+            # Direct term
+            if (fin_pot_type == 'hyperbel' and (E_fin_au < EX_min_au or E_fin_au > EX_max_au)):     # J_dir,mu = 0 if repulsive |fin>|mu> cannot be reached by XUV
+                dir_J1 = 0
+            else:
                 if (integ_outer == "quadrature"):
                     I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
-                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
-                    #if (nmu > n_fin_max_list[-1]): print(nmu, dir_J1)  #?
+                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
         
                 elif (integ_outer == "romberg"):
                     I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
-                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
-                 
-                # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
-                J = 0
-                for nlambda in range (0,n_res_max+1):
-                    if nmu > n_fin_max_list[nlambda]:   # J_nondir,mu,lambda = 0 if |fin>|mu> lies higher than |res>|lambda>
-                        continue                        # -> Also no new res-FCF must be calced, since if list is exhausted, all J_nondir = 0
-                    E_lambda = E_lambdas[nlambda]
-                    W_au = W_lambda[nlambda]
-                    if (integ_outer == "quadrature"):
-                        res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
-        
-                        res_J1 = (prefac_res1 * res_I[0]
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I[0]
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    elif (integ_outer == "romberg"):
-                        res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
-                    
-                        res_J1 = (prefac_res1 * res_I
-                                  * gs_res[0][nlambda] * res_fin[nlambda][nmu])
-                        indir_J1 = (prefac_indir1 * res_I
-                                    * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-        
-                    J = (J
-                         + res_J1
-                         + indir_J1
-                         )
-        
-                square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-                sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
-                nmu = nmu + 1
+                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
+            print(nmu, dir_J1) 
+            # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
+            J = 0
+            for nlambda in range (0,n_res_max+1):
+                if (fin_pot_type == 'hyperbel' and nmu > n_fin_max_list[nlambda]):  # J_nondir,mu,lambda = 0 if repulsive |fin>|mu> lies higher than |res>|lambda>
+                    continue
+                E_lambda = E_lambdas[nlambda]
+                W_au = W_lambda[nlambda]
+                if (integ_outer == "quadrature"):
+                    res_I = ci.complex_quadrature(res_outer_fun, (-TX_au/2), TX_au/2)
+    
+                    res_J1 = (prefac_res1 * res_I[0]
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I[0]
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+    
+                elif (integ_outer == "romberg"):
+                    res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), TX_au/2)
+                
+                    res_J1 = (prefac_res1 * res_I
+                              * gs_res[0][nlambda] * res_fin[nlambda][nmu])
+                    indir_J1 = (prefac_indir1 * res_I
+                                * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
+                print(nmu, nlambda, res_J1, indir_J1)
+                J = (J
+                     + res_J1
+                     + indir_J1
+                     )
+    
+            square = np.absolute(J + dir_J1)**2     # |J_mu|**2
+            sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
 
         squares = np.append(squares, sum_square)
 
@@ -799,9 +695,6 @@ while (t_au >= TX_au/2\
     
 
     t_au = t_au + timestep_au
-
-
-
 
 
 
