@@ -49,7 +49,7 @@ De_au = sc.ev_to_hartree(De)
 # For looping over R_start or phase_over_pi, choose "R" or "p" and the outfile.
 # Default (i. e., neither "R" nor "p" is chosen) is single-point calculation at fixed R_start or phase, no outfile needed.
 mode = "s"
-outfile = "fc-mor-freehyp-scan.txt"
+outfile = "fc-mor-freehyp-scan.out"
 
 if (len(argv) > 4):
     mode = str(argv[4])

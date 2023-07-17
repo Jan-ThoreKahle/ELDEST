@@ -30,7 +30,7 @@ Req_au = sc.angstrom_to_bohr(Req)
 De_au = sc.ev_to_hartree(De)
 
 # Write WF into file
-with open("psi_n_{}.txt".format(n), "w") as f:
+with open("psi_n_{}.out".format(n), "w") as f:
         f.write("# R / Angstrom     psi_n(R_au,n={},alpha={},Req_au=sc.angstrom_to_bohr({}),red_mass={},De=sc.ev_to_hartree({}))\n".format(n, alpha, Req, red_mass, De))
          
         for R in np.arange(1.5,30.,0.0001):

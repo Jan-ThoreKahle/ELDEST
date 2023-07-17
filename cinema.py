@@ -23,7 +23,7 @@ def cd(newdir):
 gnufile = open('gnufile.gp', 'w')
 gnufile.write("""
         set terminal png size 1600,1200 enhanced
-        set xrange [9:11]
+        set xrange [8:12]
         set yrange [0:1.1*ARG1]             # set ymax as 110 % of maximum intensity (will be passed as argument)
         set xlabel "E_{kin} / eV"
         set key autotitle columnhead
