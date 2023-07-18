@@ -81,6 +81,15 @@ def sqrt_fact(real):
 #
 #print "--------------------------------"
 
+
+
+#####
+# Provide everything in atomic units from here on!
+# I. e. all energies (De, V_hyp_b) in Hartree, all lengths (R, Req, Rmin, Rmax) in Bohr,
+# all inverse lengths (alpha) in inverse Bohr, all masses (red_mass) in electron masses,
+# all composite quantities (V_hyp_a) in the respective atomic units.
+#####
+
 def const_s_psi(R,n,s,alpha,Req,lambda_param):
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
     if (n == 0):
@@ -137,18 +146,6 @@ def psi_freehyp(R,a,b,red_mass,R_start,phase=0):    # model: free particle with 
     return psi
 
 
-def psi_hyp(R,a,b,mass,R_start):
-    a_eV = sc.hartree_to_ev(a)
-    b_eV = sc.hartree_to_ev(b)
-    V_au = potentials.hyperbel(a_eV,b_eV,R)
-    if (R <= R_start):
-        psi = 0
-    else:
-        norm = 1    # normalization factor
-        psi = norm * stuff
-    return psi
-
-
 def FCmor_freehyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
     lim = kwargs.get("limit", 50)
     phi = kwargs.get("phase", 0)
@@ -170,15 +167,7 @@ def FCfreehyp_freehyp(V1a,V1b,R_start1,red_mass,V2a,V2b,R_start2,R_min,R_max,**k
     return FC
 
 
-def FCmor_hyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max):
-    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
-                            * psi_hyp(R,V2a,V2b,mass,R_start) )
-    tmp = ci.complex_quadrature(func, R_min, R_max)
-    FC = tmp[0]
-    return FC
-
-
-def psi_free(R,a,b,red_mass,R_start,phase=0):    # model: free particle with energy corresponding to a point (at R_start) on a hyperbola, psi = 0 for section left of R_start
+def psi_free(R,a,b,red_mass,R_start,phase=0):    # model: free particle with energy corresponding to a point (at R_start) on a hyperbola
     a_eV = sc.hartree_to_ev(a)
     b_eV = sc.hartree_to_ev(b)
     E_au = potentials.hyperbel(a_eV,b_eV,R_start) - b 
