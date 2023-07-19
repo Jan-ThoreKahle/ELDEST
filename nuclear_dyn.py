@@ -238,24 +238,33 @@ if (fin_pot_type == 'hyperbel'):
     fin_hyp_b = fin_b
     E_fin_au = fin_hyp_b        # Since for an all-repulsive state there is no minimum (E_fin), E_fin is set to the final potential at infinite distance, i.e. fin_hyp_b
     E_fin_au_1 = fin_hyp_b
-    E_hyp_step = fin_c
+    R_hyp_step = fin_c
     threshold = fin_d   # If, coming from high mu, for a certain mu all |<mu|kappa>| and |<mu|lambda>| are < threshold, don't calc FCF and integrals for all mu < that mu
-    n_fin_max_list = []              # Max quantum number considered in non-direct ionization for each lambda (all vibr fin states above the resp res state are discarded)
-    for E_l in E_lambdas:
-        n_fin_max_list.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
-    n_fin_min_X = int((EX_min_au - E_fin_au) / E_hyp_step)      # For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
-    n_fin_max_X = int((EX_max_au - E_fin_au) / E_hyp_step)
-    outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
-        E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    outfile.write('Thus, the highest considered n_fin_max = {}\n'.format(n_fin_max_X))  # Assume XUV goes higher than highest vibr res state -> n_fin_max_X > max n_fin_max(lambda)
-    print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
-        E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-    print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_X))
+   # n_fin_max_list = []              # Max quantum number considered in non-direct ionization for each lambda (all vibr fin states above the resp res state are discarded)
+   # for E_l in E_lambdas:
+   #     n_fin_max_list.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
+   # n_fin_min_X = int((EX_min_au - E_fin_au) / E_hyp_step)      # For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
+   # n_fin_max_X = int((EX_max_au - E_fin_au) / E_hyp_step)
+   # outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
+   #     E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
+   # outfile.write('Thus, the highest considered n_fin_max = {}\n'.format(n_fin_max_X))  # Assume XUV goes higher than highest vibr res state -> n_fin_max_X > max n_fin_max(lambda)
+   # print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
+   #     E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
+   # print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_X))
     E_mus = []
-    E_mu = fin_hyp_b
-    for n in range (0,n_fin_max_X+1):
-        E_mus.append(E_mu)
-        E_mu = E_mu + E_hyp_step
+   # E_mu = fin_hyp_b
+    R_start_EX_max = fin_hyp_a / (EX_max_au - fin_hyp_b)        # R_start of hyperbola corresponding to EX_max_au
+    outfile.write('Continuous vibrational states of the final state are discretized:\n')
+    outfile.write('Energy of highest possibly considered vibrational state\n of the final state is {:.4f} eV\nStep width down from there increases as (eV) {:.4f}, {:.4f} ...'.format(
+        sciconv.hartree_to_ev(EX_max_au - fin_hyp_b), sciconv.hartree_to_ev(fin_hyp_a * R_hyp_step / (R_start_EX_max * (R_start_EX_max + R_hyp_step))),
+        sciconv.hartree_to_ev(fin_hyp_a * 2 * R_hyp_step / (R_start_EX_max * (R_start_EX_max + 2 * R_hyp_step)))))
+    print('Continuous vibrational states of the final state are discretized:')
+    print('Energy of highest possibly considered vibrational state\n of the final state is {:.4f} eV\nStep width down from there increases as (eV) {:.4f}, {:.4f} ...'.format(
+        sciconv.hartree_to_ev(EX_max_au - fin_hyp_b), sciconv.hartree_to_ev(fin_hyp_a * R_hyp_step / (R_start_EX_max * (R_start_EX_max + R_hyp_step))),
+        sciconv.hartree_to_ev(fin_hyp_a * 2 * R_hyp_step / (R_start_EX_max * (R_start_EX_max + 2 * R_hyp_step)))))
+   # for n in range (0,n_fin_max_X+1):
+   #     E_mus.append(E_mu)
+   #     E_mu = E_mu + E_hyp_step
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -290,48 +299,38 @@ for i in range (0,n_gs_max+1):
     gs_res.append(tmp)
     
 # ground state - final state <mu|kappa>   and   resonant state - final state <mu|lambda>
-if (fin_pot_type == 'hyperbel'):
-    n_fin_max = n_fin_max_X      # Calculate FC for all final states ever to be considered, so get highest n_fin_max
-thresh_flag = 0     # Initialize flag for FC-calc stop. For Morse: irrelevant; for hyperbel: counts how often in a (mu) row all FC fall below threshold
-m = n_fin_max       # Start FC calc at highest (considered) mu and walk down the progression
 
-while (thresh_flag < 3):  # For hyperbel: stop FC calc if all |FC| < threshold for 3 consecutive mu
-    for k in range(0,n_gs_max+1):
-        if (fin_pot_type == 'morse'):
+if (fin_pot_type == 'morse'):
+    for m in range(0,n_fin_max+1):
+        for k in range(0,n_gs_max+1):
             FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
-                k,gs_a,gs_Req,gs_de,R_min,R_max)
-            gs_fin[k].insert(0,FC)
-        elif (fin_pot_type == 'hyperbel'):
-            if (m == 0):
-                R_start = np.inf        # Technically that is the vibr ground state for the elec final state
-            else:
-                R_start = fin_hyp_a / (E_mus[m] - fin_hyp_b)
-            FC = wf.FCmor_freehyp(k,gs_a,gs_Req,gs_de,red_mass,
-                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
-            gs_fin[k].insert(0,FC)
-    for l in range(0,n_res_max+1):
-        if (fin_pot_type == 'morse'):
+                       k,gs_a,gs_Req,gs_de,R_min,R_max)
+            gs_fin[k].append(FC)
+        for l in range(0,n_res_max+1):
             FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
                        l,res_a,res_Req,res_de,R_min,R_max)
-            res_fin[l].insert(0,FC)
-        elif (fin_pot_type == 'hyperbel'):
-            if (m == 0):
-                R_start = np.inf
-            else:
-                R_start = fin_hyp_a / (E_mus[m] - fin_hyp_b)
+            res_fin[l].append(FC)
+elif (fin_pot_type == 'hyperbel'):
+    R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
+    thresh_flag = 0                 # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
+    while (thresh_flag < 3):        # Stop FC calc if all |FC| < threshold for 3 consecutive mu
+        E_mus.insert(0,fin_hyp_a / R_start + fin_hyp_b)
+        for k in range(0,n_gs_max+1):
+            FC = wf.FCmor_freehyp(k,gs_a,gs_Req,gs_de,red_mass,
+                                  fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+            gs_fin[k].insert(0,FC)
+        for l in range(0,n_res_max+1):
             FC = wf.FCmor_freehyp(l,res_a,res_Req,res_de,red_mass,
-                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+                                  fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
             res_fin[l].insert(0,FC)
-    if (fin_pot_type == 'hyperbel'):
         if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
-            all(np.abs(res_fin[k][0]) < threshold for k in range(0,n_res_max+1)) ):
+            all(np.abs(res_fin[l][0]) < threshold for l in range(0,n_res_max+1)) ):
             thresh_flag = thresh_flag + 1
         else:
-            thresh_flag = 0     # If any FC overlap > threshold, reset flag -> only (mu-)consecutive threshold check passes shall stop calc
-    if (m == 0):        # If vibr ground state (for the elec final state) is reached, stop FC calc (next step would be mu = -1)
-        thresh_flag = 10
-    m = m - 1
-n_fin_min = m + 1   # After while-loop end: m = highest mu for which no more FC was calced -> m+1 = lowest mu for which it was still calced
+            thresh_flag = 0         # If any FC overlap > threshold, reset flag -> only (mu-)consecutive threshold check passes shall stop calc
+        R_start = R_start + R_hyp_step
+print(len(E_mus)-1)
+n_fin_min = 0
 
 print()
 print('-----------------------------------------------------------------')
