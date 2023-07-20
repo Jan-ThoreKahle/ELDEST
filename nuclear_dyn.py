@@ -231,7 +231,7 @@ if (fin_pot_type == 'morse'):
         E_mus.append(ev)
         outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
         print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
-if (fin_pot_type == 'hyperbel'):
+elif (fin_pot_type == 'hyperbel'):
     print('Final state is repulsive')
     outfile.write('Final state is repulsive' + '\n')
     fin_hyp_a = fin_a
@@ -240,31 +240,18 @@ if (fin_pot_type == 'hyperbel'):
     E_fin_au_1 = fin_hyp_b
     R_hyp_step = fin_c
     threshold = fin_d   # If, coming from high mu, for a certain mu all |<mu|kappa>| and |<mu|lambda>| are < threshold, don't calc FCF and integrals for all mu < that mu
-   # n_fin_max_list = []              # Max quantum number considered in non-direct ionization for each lambda (all vibr fin states above the resp res state are discarded)
-   # for E_l in E_lambdas:
-   #     n_fin_max_list.append(int((Er_a_au + E_l - E_fin_au) / E_hyp_step))
-   # n_fin_min_X = int((EX_min_au - E_fin_au) / E_hyp_step)      # For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
-   # n_fin_max_X = int((EX_max_au - E_fin_au) / E_hyp_step)
-   # outfile.write('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV\n'.format(
-   #     E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-   # outfile.write('Thus, the highest considered n_fin_max = {}\n'.format(n_fin_max_X))  # Assume XUV goes higher than highest vibr res state -> n_fin_max_X > max n_fin_max(lambda)
-   # print('Continuous vibrational states of the final state are discretized,\nstep width: {:5E} au   = {:5E} eV'.format(
-   #     E_hyp_step, sciconv.hartree_to_ev(E_hyp_step)))
-   # print('Thus, the highest considered n_fin_max = {}'.format(n_fin_max_X))
     E_mus = []
-   # E_mu = fin_hyp_b
     R_start_EX_max = fin_hyp_a / (EX_max_au - fin_hyp_b)        # R_start of hyperbola corresponding to EX_max_au
     outfile.write('Continuous vibrational states of the final state are discretized:\n')
-    outfile.write('Energy of highest possibly considered vibrational state\n of the final state is {:.4f} eV\nStep width down from there increases as (eV) {:.4f}, {:.4f} ...'.format(
-        sciconv.hartree_to_ev(EX_max_au - fin_hyp_b), sciconv.hartree_to_ev(fin_hyp_a * R_hyp_step / (R_start_EX_max * (R_start_EX_max + R_hyp_step))),
-        sciconv.hartree_to_ev(fin_hyp_a * 2 * R_hyp_step / (R_start_EX_max * (R_start_EX_max + 2 * R_hyp_step)))))
+    outfile.write('Energy of highest possibly considered vibrational state\n of the final state is {0:.5f} eV\nStep widths down from there decrease as (eV) {1:.5f}, {2:.5f} ...\n'.format(
+        sciconv.hartree_to_ev(EX_max_au - fin_hyp_b),
+        sciconv.hartree_to_ev(fin_hyp_a / R_start_EX_max  -  fin_hyp_a / (R_start_EX_max + R_hyp_step)),
+        sciconv.hartree_to_ev(fin_hyp_a / (R_start_EX_max + R_hyp_step)  - fin_hyp_a / (R_start_EX_max + 2 * R_hyp_step)) ))
     print('Continuous vibrational states of the final state are discretized:')
-    print('Energy of highest possibly considered vibrational state\n of the final state is {:.4f} eV\nStep width down from there increases as (eV) {:.4f}, {:.4f} ...'.format(
-        sciconv.hartree_to_ev(EX_max_au - fin_hyp_b), sciconv.hartree_to_ev(fin_hyp_a * R_hyp_step / (R_start_EX_max * (R_start_EX_max + R_hyp_step))),
-        sciconv.hartree_to_ev(fin_hyp_a * 2 * R_hyp_step / (R_start_EX_max * (R_start_EX_max + 2 * R_hyp_step)))))
-   # for n in range (0,n_fin_max_X+1):
-   #     E_mus.append(E_mu)
-   #     E_mu = E_mu + E_hyp_step
+    print('Energy of highest possibly considered vibrational state\n of the final state is {0:.5f} eV\nStep widths down from there decrease as (eV) {1:.5f}, {2:.5f} ...'.format(
+        sciconv.hartree_to_ev(EX_max_au - fin_hyp_b),
+        sciconv.hartree_to_ev(fin_hyp_a / R_start_EX_max  -  fin_hyp_a / (R_start_EX_max + R_hyp_step)),
+        sciconv.hartree_to_ev(fin_hyp_a / (R_start_EX_max + R_hyp_step)  - fin_hyp_a / (R_start_EX_max + 2 * R_hyp_step)) ))
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -299,7 +286,6 @@ for i in range (0,n_gs_max+1):
     gs_res.append(tmp)
     
 # ground state - final state <mu|kappa>   and   resonant state - final state <mu|lambda>
-
 if (fin_pot_type == 'morse'):
     for m in range(0,n_fin_max+1):
         for k in range(0,n_gs_max+1):
@@ -314,22 +300,42 @@ elif (fin_pot_type == 'hyperbel'):
     R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
     thresh_flag = 0                 # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
     while (thresh_flag < 3):        # Stop FC calc if all |FC| < threshold for 3 consecutive mu
-        E_mus.insert(0,fin_hyp_a / R_start + fin_hyp_b)
+        E_mus.insert(0,fin_hyp_a / R_start)
+#        print(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mus[0]:5.5f} au = {sciconv.hartree_to_ev(E_mus[0]):5.5f} eV')                                  #?
+#        outfile.write(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mus[0]:5.5f} au = {sciconv.hartree_to_ev(E_mus[0]):5.5f} eV\n')                                  #?
         for k in range(0,n_gs_max+1):
             FC = wf.FCmor_freehyp(k,gs_a,gs_Req,gs_de,red_mass,
                                   fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
             gs_fin[k].insert(0,FC)
+#            print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
+#            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
         for l in range(0,n_res_max+1):
             FC = wf.FCmor_freehyp(l,res_a,res_Req,res_de,red_mass,
                                   fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
             res_fin[l].insert(0,FC)
+#            print(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}')   #?
+#            outfile.write(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?
         if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
             all(np.abs(res_fin[l][0]) < threshold for l in range(0,n_res_max+1)) ):
             thresh_flag = thresh_flag + 1
         else:
             thresh_flag = 0         # If any FC overlap > threshold, reset flag -> only (mu-)consecutive threshold check passes shall stop calc
+#        print(f'thresh_flag = {thresh_flag}')                                                                               #?
+#        outfile.write(f'thresh_flag = {thresh_flag}\n')                                                                               #?
         R_start = R_start + R_hyp_step
-print(len(E_mus)-1)
+    n_fin_max_list = []             # Max quantum number considered in non-direct ionization for each lambda (all vibr fin states above the resp res state are discarded)
+    for E_l in E_lambdas:
+        for n_fin in range(len(E_mus)-1, -1, -1):           # Loop over E_mus from back to start
+            if (E_fin_au + E_mus[n_fin] <= Er_au + E_l):    # The highest (i.e. first, since loop starts at high n_fin) n_fin for which (E_fin + E_mu <= E_res + E_l) is n_fin_max for this l
+                n_fin_max_list.append(n_fin)
+                break
+    n_fin_max_X = len(E_mus) - 1                        # For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
+    for n_fin in range(n_fin_max_X, -1, -1):
+        if (E_fin_au + E_mus[n_fin] < EX_min_au):
+            n_fin_min_X = n_fin + 1                     # As soon as E_mu has fallen below the lower XUV pulse energy boundary, n_fin_min_X is the one before (last E_mu within pulse spectrum)
+            break
+    assert n_fin_min_X <= n_fin_max_X
+
 n_fin_min = 0
 
 print()
@@ -342,6 +348,8 @@ outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 
 if (fin_pot_type == 'hyperbel'):
     n_fin_max = n_fin_max_X
+    print(f'n_fin from 0 to {n_fin_max_X}, n_fin within XUV pulse spectrum from {n_fin_min_X} to {n_fin_max_X}')
+    outfile.write(f'n_fin from 0 to {n_fin_max_X}, n_fin within XUV pulse spectrum from {n_fin_min_X} to {n_fin_max_X}\n')
 for k in range(0,n_gs_max+1):
     for m in range(n_fin_min,n_fin_max+1):
         FC = gs_fin[k][m - n_fin_min]
@@ -353,7 +361,7 @@ for k in range(0,n_gs_max+1):
                 print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
             elif (m == n_fin_min+1):
                 print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
-                print('   ...')
+                print('  ...')
 
 print()
 print('-----------------------------------------------------------------')
