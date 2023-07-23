@@ -247,15 +247,15 @@ elif (fin_pot_type == 'hyperbel'):
         sciconv.hartree_to_ev(EX_max_au - fin_hyp_b),
         sciconv.hartree_to_ev(fin_hyp_a / R_start_EX_max  -  fin_hyp_a / (R_start_EX_max + R_hyp_step)),
         sciconv.hartree_to_ev(fin_hyp_a / (R_start_EX_max + R_hyp_step)  - fin_hyp_a / (R_start_EX_max + 2 * R_hyp_step)) ))
-    outfile.write('Each E_mu is calculated as {0} au / R_start,\n where R_start begins at {1:.5f} au = {2:.5f} A\n and increases in constant steps of width {3:.5f} au\n'.format(
-        fin_hyp_a, R_start_EX_max, sciconv.bohr_to_angstrom(R_start_EX_max), R_hyp_step ))
+    outfile.write('Each E_mu is calculated as {0} au / R_start,\n where R_start begins at {1:.5f} au = {2:.5f} A\n and increases in constant steps of width {3:.5f} au = {4:.5f} A\n'.format(
+        fin_hyp_a, R_start_EX_max, sciconv.bohr_to_angstrom(R_start_EX_max), R_hyp_step, sciconv.bohr_to_angstrom(R_hyp_step) ))
     print('Continuous vibrational states of the final state are discretized:')
     print('Energy of highest possibly considered vibrational state\n of the final state is {0:.5f} eV\nStep widths down from there decrease as (eV) {1:.5f}, {2:.5f} ...'.format(
         sciconv.hartree_to_ev(EX_max_au - fin_hyp_b),
         sciconv.hartree_to_ev(fin_hyp_a / R_start_EX_max  -  fin_hyp_a / (R_start_EX_max + R_hyp_step)),
         sciconv.hartree_to_ev(fin_hyp_a / (R_start_EX_max + R_hyp_step)  - fin_hyp_a / (R_start_EX_max + 2 * R_hyp_step)) ))
-    print('Each E_mu is calculated as {0} au / R_start,\n where R_start begins at {1:.5f} au = {2:.5f} A\n and increases in constant steps of width {3:.5f} au'.format(
-        fin_hyp_a, R_start_EX_max, sciconv.bohr_to_angstrom(R_start_EX_max), R_hyp_step ))
+    print('Each E_mu is calculated as {0} au / R_start,\n where R_start begins at {1:.5f} au = {2:.5f} A\n and increases in constant steps of width {3:.5f} au = {4:.5f} A'.format(
+        fin_hyp_a, R_start_EX_max, sciconv.bohr_to_angstrom(R_start_EX_max), R_hyp_step, sciconv.bohr_to_angstrom(R_hyp_step) ))
 
 #-------------------------------------------------------------------------
 # Franck-Condon factors
@@ -343,7 +343,7 @@ elif (fin_pot_type == 'hyperbel'):
             if (E_fin_au + E_mus[n_fin] <= Er_au + E_l):    # The highest (i.e. first, since loop starts at high n_fin) n_fin for which (E_fin + E_mu <= E_res + E_l) is n_fin_max for this l
                 n_fin_max_list.append(n_fin)
                 break
-    n_fin_max_X = len(E_mus) - 1                        # For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
+    n_fin_max_X = len(E_mus) - 1                        # Initialize; For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
     for n_fin in range(n_fin_max_X, -1, -1):
         if (E_fin_au + E_mus[n_fin] < EX_min_au):
             n_fin_min_X = n_fin + 1                     # As soon as E_mu has fallen below the lower XUV pulse energy boundary, n_fin_min_X is the one before (last E_mu within pulse spectrum)
@@ -399,6 +399,9 @@ for l in range(0,n_res_max+1):
             elif (m == n_fin_min+1):
                 print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
                 print('   ...')
+if (fin_pot_type == 'hyperbel'):
+    print("All overlaps between ground or resonant state and final state\n outside the indicated quantum numbers are considered zero")
+    outfile.write("All overlaps between ground or resonnant state and final state\n outside the indicated quantum numbers are considered zero\n")
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
