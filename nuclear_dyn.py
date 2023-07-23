@@ -401,7 +401,7 @@ for l in range(0,n_res_max+1):
                 print('   ...')
 if (fin_pot_type == 'hyperbel'):
     print("All overlaps between ground or resonant state and final state\n outside the indicated quantum numbers are considered zero")
-    outfile.write("All overlaps between ground or resonnant state and final state\n outside the indicated quantum numbers are considered zero\n")
+    outfile.write("All overlaps between ground or resonant state and final state\n outside the indicated quantum numbers are considered zero\n")
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
@@ -560,10 +560,16 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     print('t_s = ', t_s)
     outfile.write('t_s = ' + str(t_s) + '\n')
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
+    cnt = 0     # initialize counter for printing progress
     while (E_kin_au <= E_max_au):
+        if (cnt == 4):  # print progress: for each E_kin one '-', but for every fifth one '|' instead
+            print('|', end = '', flush = True)
+            cnt = 0
+        else:
+            print('-', end = '', flush = True)
+            cnt = cnt + 1
         p_au = np.sqrt(2*E_kin_au)
-#        print(sciconv.hartree_to_ev(E_kin_au)) #?
-        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)  # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
+        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin)
 
         for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
             E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: vibrational eigenvalues of fin state
@@ -609,8 +615,10 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                      + indir_J1
                      )
     
+            # Total trs prob (@E_kin, t) = sum_mu |J_mu|**2
+            # Also for rep fin with R-DOS = 1/R_hyp_step = const: int dR_mu |J_mu|**2 R-DOS = R-DOS int dR_mu |J_mu|**2 = R-DOS 1/R-DOS sum_mu |J_mu|**2 = sum_mu |J_mu|**2
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-            sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2     #? DOS FACTOR IS MISSING! (also for between the pulses)
+            sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
 
         squares = np.append(squares, sum_square)
 
@@ -622,6 +630,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     
     in_out.doout_1f(pure_out, outlines)     # writes each (E_kin, t = const, |J|**2) triple in a sep line into output file
     in_out.doout_movie(movie_out, outlines)
+    print()
     max_pos = argrelextrema(squares, np.greater)[0]      # finds position of relative (i. e. local) maxima of |J|**2 in an array
     if (len(max_pos > 0)):                               # if there are such:
         for i in range (0, len(max_pos)):
@@ -651,10 +660,16 @@ while (t_au >= TX_au/2\
     print('t_s = ', t_s)
     outfile.write('t_s = ' + str(t_s) + '\n')
     movie_out.write('"' + format(t_s*1E15, '.3f') + ' fs' + '"' + '\n')
+    cnt = 0     # initialize counter for printing progress
     while (E_kin_au <= E_max_au):
+        if (cnt == 4):  # print progress: for each E_kin one '-', but for every fifth one '|' instead
+            print('|', end = '', flush = True)
+            cnt = 0
+        else:
+            print('-', end = '', flush = True)
+            cnt = cnt + 1
         p_au = np.sqrt(2*E_kin_au)
-#        print(sciconv.hartree_to_ev(E_kin_au)) #?
-        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2      (sum of contributions of all final states with E_kin)  # replace integral dE_mu |J_(E_mu) @ E_kin|**2  by  E_hyp_step * sum_(n_fin) |J_dir,mu + J_nondir,mu|**2
+        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin)
 
         for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
             E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: vibrational eigenvalues of fin state
@@ -703,6 +718,8 @@ while (t_au >= TX_au/2\
                      + indir_J1
                      )
     
+            # Total trs prob (@E_kin, t) = sum_mu |J_mu|**2
+            # Also for rep fin with R-DOS = 1/R_hyp_step = const: int dR_mu |J_mu|**2 R-DOS = R-DOS int dR_mu |J_mu|**2 = R-DOS 1/R-DOS sum_mu |J_mu|**2 = sum_mu |J_mu|**2
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
 
@@ -716,6 +733,7 @@ while (t_au >= TX_au/2\
     
     in_out.doout_1f(pure_out, outlines)     # writes each (E_kin, t = const, |J|**2) triple in a sep line into output file
     in_out.doout_movie(movie_out, outlines)
+    print()
     max_pos = argrelextrema(squares, np.greater)[0]      # finds position of relative (i. e. local) maxima of |J|**2 in an array
     if (len(max_pos > 0)):                               # if there are such:
         for i in range (0, len(max_pos)):
