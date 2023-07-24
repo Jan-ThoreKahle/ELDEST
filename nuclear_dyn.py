@@ -25,7 +25,10 @@ import in_out
 import sys
 import warnings
 import wellenfkt as wf
+from datetime import datetime
 
+dt_start = datetime.now()
+print(str(dt_start))
 
 # don't print warnings unless python -W ... is used
 if not sys.warnoptions:
@@ -41,6 +44,7 @@ pure_out = open('full.dat', mode='w')
 movie_out = open('movie.dat', mode='w')
 #popfile = open("pop.dat", mode='w')
 
+outfile.write(str(dt_start) + '\n')
 outfile.write("The results were obtained with nuclear_dyn.py \n")
 #-------------------------------------------------------------------------
 # set some defaults
@@ -746,6 +750,11 @@ while (t_au >= TX_au/2\
 
 
 
+dt_end = datetime.now()
+print(str(dt_end))
+print('Total runtime:', str(dt_end - dt-start))
+outfile.write(str(dt_end))
+outfile.write('Total runtime:' + ' ' + str(dt_end - dt-start))
 
 outfile.close
 pure_out.close

@@ -32,11 +32,11 @@ FWHM_L        = 0
 #
 # parameters of the simulation
 tmax_s        = 150.0E-15        # simulate until time tmax in s
-timestep_s    =   5.0E-15        # evaluate expression every timestep_s seconds 
+timestep_s    =   1.5E-15        # evaluate expression every timestep_s seconds 
 #
 E_min_eV      =  0.
 E_max_eV      = 11.
-E_step_eV     =  1.00            # energy difference between different evaluated electron kinetic energies
+E_step_eV     =  0.25            # energy difference between different evaluated electron kinetic energies
 #
 integ         = analytic         # options: analytic, (quadrature, romberg - both currently unavailable)
 integ_outer   = quadrature       # options: quadrature, romberg
@@ -61,9 +61,9 @@ res_const     = 0.0
 fin_a         = 0.0833354        # for morse: fin_de; for hyperbel: V_a in au (Hartree * Bohr)
 fin_b         = 1.4699729        # for morse: fin_a; for hyperbel: V_b in au (Hartree)
 fin_c         = 0.01890          # for morse: fin_Req; for hyperbel: step width for R_start for vibrational energies (fin_a/R_start) in au (Bohr)
-fin_d         = 1.E-06           # for morse: fin_const; for hyperbel: FC factor threshold for calculating the trs integral
+fin_d         = 1.E-05           # for morse: fin_const; for hyperbel: FC factor threshold for calculating the trs integral
 fin_pot_type  = hyperbel         # options: morse, hyperbel
-# final state parameters
+## final state parameters
 #fin_a         = 0.003675
 #fin_b         = 21.7512
 #fin_c         = 6.0
