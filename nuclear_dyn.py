@@ -572,7 +572,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             print('-', end = '', flush = True)
             cnt = cnt + 1
         p_au = np.sqrt(2*E_kin_au)
-        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin)
+        sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin); for continuous mu: int ~ sum
 
         for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
             E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: vibrational eigenvalues of fin state
@@ -619,8 +619,11 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                      )
     
             # Total trs prob (@E_kin, t) = sum_mu |J_mu|**2
-            # Also for rep fin with R-DOS = 1/R_hyp_step = const: int dR_mu |J_mu|**2 R-DOS = R-DOS int dR_mu |J_mu|**2 = R-DOS 1/R-DOS sum_mu |J_mu|**2 = sum_mu |J_mu|**2
+            # For cont rep fin: int (dE_mu |J_mu|**2 E-DOS(E_mu)) = int (dR_mu |J_mu|**2 R-DOS(R_mu))
+            #   R-DOS = E-DOS * Va / R_mu**2 = E-DOS * E_mu**2 / Va. If E-DOS = 1 & R_hyp_step = const: int (dR_mu |J_mu|**2 R-DOS) ~ sum_mu (R_hyp_step |J_mu|**2 E_mu**2 / Va)
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
+            if (fin_pot_type == 'hyperbel'):
+                square = square * R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
 
         squares = np.append(squares, sum_square)
@@ -722,8 +725,11 @@ while (t_au >= TX_au/2\
                      )
     
             # Total trs prob (@E_kin, t) = sum_mu |J_mu|**2
-            # Also for rep fin with R-DOS = 1/R_hyp_step = const: int dR_mu |J_mu|**2 R-DOS = R-DOS int dR_mu |J_mu|**2 = R-DOS 1/R-DOS sum_mu |J_mu|**2 = sum_mu |J_mu|**2
+            # For cont rep fin: int (dE_mu |J_mu|**2 E-DOS(E_mu)) = int (dR_mu |J_mu|**2 R-DOS(R_mu))
+            #   R-DOS = E-DOS * Va / R_mu**2 = E-DOS * E_mu**2 / Va. If E-DOS = 1 & R_hyp_step = const: int (dR_mu |J_mu|**2 R-DOS) ~ sum_mu (R_hyp_step |J_mu|**2 E_mu**2 / Va)
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
+            if (fin_pot_type == 'hyperbel'):
+                square = square * R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
 
         squares = np.append(squares, sum_square)
