@@ -20,7 +20,6 @@ from scipy.special import erf
 import numpy as np
 import sciconv
 import complex_integration as ci
-#import pulses
 import in_out
 import sys
 import warnings
@@ -752,9 +751,9 @@ while (t_au >= TX_au/2\
 
 dt_end = datetime.now()
 print(str(dt_end))
-print('Total runtime:', str(dt_end - dt-start))
-outfile.write(str(dt_end))
-outfile.write('Total runtime:' + ' ' + str(dt_end - dt-start))
+print('Total runtime:', str(dt_end - dt_start))
+outfile.write('\n' + str(dt_end) + '\n')
+outfile.write('Total runtime:' + ' ' + str(dt_end - dt_start))
 
 outfile.close
 pure_out.close
