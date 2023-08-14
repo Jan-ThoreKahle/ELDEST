@@ -113,12 +113,12 @@ elif(X_gauss):
     print('sigma [s] = ', sciconv.atu_to_second(sigma))
     print('FWHM [s] = ', sciconv.atu_to_second(FWHM))
     print('sigma_E [eV] = ', sciconv.hartree_to_ev(sigma_E))
-    print('XUV ranges up to {:5.5f} au to {:5.5f} eV'.format(
+    print('XUV reaches up to {:5.5f} au = {:5.5f} eV'.format(
         EX_max_au, sciconv.hartree_to_ev(EX_max_au)))
     outfile.write('sigma [s] = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM [s] = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
     outfile.write('sigma_E [eV] = ' + str(sciconv.hartree_to_ev(sigma_E)) + '\n')
-    outfile.write('XUV ranges up to {:5.5f} au = {:5.5f} eV\n'.format(
+    outfile.write('XUV reaches up to {:5.5f} au = {:5.5f} eV\n'.format(
         EX_max_au, sciconv.hartree_to_ev(EX_max_au)))
 print('end of the first pulse [s] = ', sciconv.atu_to_second(TX_au/2))
 outfile.write('end of the first pulse [s] = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
