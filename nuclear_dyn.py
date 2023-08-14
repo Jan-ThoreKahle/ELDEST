@@ -109,18 +109,17 @@ elif(X_gauss):
     TX_au     = 5 * sigma
     sigma_E   = 1. / (2 * sigma)
     width_E   = 5 * sigma_E
-    EX_min_au = Omega_au - 0.5 * width_E
     EX_max_au = Omega_au + 0.5 * width_E
     print('sigma [s] = ', sciconv.atu_to_second(sigma))
     print('FWHM [s] = ', sciconv.atu_to_second(FWHM))
     print('sigma_E [eV] = ', sciconv.hartree_to_ev(sigma_E))
-    print('XUV ranges from {:5.5f} eV to {:5.5f} eV'.format(
-        sciconv.hartree_to_ev(EX_min_au), sciconv.hartree_to_ev(EX_max_au)))
+    print('XUV ranges up to {:5.5f} au to {:5.5f} eV'.format(
+        EX_max_au, sciconv.hartree_to_ev(EX_max_au)))
     outfile.write('sigma [s] = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM [s] = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
     outfile.write('sigma_E [eV] = ' + str(sciconv.hartree_to_ev(sigma_E)) + '\n')
-    outfile.write('XUV ranges from {:5.5f} eV to {:5.5f} eV\n'.format(
-        sciconv.hartree_to_ev(EX_min_au), sciconv.hartree_to_ev(EX_max_au)))
+    outfile.write('XUV ranges up to {:5.5f} au = {:5.5f} eV\n'.format(
+        EX_max_au, sciconv.hartree_to_ev(EX_max_au)))
 print('end of the first pulse [s] = ', sciconv.atu_to_second(TX_au/2))
 outfile.write('end of the first pulse [s] = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
@@ -244,7 +243,7 @@ elif (fin_pot_type == 'hyperbel'):
     R_hyp_step = fin_c
     threshold = fin_d   # If, coming from high mu, for a certain mu all |<mu|kappa>| and |<mu|lambda>| are < threshold, don't calc FCF and integrals for all mu < that mu
     E_mus = []
-    R_start_EX_max = fin_hyp_a / (EX_max_au - fin_hyp_b)        # R_start of hyperbola corresponding to EX_max_au
+    R_start_EX_max = fin_hyp_a / (EX_max_au - fin_hyp_b)        # R_start of hyperbola corresponding to EX_max_au, used as minimum starting point for discretizing final vibr states
     outfile.write('Continuous vibrational states of the final state are discretized:\n')
     outfile.write('Energy of highest possibly considered vibrational state\n of the final state is {0:.5f} eV\nStep widths down from there decrease as (eV) {1:.5f}, {2:.5f} ...\n'.format(
         sciconv.hartree_to_ev(EX_max_au - fin_hyp_b),
@@ -312,18 +311,12 @@ elif (fin_pot_type == 'hyperbel'):
         E_mus.insert(0,E_mu)        # Present loop starts at high energies, but these shall get high mu numbers = stand at the end of the lists -> fill lists from right to left
 #        print(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
 #        outfile.write(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}\n')  #?
-        if (EX_min_au <= E_fin_au + E_mu <= EX_max_au):
-            for k in range(0,n_gs_max+1):
-                FC = wf.FCmor_freehyp(k,gs_a,gs_Req,gs_de,red_mass,
-                                      fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
-                gs_fin[k].insert(0,FC)
-#                print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
-#                outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
-        else:                       # If mu is outside the XUV pulse spectrum, just set FC to zero
-            for k in range(0,n_gs_max+1):
-                gs_fin[k].insert(0,0)
-#            print('gs_fin  = 0, |gs_fin|  = 0')   #?
-#            outfile.write('gs_fin  = 0, |gs_fin|  = 0\n')   #?
+        for k in range(0,n_gs_max+1):
+            FC = wf.FCmor_freehyp(k,gs_a,gs_Req,gs_de,red_mass,
+                                  fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+            gs_fin[k].insert(0,FC)
+#            print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
+#            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
         for l in range(0,n_res_max+1):
             FC = wf.FCmor_freehyp(l,res_a,res_Req,res_de,red_mass,
                                   fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
@@ -346,12 +339,7 @@ elif (fin_pot_type == 'hyperbel'):
             if (E_fin_au + E_mus[n_fin] <= Er_au + E_l):    # The highest (i.e. first, since loop starts at high n_fin) n_fin for which (E_fin + E_mu <= E_res + E_l) is n_fin_max for this l
                 n_fin_max_list.append(n_fin)
                 break
-    n_fin_max_X = len(E_mus) - 1                        # Initialize; For direct ionization into fin state, consider all and only those mu within the frequency width of XUV
-    for n_fin in range(n_fin_max_X, -1, -1):
-        if (E_fin_au + E_mus[n_fin] < EX_min_au):
-            n_fin_min_X = n_fin + 1                     # As soon as E_mu has fallen below the lower XUV pulse energy boundary, n_fin_min_X is the one before (last E_mu within pulse spectrum)
-            break
-    assert n_fin_min_X <= n_fin_max_X
+    n_fin_max_X = len(E_mus) - 1                            # Will be used in hyperbel case as the very highest nmu
 
 n_fin_min = 0
 
@@ -364,7 +352,6 @@ print('n_gs  ' +'n_fin  ' + '<fin|gs>')
 outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 
 if (fin_pot_type == 'hyperbel'):
-    n_fin_min = n_fin_min_X     # For hyperbel, print only those <k|m> with (E_fin + E_mu) within the XUV pulse spectrum - all other are set to 0 anyway
     n_fin_max = n_fin_max_X
 for k in range(0,n_gs_max+1):
     for m in range(n_fin_min,n_fin_max+1):
@@ -571,6 +558,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         else:
             print('-', end = '', flush = True)
             cnt = cnt + 1
+        print(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV')           #?
+        outfile.write(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV\n') #?
         p_au = np.sqrt(2*E_kin_au)
         sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin); for continuous mu: int ~ sum
 
@@ -579,16 +568,13 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     #            Er_au = Er_a_au
             
             # Direct term
-            if (fin_pot_type == 'hyperbel' and not (EX_min_au <= E_fin_au <= EX_max_au)):     # J_dir,mu = 0 if repulsive |fin>|mu> cannot be reached by XUV
-                dir_J1 = 0
-            else:
-                if (integ_outer == "quadrature"):
-                    I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
-                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
-        
-                elif (integ_outer == "romberg"):
-                    I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
-                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
+            if (integ_outer == "quadrature"):
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
+                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
+    
+            elif (integ_outer == "romberg"):
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
+                dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
              
             # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
             J = 0
@@ -623,8 +609,12 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             #   R-DOS = E-DOS * Va / R_mu**2 = E-DOS * E_mu**2 / Va. If E-DOS = 1 & R_hyp_step = const: int (dR_mu |J_mu|**2 R-DOS) ~ sum_mu (R_hyp_step |J_mu|**2 E_mu**2 / Va)
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
             if (fin_pot_type == 'hyperbel'):
-                square = square * R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
+                factor = R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
+                old_square = square
+                square = square * factor
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
+            print(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}')
+            outfile.write(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}\n')
 
         squares = np.append(squares, sum_square)
 
@@ -674,6 +664,8 @@ while (t_au >= TX_au/2\
         else:
             print('-', end = '', flush = True)
             cnt = cnt + 1
+        print(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV')           #?
+        outfile.write(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV\n') #?
         p_au = np.sqrt(2*E_kin_au)
         sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin)
 
@@ -682,17 +674,14 @@ while (t_au >= TX_au/2\
     #            Er_au = Er_a_au
             
             # Direct term
-            if (fin_pot_type == 'hyperbel' and not (EX_min_au <= E_fin_au <= EX_max_au)):     # J_dir,mu = 0 if repulsive |fin>|mu> cannot be reached by XUV
-                dir_J1 = 0
-            else:
-                if (integ_outer == "quadrature"):
-                    I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
-                    dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
+            if (integ_outer == "quadrature"):
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
 #                    print(nmu, gs_fin[0][nmu], dir_J1)   #?
-        
-                elif (integ_outer == "romberg"):
-                    I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
-                    dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
+    
+            elif (integ_outer == "romberg"):
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
 
             # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
             J = 0
@@ -729,8 +718,12 @@ while (t_au >= TX_au/2\
             #   R-DOS = E-DOS * Va / R_mu**2 = E-DOS * E_mu**2 / Va. If E-DOS = 1 & R_hyp_step = const: int (dR_mu |J_mu|**2 R-DOS) ~ sum_mu (R_hyp_step |J_mu|**2 E_mu**2 / Va)
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
             if (fin_pot_type == 'hyperbel'):
-                square = square * R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
+                factor = R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
+                old_square = square
+                square = square * factor
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
+            print(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}')
+            outfile.write(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}\n')
 
         squares = np.append(squares, sum_square)
 
