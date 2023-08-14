@@ -341,7 +341,6 @@ elif (fin_pot_type == 'hyperbel'):
                 break
     n_fin_max_X = len(E_mus) - 1                            # Will be used in hyperbel case as the very highest nmu
 
-n_fin_min = 0
 
 print()
 print('-----------------------------------------------------------------')
@@ -354,15 +353,15 @@ outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 if (fin_pot_type == 'hyperbel'):
     n_fin_max = n_fin_max_X
 for k in range(0,n_gs_max+1):
-    for m in range(n_fin_min,n_fin_max+1):
+    for m in range(0,n_fin_max+1):
         FC = gs_fin[k][m]
         outfile.write('{:4d}  {:5d}  {: 14.10E}\n'.format(k,m,FC))
         if (fin_pot_type == 'morse'):
             print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
         elif (fin_pot_type == 'hyperbel'):
-            if (m == n_fin_min or m == n_fin_max-1 or m == n_fin_max):      # Don't print all the FC, just the first two and last two (per GS vibr state)
+            if (m == 0 or m == n_fin_max-1 or m == n_fin_max):      # Don't print all the FC, just the first two and last two (per GS vibr state)
                 print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
-            elif (m == n_fin_min+1):
+            elif (m == 1):
                 print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
                 print('  ...')
 
@@ -374,19 +373,18 @@ outfile.write("Franck-Condon overlaps between final and resonant state" + '\n')
 print('n_res  ' +'n_fin  ' + '<fin|res>')
 outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
 
-n_fin_min = 0       # ? Remove n_fin_min in <res|fin> entirely eventually
 for l in range(0,n_res_max+1):
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[l]
-    for m in range(n_fin_min,n_fin_max+1):
-        FC = res_fin[l][m - n_fin_min]
+    for m in range(0,n_fin_max+1):
+        FC = res_fin[l][m]
         outfile.write('{:5d}  {:5d}  {: 14.10E}\n'.format(l,m,FC))
         if (fin_pot_type == 'morse'):
             print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
         elif (fin_pot_type == 'hyperbel'):
-            if (m == n_fin_min or m == n_fin_max-1 or m == n_fin_max):
+            if (m == 0 or m == n_fin_max-1 or m == n_fin_max):
                 print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
-            elif (m == n_fin_min+1):
+            elif (m == 1):
                 print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
                 print('   ...')
 if (fin_pot_type == 'hyperbel'):
@@ -399,7 +397,7 @@ for l in range (0,n_res_max+1):
     indir_FCsum = 0
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[l]
-    for m in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):
+    for m in range (0, n_fin_max + 1):
         tmp = np.conj(res_fin[l][m]) * gs_fin[0][m]     # <mu|lambda>* <mu|kappa=0> = <lambda|mu><mu|kappa=0> = <l|m><m|k=0>
         indir_FCsum = indir_FCsum + tmp                 # sum_m <l|m><m|k=0>
     indir_FCsums.append(indir_FCsum)                    # [sum_m <l=0|m><m|k=0>, sum_m <l=1|m><m|k=0>, ...]
@@ -418,7 +416,7 @@ for l in range (0,n_res_max+1):
     tmp = 0
     if (fin_pot_type == 'hyperbel'):
         n_fin_max = n_fin_max_list[l]       # To each lambda their own n_fin_max (v.s.)
-    for m in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):
+    for m in range (0, n_fin_max + 1):
         tmp = tmp + VEr_au**2 * np.abs(res_fin[l][m])**2      # W_l = sum_m ( VEr**2 |<m|l>|**2 )
     W_lambda.append(tmp)
     ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
@@ -563,7 +561,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         p_au = np.sqrt(2*E_kin_au)
         sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin); for continuous mu: int ~ sum
 
-        for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+        for nmu in range (0, n_fin_max + 1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
             E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: vibrational eigenvalues of fin state
     #            Er_au = Er_a_au
             
@@ -669,7 +667,7 @@ while (t_au >= TX_au/2\
         p_au = np.sqrt(2*E_kin_au)
         sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin)
 
-        for nmu in range (n_fin_min - n_fin_min, n_fin_max + 1 - n_fin_min):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
+        for nmu in range (0, n_fin_max + 1):           # loop over all mu, calculate J_mu = J_dir,mu + J_nondir,mu
             E_fin_au = E_fin_au_1 + E_mus[nmu]      # E_fin_au_1: inputted electronic E_fin_au, E_mus: vibrational eigenvalues of fin state
     #            Er_au = Er_a_au
             
