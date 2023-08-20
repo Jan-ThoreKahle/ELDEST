@@ -40,7 +40,7 @@ def megabarn_to_sqmeter(sigma_mb):
     return sigma_m2
 
 def sqmeter_to_megabarn(sigma_m2):
-    sigma_mb = sigma_m2 * 1E22
+    return sigma_mb = sigma_m2 * 1E22
 
 #-------------------------------------------------------------------------
 #      Energies
