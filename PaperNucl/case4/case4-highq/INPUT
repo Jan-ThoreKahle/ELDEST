@@ -1,0 +1,64 @@
+# transitions dipole moments
+rdg_au        = 0.70          # transition dipole moment into the resonant state
+cdg_au        = 0.5           # transition dipole moment into any continuum state
+q             = 10
+# parameters of the investigated system
+# the ground state energy is being defined as Eg = 0
+Er_a_eV       =  49.7477      # resonance energy in eV
+Er_b_eV       =   0.0
+E_fin_eV      =  39.9004      # final state energy in eV
+tau_s         =  20E-15       # lifetime
+E_fin_eV_2    =   0.0 
+tau_a_s       =   0.0
+tau_b_s       =   0.0
+tau_s_2       =   0.0
+interact_eV   =   0.0
+#
+# laser parameters
+Omega_eV      = 50.0000       # mean photon energy of the XUV pulse in eV
+n_X           = 10
+I_X           = 5.0E8         # intensity of the XUV pulse in W/cm^2
+X_shape       = gauss         # options: gauss, sinsq
+Xshape        = convoluted
+#
+# dressing laser parameters
+omega_eV      = 1E-10           # IR pulse
+n_L           = 0
+I_L           = 0.0 
+delta_t_s     = 0.0 
+shift_step_s  = 0.0
+phi           = 0
+FWHM_L        = 0
+#
+# parameters of the simulation
+tmax_s        = 150.0E-15        # simulate until time tmax in seconds
+timestep_s    =   0.5E-15        # evaluate expression every timestep_s seconds 
+#
+E_min_eV      =  9.0
+E_max_eV      = 10.5
+E_step_eV     =  0.005          # energy difference between different evaluated Omegas
+#
+integ         = analytic      # options: analytic, quadrature, romberg
+integ_outer   = quadrature
+#
+# parameters for the nuclear dynamics
+mass1         = 20.1797 # in g/mol
+mass2         = 20.1797 # in g/mol
+grad_delta    = 0.001
+R_eq_AA       = 3.08
+# GS Parameters # use atomic units
+gs_de         = 0.0001102
+gs_a          = 1.5
+gs_Req        = 6.0
+gs_const      = 0.0
+# resonant state parameters
+res_de        = 0.0183746612365
+res_a         = 15.3994
+res_Req       = 6.0
+res_const     = 0.0
+# final state parameters
+fin_a         = 0.0036749322473
+fin_b         = 21.7512
+fin_c         = 6.0
+fin_d         = 0.0
+fin_pot_type  = morse
