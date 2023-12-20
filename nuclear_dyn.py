@@ -20,11 +20,14 @@ from scipy.special import erf
 import numpy as np
 import sciconv
 import complex_integration as ci
-#import pulses
 import in_out
 import sys
 import warnings
 import wellenfkt as wf
+from datetime import datetime
+
+dt_start = datetime.now()
+print(str(dt_start))
 
 
 # don't print warnings unless python -W ... is used
@@ -41,6 +44,7 @@ pure_out = open('full.dat', mode='w')
 movie_out = open('movie.dat', mode='w')
 #popfile = open("pop.dat", mode='w')
 
+outfile.write(str(dt_start) + '\n')
 outfile.write("The results were obtained with nuclear_dyn.py \n")
 #-------------------------------------------------------------------------
 # set some defaults
@@ -106,16 +110,17 @@ elif(X_gauss):
     TX_au     = 5 * sigma
     sigma_E   = 1. / (2 * sigma)
     width_E   = 5 * sigma_E
+    EX_max_au = Omega_au + 0.5 * width_E
     print('sigma [s] = ', sciconv.atu_to_second(sigma))
     print('FWHM [s] = ', sciconv.atu_to_second(FWHM))
     print('sigma_E [eV] = ', sciconv.hartree_to_ev(sigma_E))
-    print('XUV ranges up to {:5.5f} eV'.format(
-        sciconv.hartree_to_ev(Omega_au + 0.5 * width_E)))
+    print('XUV reaches up to {:5.5f} au = {:5.5f} eV'.format(
+        EX_max_au, sciconv.hartree_to_ev(EX_max_au)))    
     outfile.write('sigma [s] = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM [s] = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
     outfile.write('sigma_E [eV] = ' + str(sciconv.hartree_to_ev(sigma_E)) + '\n')
-    outfile.write('XUV ranges up to {:5.5f} eV\n'.format(
-        sciconv.hartree_to_ev(Omega_au + 0.5 * width_E)))
+    outfile.write('XUV reaches up to {:5.5f} au = {:5.5f} eV\n'.format(
+        EX_max_au, sciconv.hartree_to_ev(EX_max_au)))
 print('end of the first pulse [s] = ', sciconv.atu_to_second(TX_au/2))
 outfile.write('end of the first pulse [s] = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
@@ -234,7 +239,7 @@ if (fin_pot_type == 'morse'):
 #-------------------------------------------------------------------------
 # Franck-Condon factors
 #-------------------------------------------------------------------------
-gs_res =  []    # collects lists of FC: [<l1|k1>, <l2|k1>, ...], [<l1|k2, <l2|k2>, ...], ...
+gs_res =  []    # collects sub-lists of FC overlaps: [<l0|k0>, <l1|k0>, ...], [<l0|k1, <l1|k1>, ...], ...
 gs_fin =  []
 res_fin = []
 R_min = sciconv.angstrom_to_bohr(1.5)
@@ -311,7 +316,9 @@ outfile.write('\n' + '----------------------------------------------------------
 #-------------------------------------------------------------------------
 # determine total decay width matrix element
 print('Effective decay widths in eV and lifetimes in s:')
+print('n_res  W_l [eV]          tau_l [s]')
 outfile.write('Effective decay widths in eV and lifetimes in s:' + '\n')
+outfile.write('n_res  W_l [eV]          tau_l [s]' + '\n')
 if fin_pot_type == 'morse':
     W_lambda = []   # [W_(l=0), W_(l=1), ...]
     for i in range (0,n_res_max+1):
@@ -320,10 +327,10 @@ if fin_pot_type == 'morse':
             tmp = tmp + VEr_au**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
         W_lambda.append(tmp)
         ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
-        print(sciconv.hartree_to_ev(tmp), sciconv.atu_to_second(ttmp))
-        outfile.write( str(sciconv.hartree_to_ev(tmp)) + ' '
-                     + str(sciconv.atu_to_second(ttmp)) + '\n')
+        print(f'{l:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
+        outfile.write(f'{l:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}\n')
 print()
+outfile.write('\n')
 
 
 #-------------------------------------------------------------------------
@@ -487,7 +494,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                      + res_J1
                      + indir_J1
                      )
-    
+
+            # Total trs prob (@E_kin, t) = sum_mu |J_mu|**2
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
         squares = np.append(squares, sum_square)
@@ -500,6 +508,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     
     in_out.doout_1f(pure_out, outlines)     # writes each (E_kin, t = const, |J|**2) triple in a sep line into output file
     in_out.doout_movie(movie_out, outlines)
+    print()
     max_pos = argrelextrema(squares, np.greater)[0]      # finds position of relative (i. e. local) maxima of |J|**2 in an array
     if (len(max_pos > 0)):                               # if there are such:
         for i in range (0, len(max_pos)):
@@ -508,7 +517,6 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
     
 
     t_au = t_au + timestep_au
-
 
 
 
@@ -540,12 +548,12 @@ while (t_au >= TX_au/2\
             
             # Direct term
             if (integ_outer == "quadrature"):
-                I1 = ci.complex_quadrature(fun_TX2_dir_1, (-TX_au/2), TX_au/2)      # same function as fun_t_dir_1 before,
-                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]
-            
+                I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
+
             elif (integ_outer == "romberg"):
-                I1 = ci.complex_romberg(fun_TX2_dir_1, (-TX_au/2), TX_au/2)
-                dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]
+                I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), TX_au/2)
+                dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
 
             # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
             J = 0
@@ -573,7 +581,8 @@ while (t_au >= TX_au/2\
                      + res_J1
                      + indir_J1
                      )
-    
+   
+            # Total trs prob (@E_kin, t) = sum_mu |J_mu|**2
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
         squares = np.append(squares, sum_square)
@@ -587,6 +596,7 @@ while (t_au >= TX_au/2\
 
     in_out.doout_1f(pure_out, outlines)     # writes each (E_kin, t = const, |J|**2) triple in a sep line into output file
     in_out.doout_movie(movie_out, outlines)
+    print()
     max_pos = argrelextrema(squares, np.greater)[0]      # finds position of relative (i. e. local) maxima of |J|**2 in an array
     if (len(max_pos > 0)):                               # if there are such:
         for i in range (0, len(max_pos)):
@@ -599,9 +609,11 @@ while (t_au >= TX_au/2\
 
 
 
-
-
-
+dt_end = datetime.now()
+print(str(dt_end))
+print('Total runtime:', str(dt_end - dt_start))
+outfile.write('\n' + str(dt_end) + '\n')
+outfile.write('Total runtime:' + ' ' + str(dt_end - dt_start))
 
 outfile.close
 pure_out.close

@@ -20,7 +20,7 @@ import sciconv as sc
 #import in_out
 #import sys
 #import warnings
-#import potentials
+import potentials
 
 #-------------------------------------------------------------------------
 
@@ -79,6 +79,15 @@ def sqrt_fact(real):
 #print eigenvalue(n, gs_de, gs_a, red_mass)
 #
 #print "--------------------------------"
+
+
+
+#####
+# Provide everything in atomic units from here on!
+# I. e. all energies (De, V_hyp_b) in Hartree, all lengths (R, Req, Rmin, Rmax) in Bohr,
+# all inverse lengths (alpha) in inverse Bohr, all masses (red_mass) in electron masses,
+# all composite quantities (V_hyp_a) in the respective atomic units.
+#####
 
 def const_s_psi(R,n,s,alpha,Req,lambda_param):
     z = 2* lambda_param * np.exp(-alpha * (R - Req))
