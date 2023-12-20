@@ -556,8 +556,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
         else:
             print('-', end = '', flush = True)
             cnt = cnt + 1
-        print(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV')           #?
-        outfile.write(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV\n') #?
+        #print(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV')           #?
+        #outfile.write(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV\n') #?
         p_au = np.sqrt(2*E_kin_au)
         sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin); for continuous mu: int ~ sum
 
@@ -611,8 +611,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                 old_square = square
                 square = square * factor
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
-            print(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}')
-            outfile.write(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}\n')
+            #print(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}')
+            #outfile.write(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}\n')
 
         squares = np.append(squares, sum_square)
 
@@ -662,8 +662,8 @@ while (t_au >= TX_au/2\
         else:
             print('-', end = '', flush = True)
             cnt = cnt + 1
-        print(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV')           #?
-        outfile.write(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV\n') #?
+        #print(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV')           #?
+        #outfile.write(f'{sciconv.hartree_to_ev(E_kin_au):.2} eV\n') #?
         p_au = np.sqrt(2*E_kin_au)
         sum_square = 0      # Total spectrum |J @ E_kin|**2 = sum_mu |J_mu @ E_kin|**2  (sum of contributions of all final states with E_kin)
 
@@ -720,8 +720,8 @@ while (t_au >= TX_au/2\
                 old_square = square
                 square = square * factor
             sum_square = sum_square + square        # |J|**2 = sum_mu |J_mu|**2
-            print(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}')
-            outfile.write(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}\n')
+            #print(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}')
+            #outfile.write(f'nmu = {nmu:>3}  f = {factor:.5f}  osq = {old_square:.5E}  sq = {square:.5E}  sum = {sum_square:.5E}\n')
 
         squares = np.append(squares, sum_square)
 

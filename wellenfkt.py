@@ -22,6 +22,7 @@ import sciconv as sc
 #import warnings
 import potentials
 import complex_integration as ci
+from mpmath import coulombf, coulombg
 
 #-------------------------------------------------------------------------
 
@@ -184,6 +185,19 @@ def norm_free(R,a,b,red_mass,R_start,**kwargs):
     tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
     FC = tmp[0]
     return FC
+
+
+def psi_hyp(R,a,b,red_mass,R_start):        # model: particle in a hyperbolic potential a/R + b, energy chosen to be a/R_start
+    a_eV = sc.hartree_to_ev(sc.bohr_to_angstrom(a))
+    b_eV = sc.hartree_to_ev(b)
+    E_au = potentials.hyperbel(a_eV,b_eV,R_start) - b
+    p_au = np.sqrt(2 * red_mass * E_au)
+    norm = np.sqrt(red_mass / (2 * np.pi * p_au))   # normalization factor for energy-normalized plane wave
+    eta = a / p_au
+    z = p_au * R
+    func = coulombg(l = 0, eta = eta, z = z) + 1.j * coulombf(l = 0, eta = eta, z = z)      # lin comb chosen so that psi->exp[ipx] for x->inf (up to a constant phase shift)
+    psi = norm * func
+    return complex(psi)
 
 
 
