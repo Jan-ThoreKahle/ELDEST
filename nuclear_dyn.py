@@ -327,8 +327,8 @@ if fin_pot_type == 'morse':
             tmp = tmp + VEr_au**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
         W_lambda.append(tmp)
         ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
-        print(f'{l:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
-        outfile.write(f'{l:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}\n')
+        print(f'{i:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
+        outfile.write(f'{i:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}\n')
 print()
 outfile.write('\n')
 
