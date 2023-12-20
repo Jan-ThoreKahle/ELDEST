@@ -10,7 +10,7 @@
 
 import sciconv
 import numpy as np
-from sys import exit
+import sys
 
 
 #-------------------------------------------------------------------------
