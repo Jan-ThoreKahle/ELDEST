@@ -10,9 +10,9 @@
 # written by: Elke Fasshauer August 2019                                 #
 ##########################################################################
 
-import scipy.misc
 import scipy.integrate as integrate
-from scipy.special import gamma
+#from scipy.special import gamma
+from scipy.special import factorial
 #from scipy.special import eval_genlaguerre
 #from scipy.special import genlaguerre
 import numpy as np
@@ -70,7 +70,7 @@ def sqrt_fact(real):
     if (np.absolute(1 - real) < 1.0E-7):
         return np.sqrt(real)
     elif real < 1.0:
-        return np.sqrt(scipy.misc.factorial(real) )
+        return np.sqrt(factorial(real) )
     else:
         return np.sqrt(real) * sqrt_fact(real-1)
 
@@ -104,8 +104,8 @@ def const_s_psi(R,n,s,alpha,Req,lambda_param):
         prefac  =  np.sqrt(1./(n*(s + n)))
         prefac1 =  (2 * n + s -1 - z)
         prefac2 = np.sqrt((n-1) * (n + s - 1))
-        return prefac * (prefac1 * const_s_psi(R,n-1,s,alpha,Req,lambda_param)
-                         - (prefac2 * const_s_psi(R,n-2,s,alpha,Req,lambda_param)))
+        return prefac * (  prefac1 * const_s_psi(R,n-1,s,alpha,Req,lambda_param)
+                         - prefac2 * const_s_psi(R,n-2,s,alpha,Req,lambda_param)  )
 
 
 def psi_n(R,n,alpha,Req,red_mass,De):
@@ -117,7 +117,7 @@ def psi_n(R,n,alpha,Req,red_mass,De):
 
 def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
-                    * psi_n(R,n2,alpha2,Req2,red_mass,De2) )
+                            * psi_n(R,n2,alpha2,Req2,red_mass,De2) )
     tmp = integrate.quad(func, R_min, R_max)
     FC = tmp[0]
     return FC
