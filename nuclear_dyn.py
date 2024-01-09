@@ -90,10 +90,13 @@ Er_au          = Er_a_au        # ? One could delete Er_a_au altogether
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)    # (same as for Er)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)    # final E for sRICD
 
-tau_au_1       = sciconv.second_to_atu(tau_s)       # lifetime for sRICD res. st.
+Gamma_eV       = a_R * 1/((R_a0)**6) + b_R
+Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)    
+
+tau_au_1       = 1/Gamma_au                         # lifetime for sRICD res. st.
 tau_au         = tau_au_1                           # (same as for Er)
-Gamma_au       = 1. / tau_au
-Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
+
+
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 
 # second final state
