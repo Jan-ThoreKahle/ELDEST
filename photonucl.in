@@ -8,6 +8,9 @@ Er_a_eV       =  49.7477         # resonance energy (at potential minimum) in eV
 Er_b_eV       =   0.0
 E_fin_eV      =  39.9004         # final state energy (at potential minimum) in eV
 tau_s         =  20E-15          # lifetime in s
+R_a0          =   6              # internuclear equilibrium distance for el. and vib. ground state, in bohr
+a_R           =   9.647686E3     # Proportionality constant of gamma ( Γ = a_R * 1/(R_a0)^6 + b_R )
+b_R           =   0              # additive term for gamma
 E_fin_eV_2    =   0.0 
 tau_a_s       =   0.0
 tau_b_s       =   0.0
