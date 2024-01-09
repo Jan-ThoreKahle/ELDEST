@@ -135,7 +135,19 @@ def read_input(inputfile, outfile):
             interact_eV = float(words[2])
             print('interact_eV = ', interact_eV)
             outfile.write('interact_eV = ' + str(interact_eV) + '\n')
-    
+        elif (words[0] == 'R_a0'):
+            R_a0 = float(words[2])
+            print('R_a0 = ', R_a0)
+            outfile.write('R_a0 = ' + str(R_a0) + '\n')
+        elif (words[0] == 'a_R'):
+            a_R = float(words[2])
+            print('a_R = ', a_R)
+            outfile.write('a_R = ' + str(a_R) + '\n')    
+        elif (words[0] == 'b_R'):
+            b_R = float(words[2])
+            print('b_R = ', b_R)
+            outfile.write('b_R = ' + str(b_R) + '\n')
+            
     # exciting laser parameters
         elif (words[0] == 'Omega_eV'):
             Omega_eV = float(words[2])
@@ -318,6 +330,7 @@ def read_input(inputfile, outfile):
     return (rdg_au, cdg_au,
             Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
             interact_eV,
+            R_a0, a_R, b_R,
             Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
             omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
             tmax_s, timestep_s, E_step_eV,
