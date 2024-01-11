@@ -17,6 +17,7 @@ import scipy
 import scipy.integrate as integrate
 from scipy.signal import argrelextrema
 from scipy.special import erf
+from scipy.special import digamma
 import numpy as np
 import sciconv
 import complex_integration as ci
@@ -209,9 +210,21 @@ print("n_res_max = ", n_res_max)
 E_lambdas = []
 outfile.write('n_res  ' + 'E [au]            ' + 'E [eV]' + '\n')
 print('n_res  ' + 'E [au]            ' + 'E [eV]')
+res_Req_au_n = 0                                  # equilibrium internuclear distance of the resonant state for vib. state n 
+res_Req_au_list = []                              # collects distances above
+res_Gamma_au_n = 0                                # decay widths of vib. state n 
+res_VER_au_n = 0                                  # values of VER for all vib. states n, to be used in calculating W_lambda
+res_VER_au_list = []                              # collects VER values above
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
+    
+    res_Req_au_n = (1/res_a)*(np.log(2*lambda_param_res)+digamma(2*lambda_param_res-n)-digamma(2*lambda_param_res-2n)-digamma(2*lambda_param_res-2n-1))
+    res_Req_au_list.append(res_Req_au_n)
+    res_Gamma_au_n = a_R*(1/(res_Req_au_n)**6)+b_R
+    res_VER_au_n = np.sqrt(res_Gamma_au_n/ (2*np.pi))
+    res_VER_au_list.append(res_VER_au_n)
+    
     outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
     print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
@@ -328,7 +341,7 @@ if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = 0
         for j in range (0,n_fin_max+1):
-            tmp = tmp + VEr_au**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
+            tmp = tmp + (res_VER_au_list[i])**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
         W_lambda.append(tmp)
         ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
         print(f'{i:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
