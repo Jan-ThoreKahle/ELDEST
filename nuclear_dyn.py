@@ -161,13 +161,13 @@ E_step_au = sciconv.ev_to_hartree(E_step_eV)
 E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
-VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
-print('VEr_au = ', VEr_au)
+ #VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))    
+ #print('VEr_au = ', VEr_au)
 
 #VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
-cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
+#cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 
 #-------------------------------------------------------------------------
 # Potential details
@@ -219,15 +219,15 @@ for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
     
-    res_Req_au_n = (1/res_a)*(np.log(2*lambda_param_res)+digamma(2*lambda_param_res-n)-digamma(2*lambda_param_res-2n)-digamma(2*lambda_param_res-2n-1))
+    res_Req_au_n = (1/res_a)*(np.log(2*lambda_param_res)+digamma(2*lambda_param_res-n)-digamma(2*lambda_param_res-2*n)-digamma(2*lambda_param_res-2*n-1))+R_a0
     res_Req_au_list.append(res_Req_au_n)
     res_Gamma_au_n = a_R*(1/(res_Req_au_n)**6)+b_R
     res_VER_au_n = np.sqrt(res_Gamma_au_n/ (2*np.pi))
     res_VER_au_list.append(res_VER_au_n)
     
-    outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
-    print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
-
+    outfile.write('{:5d}  {:14.10E}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev),res_Gamma_au_n))
+    print('{:5d}  {:14.10E}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev),res_Gamma_au_n))
+    
 #final state
 print()
 print("Final state")
