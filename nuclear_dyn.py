@@ -161,13 +161,13 @@ E_step_au = sciconv.ev_to_hartree(E_step_eV)
 E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
- #VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))    
- #print('VEr_au = ', VEr_au)
+VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))    
+print('VEr_au = ', VEr_au)
 
 #VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
-#cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
+cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 
 #-------------------------------------------------------------------------
 # Potential details
