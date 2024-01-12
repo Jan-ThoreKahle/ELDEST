@@ -91,14 +91,16 @@ Er_au          = Er_a_au        # ? One could delete Er_a_au altogether
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)    # (same as for Er)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)    # final E for sRICD
 
-Gamma_eV       = a_R * 1/((R_a0)**6) + b_R
+a_R_au         = sciconv.ev_to_hartree(a_R)
+b_R_au         = sciconv.ev_to_hartree(b_R)
+Gamma_eV       = a_R * 1/((R_a0)**6) + b_R        
 Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)    
 
 tau_au_1       = 1/Gamma_au                         # lifetime for sRICD res. st.
 tau_au         = tau_au_1                           # (same as for Er)
 
 
-outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
+#outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 
 # second final state
 #E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
@@ -221,7 +223,7 @@ for n in range (0,n_res_max+1):
     
     res_Req_au_n = (1/res_a)*(np.log(2*lambda_param_res)+digamma(2*lambda_param_res-n)-digamma(2*lambda_param_res-2*n)-digamma(2*lambda_param_res-2*n-1))+R_a0
     res_Req_au_list.append(res_Req_au_n)
-    res_Gamma_au_n = a_R*(1/(res_Req_au_n)**6)+b_R
+    res_Gamma_au_n = a_R_au*(1/(res_Req_au_n)**6)+b_R_au
     res_VER_au_n = np.sqrt(res_Gamma_au_n/ (2*np.pi))
     res_VER_au_list.append(res_VER_au_n)
     
