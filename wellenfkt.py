@@ -195,7 +195,8 @@ def psi_hyp(R,a,b,red_mass,R_start):        # model: particle in a hyperbolic po
     norm = np.sqrt(red_mass / (2 * np.pi * p_au))   # normalization factor for energy-normalized plane wave
     eta = a / p_au
     z = p_au * R
-    func = coulombg(l = 0, eta = eta, z = z) + 1.j * coulombf(l = 0, eta = eta, z = z)      # lin comb chosen so that psi->exp[ipx] for x->inf (up to a constant phase shift)
+    func = coulombf(l = 0, eta = eta, z = z)      # so that psi->sin[px] for x->inf (up to a phase shift) and regular (for x->0)
+    #func = coulombg(l = 0, eta = eta, z = z) + 1.j * coulombf(l = 0, eta = eta, z = z)      # lin comb chosen so that psi->exp[ipx] for x->inf (up to a constant phase shift)
     psi = norm * func
     return complex(psi)
 
