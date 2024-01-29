@@ -233,7 +233,7 @@ if (fin_pot_type == 'morse'):
         E_mus.append(ev)
         outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
         print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
-elif (fin_pot_type == 'hyperbel'):
+elif (fin_pot_type in ('hyperbel','hypfree')):
     print('Final state is repulsive')
     outfile.write('Final state is repulsive' + '\n')
     fin_hyp_a = fin_a
@@ -303,25 +303,27 @@ if (fin_pot_type == 'morse'):
                        l,res_a,res_Req,res_de,R_min,R_max)
             res_fin[l].append(FC)
 
-elif (fin_pot_type == 'hyperbel'):
+elif (fin_pot_type in ('hyperbel','hypfree')):
+    FCfunc = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
     R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
     thresh_flag = -1                # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
     while (thresh_flag < 3):        # Stop FC calc if all |FC| < threshold for 3 consecutive mu
+        print(f'--- R = {sciconv.bohr_to_angstrom(R_start):6.4} A') 
         E_mu = fin_hyp_a / R_start
         E_mus.insert(0,E_mu)        # Present loop starts at high energies, but these shall get high mu numbers = stand at the end of the lists -> fill lists from right to left
 #        print(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
 #        outfile.write(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}\n')  #?
         for k in range(0,n_gs_max+1):
-            FC = wf.FCmor_freehyp(k,gs_a,gs_Req,gs_de,red_mass,
+            FC = FCfunc(k,gs_a,gs_Req,gs_de,red_mass,
                                   fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
             gs_fin[k].insert(0,FC)
-#            print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
+            print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
 #            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
         for l in range(0,n_res_max+1):
-            FC = wf.FCmor_freehyp(l,res_a,res_Req,res_de,red_mass,
+            FC = FCfunc(l,res_a,res_Req,res_de,red_mass,
                                   fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
             res_fin[l].insert(0,FC)
-#            print(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}')   #?
+            print(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}')   #?
 #            outfile.write(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?
         if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
             all(np.abs(res_fin[l][0]) < threshold for l in range(0,n_res_max+1)) ):
@@ -339,7 +341,7 @@ elif (fin_pot_type == 'hyperbel'):
             if (E_fin_au + E_mus[n_fin] <= Er_au + E_l):    # The highest (i.e. first, since loop starts at high n_fin) n_fin for which (E_fin + E_mu <= E_res + E_l) is n_fin_max for this l
                 n_fin_max_list.append(n_fin)
                 break
-    n_fin_max_X = len(E_mus) - 1                            # Will be used in hyperbel case as the very highest nmu
+    n_fin_max_X = len(E_mus) - 1                            # Will be used in hyperbel/hypfree case as the very highest nmu
 
 
 print()
@@ -350,7 +352,7 @@ outfile.write("Franck-Condon overlaps between ground and final state" + '\n')
 print('n_gs  ' +'n_fin  ' + '<fin|gs>')
 outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 
-if (fin_pot_type == 'hyperbel'):
+if (fin_pot_type in ('hyperbel','hypfree')):
     n_fin_max = n_fin_max_X
 for k in range(0,n_gs_max+1):
     for m in range(0,n_fin_max+1):
@@ -358,7 +360,7 @@ for k in range(0,n_gs_max+1):
         outfile.write('{:4d}  {:5d}  {: 14.10E}\n'.format(k,m,FC))
         if (fin_pot_type == 'morse'):
             print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
-        elif (fin_pot_type == 'hyperbel'):
+        elif (fin_pot_type in ('hyperbel','hypfree')):
             if (m == 0 or m == n_fin_max-1 or m == n_fin_max):      # Don't print all the FC, just the first two and last two (per GS vibr state)
                 print(('{:4d}  {:5d}  {: 14.10E}'.format(k,m,FC)))
             elif (m == 1):
@@ -374,20 +376,20 @@ print('n_res  ' +'n_fin  ' + '<fin|res>')
 outfile.write('n_res  ' +'n_fin  ' + '<fin|res>' + '\n')
 
 for l in range(0,n_res_max+1):
-    if (fin_pot_type == 'hyperbel'):
+    if (fin_pot_type in ('hyperbel','hypfree')):
         n_fin_max = n_fin_max_list[l]
     for m in range(0,n_fin_max+1):
         FC = res_fin[l][m]
         outfile.write('{:5d}  {:5d}  {: 14.10E}\n'.format(l,m,FC))
         if (fin_pot_type == 'morse'):
             print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
-        elif (fin_pot_type == 'hyperbel'):
+        elif (fin_pot_type in ('hyperbel','hypfree')):
             if (m == 0 or m == n_fin_max-1 or m == n_fin_max):
                 print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
             elif (m == 1):
                 print(('{:5d}  {:5d}  {: 14.10E}'.format(l,m,FC)))
                 print('   ...')
-if (fin_pot_type == 'hyperbel'):
+if (fin_pot_type in ('hyperbel','hypfree')):
     print("All overlaps between ground or resonant state and final state\n outside the indicated quantum numbers are considered zero")
     outfile.write("All overlaps between ground or resonant state and final state\n outside the indicated quantum numbers are considered zero\n")
 
@@ -395,7 +397,7 @@ if (fin_pot_type == 'hyperbel'):
 indir_FCsums = []
 for l in range (0,n_res_max+1):
     indir_FCsum = 0
-    if (fin_pot_type == 'hyperbel'):
+    if (fin_pot_type in ('hyperbel','hypfree')):
         n_fin_max = n_fin_max_list[l]
     for m in range (0, n_fin_max + 1):
         tmp = np.conj(res_fin[l][m]) * gs_fin[0][m]     # <mu|lambda>* <mu|kappa=0> = <lambda|mu><mu|kappa=0> = <l|m><m|k=0>
@@ -414,7 +416,7 @@ outfile.write('n_res  W_l [eV]          tau_l [s]' + '\n')
 W_lambda = []   # [W_(l=0), W_(l=1), ...]
 for l in range (0,n_res_max+1):
     tmp = 0
-    if (fin_pot_type == 'hyperbel'):
+    if (fin_pot_type in ('hyperbel','hypfree')):
         n_fin_max = n_fin_max_list[l]       # To each lambda their own n_fin_max (v.s.)
     for m in range (0, n_fin_max + 1):
         tmp = tmp + VEr_au**2 * np.abs(res_fin[l][m])**2      # W_l = sum_m ( VEr**2 |<m|l>|**2 )
@@ -525,7 +527,7 @@ prefac_res1 = VEr_au * rdg_au
 prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
 prefac_dir1 = 1j * cdg_au_V
 
-if (fin_pot_type == 'hyperbel'):
+if (fin_pot_type in ('hyperbel','hypfree')):
     n_fin_max = n_fin_max_X
 
 
@@ -577,7 +579,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
             J = 0
             for nlambda in range (0,n_res_max+1):
-                if (fin_pot_type == 'hyperbel' and nmu > n_fin_max_list[nlambda]):  # J_nondir,mu,lambda = 0 if repulsive |fin>|mu> lies higher than |res>|lambda>
+                if (fin_pot_type in ('hyperbel','hypfree') and nmu > n_fin_max_list[nlambda]):  # J_nondir,mu,lambda = 0 if repulsive |fin>|mu> lies higher than |res>|lambda>
                     continue
                 E_lambda = E_lambdas[nlambda]
                 W_au = W_lambda[nlambda]
@@ -606,7 +608,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             # For cont rep fin: int (dE_mu |J_mu|**2 E-DOS(E_mu)) = int (dR_mu |J_mu|**2 R-DOS(R_mu))
             #   R-DOS = E-DOS * Va / R_mu**2 = E-DOS * E_mu**2 / Va. If E-DOS = 1 & R_hyp_step = const: int (dR_mu |J_mu|**2 R-DOS) ~ sum_mu (R_hyp_step |J_mu|**2 E_mu**2 / Va)
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-            if (fin_pot_type == 'hyperbel'):
+            if (fin_pot_type in ('hyperbel','hypfree')):
                 factor = R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
                 old_square = square
                 square = square * factor
@@ -684,7 +686,7 @@ while (t_au >= TX_au/2\
             # J_nondir,mu = sum_lambda J_nondir,mu,lambda = sum_lambda (J_res,mu,lambda + J_indir,mu,lambda)
             J = 0
             for nlambda in range (0,n_res_max+1):
-                if (fin_pot_type == 'hyperbel' and nmu > n_fin_max_list[nlambda]):  # J_nondir,mu,lambda = 0 if repulsive |fin>|mu> lies higher than |res>|lambda>
+                if (fin_pot_type in ('hyperbel','hypfree') and nmu > n_fin_max_list[nlambda]):  # J_nondir,mu,lambda = 0 if repulsive |fin>|mu> lies higher than |res>|lambda>
 #                    print(nmu, nlambda, 'skipped')  #?
                     continue
                 E_lambda = E_lambdas[nlambda]
@@ -715,7 +717,7 @@ while (t_au >= TX_au/2\
             # For cont rep fin: int (dE_mu |J_mu|**2 E-DOS(E_mu)) = int (dR_mu |J_mu|**2 R-DOS(R_mu))
             #   R-DOS = E-DOS * Va / R_mu**2 = E-DOS * E_mu**2 / Va. If E-DOS = 1 & R_hyp_step = const: int (dR_mu |J_mu|**2 R-DOS) ~ sum_mu (R_hyp_step |J_mu|**2 E_mu**2 / Va)
             square = np.absolute(J + dir_J1)**2     # |J_mu|**2
-            if (fin_pot_type == 'hyperbel'):
+            if (fin_pot_type in ('hyperbel','hypfree')):
                 factor = R_hyp_step * E_mus[nmu]**2 / fin_hyp_a
                 old_square = square
                 square = square * factor

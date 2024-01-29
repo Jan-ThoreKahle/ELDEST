@@ -192,13 +192,22 @@ def psi_hyp(R,a,b,red_mass,R_start):        # model: particle in a hyperbolic po
     b_eV = sc.hartree_to_ev(b)
     E_au = potentials.hyperbel(a_eV,b_eV,R_start) - b
     p_au = np.sqrt(2 * red_mass * E_au)
-    norm = np.sqrt(red_mass / (2 * np.pi * p_au))   # normalization factor for energy-normalized plane wave
+    norm = np.sqrt(red_mass / (2 * np.pi * p_au))   # normalization factor for energy-normalized plane wave (must possibly be multiplied by 2)
     eta = a / p_au
     z = p_au * R
     func = coulombf(l = 0, eta = eta, z = z)      # so that psi->sin[px] for x->inf (up to a phase shift) and regular (for x->0)
     #func = coulombg(l = 0, eta = eta, z = z) + 1.j * coulombf(l = 0, eta = eta, z = z)      # lin comb chosen so that psi->exp[ipx] for x->inf (up to a constant phase shift)
     psi = norm * func
     return complex(psi)
+
+
+def FCmor_hyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
+    lim = kwargs.get("limit", 50)
+    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
+                            * psi_hyp(R,V2a,V2b,red_mass,R_start) )
+    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    FC = tmp[0]
+    return FC
 
 
 
