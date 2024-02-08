@@ -308,7 +308,7 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
     R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
     thresh_flag = -1                # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
     while (thresh_flag < 3):        # Stop FC calc if all |FC| < threshold for 3 consecutive mu
-        print(f'--- R = {sciconv.bohr_to_angstrom(R_start):6.4} A') 
+        print(f'--- R = {sciconv.bohr_to_angstrom(R_start):7.4f} A') 
         E_mu = fin_hyp_a / R_start
         E_mus.insert(0,E_mu)        # Present loop starts at high energies, but these shall get high mu numbers = stand at the end of the lists -> fill lists from right to left
 #        print(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
