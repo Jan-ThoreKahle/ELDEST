@@ -17,6 +17,7 @@ import scipy
 import scipy.integrate as integrate
 from scipy.signal import argrelextrema
 from scipy.special import erf
+from scipy.special import digamma
 import numpy as np
 import sciconv
 import complex_integration as ci
@@ -69,6 +70,7 @@ Xshape = 'convoluted'
 (rdg_au, cdg_au,
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
  interact_eV,
+ R_a0, a_R, b_R,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
  tmax_s, timestep_s, E_step_eV,
@@ -89,11 +91,16 @@ Er_au          = Er_a_au        # ? One could delete Er_a_au altogether
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)    # (same as for Er)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)    # final E for sRICD
 
-tau_au_1       = sciconv.second_to_atu(tau_s)       # lifetime for sRICD res. st.
+a_R_au         = sciconv.ev_to_hartree(a_R)
+b_R_au         = sciconv.ev_to_hartree(b_R)
+Gamma_eV       = a_R * 1/((R_a0)**6) + b_R        
+Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)    
+
+tau_au_1       = 1/Gamma_au                         # lifetime for sRICD res. st.
 tau_au         = tau_au_1                           # (same as for Er)
-Gamma_au       = 1. / tau_au
-Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
-outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
+
+
+#outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
 
 # second final state
 #E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
@@ -156,8 +163,7 @@ E_step_au = sciconv.ev_to_hartree(E_step_eV)
 E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
-#VEr_au = 2.9967904039571205
-VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
+VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))    
 print('VEr_au = ', VEr_au)
 outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 
@@ -212,12 +218,24 @@ print("n_res_max = ", n_res_max)
 E_lambdas = []
 outfile.write('n_res  ' + 'E [au]            ' + 'E [eV]' + '\n')
 print('n_res  ' + 'E [au]            ' + 'E [eV]')
+res_Req_au_n = 0                                  # equilibrium internuclear distance of the resonant state for vib. state n 
+res_Req_au_list = []                              # collects distances above
+res_Gamma_au_n = 0                                # decay widths of vib. state n 
+res_VER_au_n = 0                                  # values of VER for all vib. states n, to be used in calculating W_lambda
+res_VER_au_list = []                              # collects VER values above
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
-    outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
-    print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
-
+    
+    res_Req_au_n = (1/res_a)*(np.log(2*lambda_param_res)+digamma(2*lambda_param_res-n)-digamma(2*lambda_param_res-2*n)-digamma(2*lambda_param_res-2*n-1))+R_a0
+    res_Req_au_list.append(res_Req_au_n)
+    res_Gamma_au_n = a_R_au*(1/(res_Req_au_n)**6)+b_R_au
+    res_VER_au_n = np.sqrt(res_Gamma_au_n/ (2*np.pi))
+    res_VER_au_list.append(res_VER_au_n)
+    
+    outfile.write('{:5d}  {:14.10E}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev),res_Gamma_au_n))
+    print('{:5d}  {:14.10E}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev),res_Gamma_au_n))
+    
 #final state
 print()
 print("Final state")
@@ -349,7 +367,7 @@ if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = 0
         for j in range (0,n_fin_max+1):
-            tmp = tmp + VEr_au**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
+            tmp = tmp + (res_VER_au_list[i])**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
         W_lambda.append(tmp)
         ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
         print(f'{i:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
