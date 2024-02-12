@@ -156,13 +156,20 @@ E_step_au = sciconv.ev_to_hartree(E_step_eV)
 E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
+#VEr_au = 2.9967904039571205
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
+outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 
 #VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
+
+VEr_au = VEr_au*res_Req**3        #adjusts VEr_au by the R dependent factor
+print('VEr_au_adjusted = ', VEr_au)
+outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
+
 
 #-------------------------------------------------------------------------
 # Potential details
@@ -236,6 +243,7 @@ if (fin_pot_type == 'morse'):
         print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 
+
 #-------------------------------------------------------------------------
 # Franck-Condon factors
 #-------------------------------------------------------------------------
@@ -244,6 +252,23 @@ gs_fin =  []
 res_fin = []
 R_min = sciconv.angstrom_to_bohr(1.5)
 R_max = sciconv.angstrom_to_bohr(30.0)
+
+
+# Numeric Integration failsafe check
+
+tmp=np.array((0,0))
+
+while tmp[0] <= (1000*tmp[1]):
+
+    R_min -= 0.01
+
+    func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
+                                * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de) * (1/R**3) )
+    tmp = integrate.quad(func, R_min, R_max)
+
+print('-----------------------------------------------------------------')
+print("R_min=",R_min)
+print('-----------------------------------------------------------------')
 
 # ground state - resonant state <lambda|kappa>
 print()
@@ -294,7 +319,7 @@ if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = []
         for j in range (0,n_fin_max+1):
-            FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
+            FC = wf.FCR(j,fin_a,fin_Req,fin_de,red_mass,                          # variation of the FC subroutine that considers 1/R^3
                        i,res_a,res_Req,res_de,R_min,R_max)
             tmp.append(FC)
             outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
@@ -464,7 +489,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
-    
+
+
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
@@ -481,7 +507,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                               * gs_res[0][nlambda] * res_fin[nlambda][nmu])
                     indir_J1 = (prefac_indir1 * res_I[0]
                                 * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-    
+
                 elif (integ_outer == "romberg"):
                     res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
                 
