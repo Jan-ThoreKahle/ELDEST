@@ -17,7 +17,6 @@ import scipy
 import scipy.integrate as integrate
 from scipy.signal import argrelextrema
 from scipy.special import erf
-from scipy.special import digamma
 import numpy as np
 import sciconv
 import complex_integration as ci
@@ -70,12 +69,11 @@ Xshape = 'convoluted'
 (rdg_au, cdg_au,
  Er_a_eV, Er_b_eV, tau_a_s, tau_b_s, E_fin_eV, tau_s, E_fin_eV_2, tau_s_2,
  interact_eV,
- R_a0, a_R, b_R,
  Omega_eV, n_X, I_X, X_sinsq, X_gauss, Xshape,
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
- integ, integ_outer,
+ integ, integ_outer, Gamma_type,
  mass1, mass2, grad_delta, R_eq_AA,
  gs_de, gs_a, gs_Req, gs_const,
  res_de, res_a, res_Req, res_const,
@@ -91,16 +89,13 @@ Er_au          = Er_a_au        # ? One could delete Er_a_au altogether
 E_fin_au       = sciconv.ev_to_hartree(E_fin_eV)    # (same as for Er)
 E_fin_au_1     = sciconv.ev_to_hartree(E_fin_eV)    # final E for sRICD
 
-a_R_au         = sciconv.ev_to_hartree(a_R)
-b_R_au         = sciconv.ev_to_hartree(b_R)
-Gamma_eV       = a_R * 1/((R_a0)**6) + b_R        
-Gamma_au       = sciconv.ev_to_hartree(Gamma_eV)    
-
-tau_au_1       = 1/Gamma_au                         # lifetime for sRICD res. st.
+tau_au_1       = sciconv.second_to_atu(tau_s)       # lifetime for sRICD res. st.
 tau_au         = tau_au_1                           # (same as for Er)
-
-
-#outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
+Gamma_au       = 1. / tau_au
+Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
+outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
+# print('Dependence of Gamma on R = ', Gamma_type)
+# outfile.write('Dependence of Gamma on R = ' + str(Gamma_type) + '\n')
 
 # second final state
 #E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
@@ -163,7 +158,7 @@ E_step_au = sciconv.ev_to_hartree(E_step_eV)
 E_min_au = sciconv.ev_to_hartree(E_min_eV)
 E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
-VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))    
+VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
 outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 
@@ -172,9 +167,13 @@ outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 
-VEr_au = VEr_au*res_Req**3        #adjusts VEr_au by the R dependent factor
-print('VEr_au_adjusted = ', VEr_au)
-outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
+#if Gamma_type == 'const':
+
+if Gamma_type =='dipoledipole':
+    VEr_au = VEr_au*res_Req**3                            #adjusts VEr_au by the R dependent factor
+    print('VEr_au_adjusted = ', VEr_au)
+    outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
+
 
 
 #-------------------------------------------------------------------------
@@ -218,24 +217,12 @@ print("n_res_max = ", n_res_max)
 E_lambdas = []
 outfile.write('n_res  ' + 'E [au]            ' + 'E [eV]' + '\n')
 print('n_res  ' + 'E [au]            ' + 'E [eV]')
-res_Req_au_n = 0                                  # equilibrium internuclear distance of the resonant state for vib. state n 
-res_Req_au_list = []                              # collects distances above
-res_Gamma_au_n = 0                                # decay widths of vib. state n 
-res_VER_au_n = 0                                  # values of VER for all vib. states n, to be used in calculating W_lambda
-res_VER_au_list = []                              # collects VER values above
 for n in range (0,n_res_max+1):
     ev = wf.eigenvalue(n,res_de,res_a,red_mass)
     E_lambdas.append(ev)
-    
-    res_Req_au_n = (1/res_a)*(np.log(2*lambda_param_res)+digamma(2*lambda_param_res-n)-digamma(2*lambda_param_res-2*n)-digamma(2*lambda_param_res-2*n-1))+R_a0
-    res_Req_au_list.append(res_Req_au_n)
-    res_Gamma_au_n = a_R_au*(1/(res_Req_au_n)**6)+b_R_au
-    res_VER_au_n = np.sqrt(res_Gamma_au_n/ (2*np.pi))
-    res_VER_au_list.append(res_VER_au_n)
-    
-    outfile.write('{:5d}  {:14.10E}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev),res_Gamma_au_n))
-    print('{:5d}  {:14.10E}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev),res_Gamma_au_n))
-    
+    outfile.write('{:5d}  {:14.10E}  {:14.10E}\n'.format(n,ev,sciconv.hartree_to_ev(ev)))
+    print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
+
 #final state
 print()
 print("Final state")
@@ -276,20 +263,26 @@ R_max = sciconv.angstrom_to_bohr(30.0)
 
 tmp=np.array((0,0))
 
-while tmp[0] <= (1000*tmp[1]):
 
-    R_min -= 0.01
+while tmp[0] <= (1000*tmp[1]):                                                                   # checks if the int. is three OoMs larger than the est. error
 
-    func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
-                                * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de) * (1/R**3) )
+    R_min -= 0.01                                                                                # lowers lower bound by 0.01 Bohr
+    if Gamma_type == 'const':
+        func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
+                                    * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+    elif Gamma_type == 'dipoledipole':
+        func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
+                                    * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de) * (1/R**3) )
     tmp = integrate.quad(func, R_min, R_max)
 
 print('-----------------------------------------------------------------')
-print("R_min=",R_min)
-print('-----------------------------------------------------------------')
-
-# ground state - resonant state <lambda|kappa>
 print()
+print('Lower bound of integration over R for the Franck-Condon factors')
+print("R_min =",R_min)
+outfile.write('-----------------------------------------------------------------' + '\n')
+outfile.write('Lower bound of integration over R for the Franck-Condon factors' + '\n')
+outfile.write('R_min = {:14.10E}\n'.format(R_min))
+# ground state - resonant state <lambda|kappa>
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and resonant state")
 print('n_gs  ' + 'n_res  ' + '<res|gs>')
@@ -337,12 +330,16 @@ if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = []
         for j in range (0,n_fin_max+1):
-            FC = wf.FCR(j,fin_a,fin_Req,fin_de,red_mass,                          # variation of the FC subroutine that considers 1/R^3
-                       i,res_a,res_Req,res_de,R_min,R_max)
-            tmp.append(FC)
-            outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
-            print(('{:5d}  {:5d}  {:14.10E}'.format(i,j,FC)))
-        res_fin.append(tmp)
+                if Gamma_type == 'const':
+                    FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
+                        i,res_a,res_Req,res_de,R_min,R_max)
+                if Gamma_type == 'dipoledipole':
+                    FC = wf.FCR(j,fin_a,fin_Req,fin_de,red_mass,                          # variation of the FC subroutine that considers 1/R^3
+                        i,res_a,res_Req,res_de,R_min,R_max)
+                tmp.append(FC)
+                outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
+                print(('{:5d}  {:5d}  {:14.10E}'.format(i,j,FC)))
+                res_fin.append(tmp)
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
@@ -367,7 +364,7 @@ if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = 0
         for j in range (0,n_fin_max+1):
-            tmp = tmp + (res_VER_au_list[i])**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
+            tmp = tmp + VEr_au**2 * (res_fin[i][j])**2      # W_l = sum_j ( VEr**2 <mj|li>**2 )
         W_lambda.append(tmp)
         ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
         print(f'{i:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
