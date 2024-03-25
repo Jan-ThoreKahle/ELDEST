@@ -192,10 +192,10 @@ def psi_hyp(R,a,b,red_mass,R_start):        # model: particle in a hyperbolic po
     b_eV = sc.hartree_to_ev(b)
     E_au = potentials.hyperbel(a_eV,b_eV,R_start) - b
     K_au = np.sqrt(2 * red_mass * E_au)             # momentum of the nuclear system
-    norm = np.sqrt(red_mass / (2 * np.pi * K_au))   # normalization factor for energy-normalized plane wave (must possibly be multiplied by 2)
+    norm = np.sqrt(2 * red_mass / (np.pi * K_au))   # normalization factor for energy-normalized plane wave (F_kL = sqrt(2/pi) * F_L is k-normalized, F_EL = sqrt(m/k) * F_kL)
     eta = a * red_mass / K_au
     z = K_au * R
-    func = coulombf(l = 0, eta = eta, z = z, maxterms=10**6)      # so that psi->sin[Kx] for x->inf (up to a phase shift) and regular (for x->0)
+    func = coulombf(l = 0, eta = eta, z = z, maxterms=10**6)      # so that psi->sin[K*Theta(x)] for x->inf and regular (for x->0)
     #func = coulombg(l = 0, eta = eta, z = z) + 1.j * coulombf(l = 0, eta = eta, z = z)      # lin comb chosen so that psi->exp[iKx] for x->inf (up to a constant phase shift)
     psi = norm * func
     return float(psi)
