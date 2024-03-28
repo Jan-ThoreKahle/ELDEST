@@ -317,13 +317,13 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
             FC = FCfunc(k,gs_a,gs_Req,gs_de,red_mass,
                                   fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
             gs_fin[k].insert(0,FC)
-            print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
+            print(f'k = {k}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
 #            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
         for l in range(0,n_res_max+1):
             FC = FCfunc(l,res_a,res_Req,res_de,red_mass,
                                   fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
             res_fin[l].insert(0,FC)
-            print(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}')   #?
+            print(f'l = {l}, |res_fin| = {np.abs(FC):10.10E}')   #?
 #            outfile.write(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?
         if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
             all(np.abs(res_fin[l][0]) < threshold for l in range(0,n_res_max+1)) ):
@@ -334,6 +334,20 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
 #        print(f'thresh_flag = {thresh_flag}')                                                                               #?
 #        outfile.write(f'thresh_flag = {thresh_flag}\n')                                                                               #?
         R_start = R_start + R_hyp_step
+
+    # Enforce FC sum rule: for a bound vibr state |b> (b=kappa,lambda), int_0^inf dEmu <b|mu><mu|b> = 1, or discretized, sum_Emu DeltaE <b|mu><mu|b> = 1, i. e. sum_Rmu = DeltaR Va/Rmu^2 <b|mu><mu|b> = 1
+    norm_fin_gs = []        # Current values of the sum_Rmu with |b> = |kappa>
+    norm_fin_res = []       # Current values of the sum_Rmu with |b> = |lambda>
+    for k in range(0,n_gs_max+1):
+        norm_fin_gs.append(R_hyp_step / fin_hyp_a * np.sum(np.abs(gs_fin[k])**2 * np.array(E_mus)**2))
+        gs_fin[k] = gs_fin[k] / np.sqrt(norm_fin_gs[k])     # Rescale FC overlaps <k|m> so that sum_Rmu = 1
+    for l in range(0,n_res_max+1):
+        norm_fin_res.append(R_hyp_step / fin_hyp_a * np.sum(np.abs(res_fin[l])**2 * np.array(E_mus)**2))
+        res_fin[l] = res_fin[l] / np.sqrt(norm_fin_res[l])  # Rescale FC overlaps <l|m> so that sum_Rmu = 1
+    print('norm_fin_gs =', norm_fin_gs)
+    print('norm_fin_res =', norm_fin_res)
+    outfile.write('norm_fin_gs = ' + str(norm_fin_gs) + '\n')       #?
+    outfile.write('norm_fin_res = ' + str(norm_fin_res) + '\n')     #?
 
     n_fin_max_list = []             # Max quantum number considered in non-direct ionization for each lambda (all vibr fin states above the resp res state are discarded)
     for E_l in E_lambdas:
@@ -416,10 +430,13 @@ outfile.write('n_res  W_l [eV]          tau_l [s]' + '\n')
 W_lambda = []   # [W_(l=0), W_(l=1), ...]
 for l in range (0,n_res_max+1):
     tmp = 0
+    factor = 1
     if (fin_pot_type in ('hyperbel','hypfree')):
         n_fin_max = n_fin_max_list[l]       # To each lambda their own n_fin_max (v.s.)
     for m in range (0, n_fin_max + 1):
-        tmp = tmp + VEr_au**2 * np.abs(res_fin[l][m])**2      # W_l = sum_m ( VEr**2 |<m|l>|**2 )
+        if (fin_pot_type in ('hyperbel','hypfree')):
+            factor = R_hyp_step * np.array(E_mus[m])**2 / fin_hyp_a
+        tmp = tmp + VEr_au**2 * np.abs(res_fin[l][m])**2 * factor      # W_l = sum_m ( VEr**2 |<m|l>|**2 ) for Morse or W_l = sum_m ( DeltaR R-DOS(m) VEr**2 |<m|l>|**2 ) for cont vibr fin states
     W_lambda.append(tmp)
     ttmp = 1./ (2 * np.pi * tmp)        # lifetime tau_l = 1 / (2 pi W_l)
     print(f'{l:5d}  {sciconv.hartree_to_ev(tmp):14.10E}  {sciconv.atu_to_second(ttmp):14.10E}')
