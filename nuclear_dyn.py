@@ -336,18 +336,23 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
         R_start = R_start + R_hyp_step
 
     # Enforce FC sum rule: for a bound vibr state |b> (b=kappa,lambda), int_0^inf dEmu <b|mu><mu|b> = 1, or discretized, sum_Emu DeltaE <b|mu><mu|b> = 1, i. e. sum_Rmu = DeltaR Va/Rmu^2 <b|mu><mu|b> = 1
-    norm_fin_gs = []        # Current values of the sum_Rmu with |b> = |kappa>
-    norm_fin_res = []       # Current values of the sum_Rmu with |b> = |lambda>
+#    norm_fin_gs = []        # Current values of the sum_Rmu with |b> = |kappa>
+#    norm_fin_res = []       # Current values of the sum_Rmu with |b> = |lambda>
+#    for k in range(0,n_gs_max+1):
+#        norm_fin_gs.append(R_hyp_step / fin_hyp_a * np.sum(np.abs(gs_fin[k])**2 * np.array(E_mus)**2))
+#        gs_fin[k] = gs_fin[k] / np.sqrt(norm_fin_gs[k])     # Rescale FC overlaps <k|m> so that sum_Rmu = 1
+#    for l in range(0,n_res_max+1):
+#        norm_fin_res.append(R_hyp_step / fin_hyp_a * np.sum(np.abs(res_fin[l])**2 * np.array(E_mus)**2))
+#        res_fin[l] = res_fin[l] / np.sqrt(norm_fin_res[l])  # Rescale FC overlaps <l|m> so that sum_Rmu = 1
+#    print('norm_fin_gs =', norm_fin_gs)
+#    print('norm_fin_res =', norm_fin_res)
+#    outfile.write('norm_fin_gs = ' + str(norm_fin_gs) + '\n')       #?
+#    outfile.write('norm_fin_res = ' + str(norm_fin_res) + '\n')     #?
+    norm_factor = R_hyp_step / fin_hyp_a * np.sum(np.abs(gs_fin[0])**2 * np.array(E_mus)**2)   # All FC overlaps will be rescaled using the sum_Rmu with |b> = |k=0>
     for k in range(0,n_gs_max+1):
-        norm_fin_gs.append(R_hyp_step / fin_hyp_a * np.sum(np.abs(gs_fin[k])**2 * np.array(E_mus)**2))
-        gs_fin[k] = gs_fin[k] / np.sqrt(norm_fin_gs[k])     # Rescale FC overlaps <k|m> so that sum_Rmu = 1
+        gs_fin[k] = gs_fin[k] / np.sqrt(norm_factor)        # Rescale FC overlaps <k|m>
     for l in range(0,n_res_max+1):
-        norm_fin_res.append(R_hyp_step / fin_hyp_a * np.sum(np.abs(res_fin[l])**2 * np.array(E_mus)**2))
-        res_fin[l] = res_fin[l] / np.sqrt(norm_fin_res[l])  # Rescale FC overlaps <l|m> so that sum_Rmu = 1
-    print('norm_fin_gs =', norm_fin_gs)
-    print('norm_fin_res =', norm_fin_res)
-    outfile.write('norm_fin_gs = ' + str(norm_fin_gs) + '\n')       #?
-    outfile.write('norm_fin_res = ' + str(norm_fin_res) + '\n')     #?
+        res_fin[l] = res_fin[l] / np.sqrt(norm_factor)      # Rescale FC overlaps <l|m>
 
     n_fin_max_list = []             # Max quantum number considered in non-direct ionization for each lambda (all vibr fin states above the resp res state are discarded)
     for E_l in E_lambdas:
@@ -363,6 +368,10 @@ print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and final state")
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between ground and final state" + '\n')
+if (fin_pot_type in ('hyperbel','hypfree')):
+    print('norm_factor =', norm_factor)
+    outfile.write('norm_factor = ' + str(norm_factor) + '\n')
+
 print('n_gs  ' +'n_fin  ' + '<fin|gs>')
 outfile.write('n_gs  ' +'n_fin  ' + '<fin|gs>' + '\n')
 
