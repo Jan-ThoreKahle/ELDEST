@@ -60,6 +60,7 @@ def read_input(inputfile, outfile):
     #
     integ         = "analytic"
     integ_outer   = "romberg"
+    Gamma_type    = "const"            # options: const, dipoledipole, wfoverlap
     # parameters for the nuclear dynamics
     mass1         = 20.1797 #in g/mol
     mass2         = 20.1797 # in g/mol
@@ -269,6 +270,23 @@ def read_input(inputfile, outfile):
                 print('no integration scheme selected')
                 outfile.write('no integration scheme selected \n')
 
+        elif (words[0] == 'Gamma_type'):
+            if (words[2] == 'const'):
+                Gamma_type = 'const'
+                print('Dependence of Gamma on R: constant')
+                outfile.write('Dependence of Gamma on R = constant \n')
+            elif (words[2] == 'dipoledipole'):
+                Gamma_type = 'dipoledipole'
+                print('Dependence of Gamma on R: R^(-6)')
+                outfile.write('Dependence of Gamma on R: R^(-6) \n')
+            elif (words[2] == 'wfoverlap'):
+                Gamma_type = 'wfoverlap'
+                print('Dependence of Gamma on R: e^(-aR)')
+                outfile.write('Dependence of Gamma on R: e^(-aR) \n')
+            else:
+                print('no Gamma type selected')
+                outfile.write('no Gamma type selected \n')
+
         elif (words[0] == 'gs_de'):
             outfile.write('Parameters of potential energy curves:' + '\n')
             gs_de = float(words[2])
@@ -322,7 +340,7 @@ def read_input(inputfile, outfile):
             omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
             tmax_s, timestep_s, E_step_eV,
             E_min_eV, E_max_eV,
-            integ, integ_outer,
+            integ, integ_outer, Gamma_type,
             mass1, mass2, grad_delta, R_eq_AA,
             gs_de, gs_a, gs_Req, gs_const,
             res_de, res_a, res_Req, res_const,

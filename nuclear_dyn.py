@@ -73,7 +73,7 @@ Xshape = 'convoluted'
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
- integ, integ_outer,
+ integ, integ_outer, Gamma_type,
  mass1, mass2, grad_delta, R_eq_AA,
  gs_de, gs_a, gs_Req, gs_const,
  res_de, res_a, res_Req, res_const,
@@ -94,6 +94,8 @@ tau_au         = tau_au_1                           # (same as for Er)
 Gamma_au       = 1. / tau_au
 Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
+# print('Dependence of Gamma on R = ', Gamma_type)
+# outfile.write('Dependence of Gamma on R = ' + str(Gamma_type) + '\n')
 
 # second final state
 #E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
@@ -158,11 +160,21 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
+outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 
 #VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
+
+#if Gamma_type == 'const':
+
+if Gamma_type =='dipoledipole':
+    VEr_au = VEr_au*res_Req**3                            #adjusts VEr_au by the R dependent factor
+    print('VEr_au_adjusted = ', VEr_au)
+    outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
+
+
 
 #-------------------------------------------------------------------------
 # Potential details
@@ -236,6 +248,7 @@ if (fin_pot_type == 'morse'):
         print('{:5d}  {:14.10E}  {:14.10E}'.format(n,ev,sciconv.hartree_to_ev(ev)))
 
 
+
 #-------------------------------------------------------------------------
 # Franck-Condon factors
 #-------------------------------------------------------------------------
@@ -245,8 +258,31 @@ res_fin = []
 R_min = sciconv.angstrom_to_bohr(1.5)
 R_max = sciconv.angstrom_to_bohr(30.0)
 
-# ground state - resonant state <lambda|kappa>
+
+# Numeric Integration failsafe check
+
+tmp=np.array((0,0))
+
+
+while tmp[0] <= (1000*tmp[1]):                                                                   # checks if the int. is three OoMs larger than the est. error
+
+    R_min -= 0.01                                                                                # lowers lower bound by 0.01 Bohr
+    if Gamma_type == 'const':
+        func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
+                                    * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+    elif Gamma_type == 'dipoledipole':
+        func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
+                                    * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de) * (1/R**3) )
+    tmp = integrate.quad(func, R_min, R_max)
+
+print('-----------------------------------------------------------------')
 print()
+print('Lower bound of integration over R for the Franck-Condon factors')
+print("R_min =",R_min)
+outfile.write('-----------------------------------------------------------------' + '\n')
+outfile.write('Lower bound of integration over R for the Franck-Condon factors' + '\n')
+outfile.write('R_min = {:14.10E}\n'.format(R_min))
+# ground state - resonant state <lambda|kappa>
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and resonant state")
 print('n_gs  ' + 'n_res  ' + '<res|gs>')
@@ -294,12 +330,16 @@ if fin_pot_type == 'morse':
     for i in range (0,n_res_max+1):
         tmp = []
         for j in range (0,n_fin_max+1):
-            FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
-                       i,res_a,res_Req,res_de,R_min,R_max)
-            tmp.append(FC)
-            outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
-            print(('{:5d}  {:5d}  {:14.10E}'.format(i,j,FC)))
-        res_fin.append(tmp)
+                if Gamma_type == 'const':
+                    FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
+                        i,res_a,res_Req,res_de,R_min,R_max)
+                if Gamma_type == 'dipoledipole':
+                    FC = wf.FCR(j,fin_a,fin_Req,fin_de,red_mass,                          # variation of the FC subroutine that considers 1/R^3
+                        i,res_a,res_Req,res_de,R_min,R_max)
+                tmp.append(FC)
+                outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
+                print(('{:5d}  {:5d}  {:14.10E}'.format(i,j,FC)))
+                res_fin.append(tmp)
 
 # sum over mup of product <lambda|mup><mup|kappa>       where mup means mu prime
 indir_FCsums = []
@@ -464,7 +504,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
-    
+
+
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
@@ -481,7 +522,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                               * gs_res[0][nlambda] * res_fin[nlambda][nmu])
                     indir_J1 = (prefac_indir1 * res_I[0]
                                 * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-    
+
                 elif (integ_outer == "romberg"):
                     res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
                 
