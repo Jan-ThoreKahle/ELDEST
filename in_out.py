@@ -60,7 +60,7 @@ def read_input(inputfile, outfile):
     #
     integ         = "analytic"
     integ_outer   = "romberg"
-    Gamma_type    = "const"            # options: const, dipoledipole, wfoverlap
+    Gamma_type    = "const"            # options: const, R6, exp
     # parameters for the nuclear dynamics
     mass1         = 20.1797 #in g/mol
     mass2         = 20.1797 # in g/mol
@@ -275,12 +275,12 @@ def read_input(inputfile, outfile):
                 Gamma_type = 'const'
                 print('Dependence of Gamma on R: constant')
                 outfile.write('Dependence of Gamma on R = constant \n')
-            elif (words[2] == 'dipoledipole'):
-                Gamma_type = 'dipoledipole'
+            elif (words[2] == 'R6'):
+                Gamma_type = 'R6'
                 print('Dependence of Gamma on R: R^(-6)')
                 outfile.write('Dependence of Gamma on R: R^(-6) \n')
-            elif (words[2] == 'wfoverlap'):
-                Gamma_type = 'wfoverlap'
+            elif (words[2] == 'exp'):
+                Gamma_type = 'exp'
                 print('Dependence of Gamma on R: e^(-aR)')
                 outfile.write('Dependence of Gamma on R: e^(-aR) \n')
             else:

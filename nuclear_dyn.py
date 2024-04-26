@@ -169,7 +169,7 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 
 #if Gamma_type == 'const':
 
-if Gamma_type =='dipoledipole':
+if Gamma_type =='R6':
     VEr_au = VEr_au*res_Req**3                            #adjusts VEr_au by the R dependent factor
     print('VEr_au_adjusted = ', VEr_au)
     outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
@@ -270,7 +270,7 @@ while tmp[0] <= (1000*tmp[1]):                                                  
     if Gamma_type == 'const':
         func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
                                     * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
-    elif Gamma_type == 'dipoledipole':
+    elif Gamma_type == 'R6':
         func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
                                     * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de) * (1/R**3) )
     tmp = integrate.quad(func, R_min, R_max)
@@ -333,8 +333,8 @@ if fin_pot_type == 'morse':
                 if Gamma_type == 'const':
                     FC = wf.FC(j,fin_a,fin_Req,fin_de,red_mass,
                         i,res_a,res_Req,res_de,R_min,R_max)
-                if Gamma_type == 'dipoledipole':
-                    FC = wf.FCR(j,fin_a,fin_Req,fin_de,red_mass,                          # variation of the FC subroutine that considers 1/R^3
+                if Gamma_type == 'R6':
+                    FC = wf.FCR6j,fin_a,fin_Req,fin_de,red_mass,                          # variation of the FC subroutine that considers 1/R^3
                         i,res_a,res_Req,res_de,R_min,R_max)
                 tmp.append(FC)
                 outfile.write('{:5d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
