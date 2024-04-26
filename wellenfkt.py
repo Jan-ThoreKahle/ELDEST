@@ -210,7 +210,14 @@ def FCmor_hyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
     return FC
 
 
+def FCR6(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
+    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
+                            * psi_n(R,n2,alpha2,Req2,red_mass,De2) * (1/R**3))
+    tmp = integrate.quad(func, R_min, R_max)
+    FC = tmp[0]
+    return FC
 
+    
 #R_min = sc.angstrom_to_bohr(1.5)
 #R_max = sc.angstrom_to_bohr(30.0)
 #

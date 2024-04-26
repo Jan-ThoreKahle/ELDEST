@@ -72,7 +72,7 @@ Xshape = 'convoluted'
  omega_eV, n_L, I_L, Lshape, delta_t_s, shift_step_s, phi, q, FWHM_L,
  tmax_s, timestep_s, E_step_eV,
  E_min_eV, E_max_eV,
- integ, integ_outer,
+ integ, integ_outer, Gamma_type,
  mass1, mass2, grad_delta, R_eq_AA,
  gs_de, gs_a, gs_Req, gs_const,
  res_de, res_a, res_Req, res_const,
@@ -93,6 +93,8 @@ tau_au         = tau_au_1                           # (same as for Er)
 Gamma_au       = 1. / tau_au
 Gamma_eV       = sciconv.hartree_to_ev(Gamma_au)
 outfile.write('Gamma_eV = ' + str(Gamma_eV) + '\n')
+# print('Dependence of Gamma on R = ', Gamma_type)
+# outfile.write('Dependence of Gamma on R = ' + str(Gamma_type) + '\n')
 
 # second final state
 #E_fin_au_2       = sciconv.ev_to_hartree(E_fin_eV_2)
@@ -157,11 +159,21 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
+outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 
 #VEr_au_1      = VEr_au      # (same as for Er)
 
 #test q=1
 cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
+
+#if Gamma_type == 'const':
+
+if Gamma_type =='R6':
+    VEr_au = VEr_au*res_Req**3                            #adjusts VEr_au by the R dependent factor
+    print('VEr_au_adjusted = ', VEr_au)
+    outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
+
+
 
 #-------------------------------------------------------------------------
 # Potential details
@@ -182,6 +194,8 @@ outfile.write("Energies of vibrational states of the ground state" + '\n')
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
 print("n_gs_max = ", n_gs_max)
+print('n_gs  ' + 'E [au]            ' + 'E [eV]')
+outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
 E_kappas = []   # collects vibr energies of GS
 print('n_gs  ' + 'E [au]            ' + 'E [eV]')
 outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
@@ -265,7 +279,7 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
 gs_res =  []    # collects sub-lists of FC overlaps: [<l0|k0>, <l1|k0>, ...], [<l0|k1, <l1|k1>, ...], ...
 gs_fin =  []
 res_fin = []
-R_min = sciconv.angstrom_to_bohr(1.5)
+R_min = sciconv.angstrom_to_bohr(1.5)+0.01
 R_max = sciconv.angstrom_to_bohr(30.0)
 
 for k in range(0,n_gs_max+1):   # prepare the above (empty) sub-lists
@@ -273,8 +287,41 @@ for k in range(0,n_gs_max+1):   # prepare the above (empty) sub-lists
 for l in range(0,n_res_max+1):
     res_fin.append(list())
 
-# ground state - resonant state <lambda|kappa>
+
+# Numerical integration failsafe check: calculate test FC overlap integral
+if Gamma_type == 'const':
+    Gamma_factor = lambda R: 1
+elif Gamma_type == 'R6':
+    Gamma_factor = lambda R: 1/R**3
+
+if fin_pot_type == 'morse':
+    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+                      * wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de)
+                      * Gamma_factor(R))
+elif fin_pot_type == 'hypfree':
+    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+                      * wf.psi_freehyp(R,fin_hyp_a,fin_hyp_b,red_mass,R_start)
+                      * Gamma_factor(R))
+elif fin_pot_type == 'hyperbel':
+    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+                      * wf.psi_hyp(R,fin_hyp_a,fin_hyp_b,red_mass,R_start)
+                      * Gamma_factor(R))
+
+tmp = np.zeros(2)
+while tmp[0] <= (1000*tmp[1]):                      # checks if the test integral is at least three orders of magnitude larger than the estimated error
+    R_min -= 0.01                                   # if so: lower the lower integration bound by 0.01 bohr
+    tmp = integrate.quad(func, R_min, R_max)
+
 print()
+print('-----------------------------------------------------------------')
+print()
+print('Lower bound of integration over R for the Franck-Condon factors')
+print('R_min = {:14.10E} au = {:5.5f} A'.format(R_min, sciconv.bohr_to_angstrom(R_min))
+outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
+outfile.write('\n' + 'Lower bound of integration over R for the Franck-Condon factors' + '\n')
+outfile.write('R_min = {:14.10E} au = {:5.5f} A\n'.format(R_min, sciconv.bohr_to_angstrom(R_min))
+
+# ground state - resonant state <lambda|kappa>
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and resonant state")
 print('n_gs  ' + 'n_res  ' + '<res|gs>')
@@ -606,7 +653,8 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
-    
+
+
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
@@ -625,7 +673,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                               * gs_res[0][nlambda] * res_fin[nlambda][nmu])
                     indir_J1 = (prefac_indir1 * res_I[0]
                                 * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-    
+
                 elif (integ_outer == "romberg"):
                     res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
                 
