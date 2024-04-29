@@ -197,8 +197,6 @@ print("n_gs_max = ", n_gs_max)
 print('n_gs  ' + 'E [au]            ' + 'E [eV]')
 outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
 E_kappas = []   # collects vibr energies of GS
-print('n_gs  ' + 'E [au]            ' + 'E [eV]')
-outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
 for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)   # ev stands for eigenvalue, not for electronvolt (it is, in fact, in au!)
     E_kappas.append(ev)
@@ -288,38 +286,39 @@ for l in range(0,n_res_max+1):
     res_fin.append(list())
 
 
-# Numerical integration failsafe check: calculate test FC overlap integral
-if Gamma_type == 'const':
-    Gamma_factor = lambda R: 1
-elif Gamma_type == 'R6':
-    Gamma_factor = lambda R: 1/R**3
-
-if fin_pot_type == 'morse':
-    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
-                      * wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de)
-                      * Gamma_factor(R))
-elif fin_pot_type == 'hypfree':
-    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
-                      * wf.psi_freehyp(R,fin_hyp_a,fin_hyp_b,red_mass,R_start)
-                      * Gamma_factor(R))
-elif fin_pot_type == 'hyperbel':
-    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
-                      * wf.psi_hyp(R,fin_hyp_a,fin_hyp_b,red_mass,R_start)
-                      * Gamma_factor(R))
-
-tmp = np.zeros(2)
-while tmp[0] <= (1000*tmp[1]):                      # checks if the test integral is at least three orders of magnitude larger than the estimated error
-    R_min -= 0.01                                   # if so: lower the lower integration bound by 0.01 bohr
-    tmp = integrate.quad(func, R_min, R_max)
-
-print()
-print('-----------------------------------------------------------------')
-print()
-print('Lower bound of integration over R for the Franck-Condon factors')
-print('R_min = {:14.10E} au = {:5.5f} A'.format(R_min, sciconv.bohr_to_angstrom(R_min))
-outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
-outfile.write('\n' + 'Lower bound of integration over R for the Franck-Condon factors' + '\n')
-outfile.write('R_min = {:14.10E} au = {:5.5f} A\n'.format(R_min, sciconv.bohr_to_angstrom(R_min))
+## Numerical integration failsafe check: calculate test FC overlap integral
+#if Gamma_type == 'const':
+#    Gamma_factor = lambda R: 1
+#elif Gamma_type == 'R6':
+#    Gamma_factor = lambda R: 1/R**3
+#
+#if fin_pot_type == 'morse':
+#    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+#                      * wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de)
+#                      * Gamma_factor(R))
+#elif fin_pot_type == 'hypfree':
+#    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+#                      * wf.psi_freehyp(R,fin_hyp_a,fin_hyp_b,red_mass,R_start_EX_max)
+#                      * Gamma_factor(R))
+#elif fin_pot_type == 'hyperbel':
+#    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
+#                      * wf.psi_hyp(R,fin_hyp_a,fin_hyp_b,red_mass,R_start_EX_max)
+#                      * Gamma_factor(R))
+#
+#tmp = np.zeros(2)
+#while abs(tmp[0]) <= (1000*tmp[1]):                 # checks if the test integral is at least three orders of magnitude larger than the estimated error
+#    R_min -= 0.01                                   # if so: lower the lower integration bound by 0.01 bohr
+#    tmp = integrate.quad(func, R_min, R_max)
+#    print(R_min, tmp)
+#
+#print()
+#print('-----------------------------------------------------------------')
+#print()
+#print('Lower bound of integration over R for the Franck-Condon factors')
+#print('R_min = {:14.10E} au = {:5.5f} A'.format(R_min, sciconv.bohr_to_angstrom(R_min)))
+#outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
+#outfile.write('\n' + 'Lower bound of integration over R for the Franck-Condon factors' + '\n')
+#outfile.write('R_min = {:14.10E} au = {:5.5f} A\n'.format(R_min, sciconv.bohr_to_angstrom(R_min)))
 
 # ground state - resonant state <lambda|kappa>
 print('-----------------------------------------------------------------')

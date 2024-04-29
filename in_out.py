@@ -290,7 +290,6 @@ def read_input(inputfile, outfile):
         elif (words[0] == 'gs_de'):
             outfile.write('Parameters of potential energy curves:' + '\n')
             gs_de = float(words[2])
-            print("found gs_de")
             outfile.write('gs_de = ' + str(gs_de) + '\n')
         elif (words[0] == 'gs_a'):
             gs_a = float(words[2])
