@@ -327,9 +327,9 @@ print('n_gs  ' + 'n_res  ' + '<res|gs>')
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between ground and resonant state" + '\n')
 outfile.write('n_gs  ' + 'n_res  ' + '<res|gs>' + '\n')
-if Gamma_factor == "const":
+if Gamma_type == "const":
     FCfunc = wf.FC
-elif Gamma_factor == "R6":
+elif Gamma_type == "R6":
     FCfunc = wf.FCmor_mor_R6
 for i in range (0,n_gs_max+1):
     tmp = []
@@ -363,9 +363,9 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
             R_start = R_start + R_hyp_step
         norm_factor = 1. 
     else:
-        if Gamma_factor == "const":
+        if Gamma_type == "const":
             FCfunc = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
-        elif Gamma_factor == "R6":
+        elif Gamma_type == "R6":
             FCfunc = wf.FCmor_hyp_R6 if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp_R6
         R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
         thresh_flag = -1                # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
