@@ -169,7 +169,7 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 #if Gamma_type == 'const':
 
 if Gamma_type =='R6':
-    VEr_au = VEr_au*res_Req**3                            #adjusts VEr_au by the R dependent factor
+    VEr_au = VEr_au*res_Req**3                            # adjusts VEr_au by the R dependent factor
     print('VEr_au_adjusted = ', VEr_au)
     outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
 
@@ -277,7 +277,7 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
 gs_res =  []    # collects sub-lists of FC overlaps: [<l0|k0>, <l1|k0>, ...], [<l0|k1, <l1|k1>, ...], ...
 gs_fin =  []
 res_fin = []
-R_min = sciconv.angstrom_to_bohr(1.5)+0.01
+R_min = sciconv.angstrom_to_bohr(1.5)#+0.01
 R_max = sciconv.angstrom_to_bohr(30.0)
 
 for k in range(0,n_gs_max+1):   # prepare the above (empty) sub-lists
@@ -308,7 +308,7 @@ for l in range(0,n_res_max+1):
 #tmp = np.zeros(2)
 #while abs(tmp[0]) <= (1000*tmp[1]):                 # checks if the test integral is at least three orders of magnitude larger than the estimated error
 #    R_min -= 0.01                                   # if so: lower the lower integration bound by 0.01 bohr
-#    tmp = integrate.quad(func, R_min, R_max)
+#    tmp = integrate.quad(func, R_min, R_max,limit=500)
 #    print(R_min, tmp)
 #
 #print()
