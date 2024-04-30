@@ -290,7 +290,7 @@ for l in range(0,n_res_max+1):
 #if Gamma_type == 'const':
 #    Gamma_factor = lambda R: 1
 #elif Gamma_type == 'R6':
-#    Gamma_factor = lambda R: 1/R**3
+#    Gamma_factor = lambda R: R**(-3)
 #
 #if fin_pot_type == 'morse':
 #    func = lambda R: (np.conj(wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
@@ -327,10 +327,14 @@ print('n_gs  ' + 'n_res  ' + '<res|gs>')
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between ground and resonant state" + '\n')
 outfile.write('n_gs  ' + 'n_res  ' + '<res|gs>' + '\n')
+if Gamma_factor == "const":
+    FCfunc = wf.FC
+elif Gamma_factor == "R6":
+    FCfunc = wf.FCmor_mor_R6
 for i in range (0,n_gs_max+1):
     tmp = []
     for j in range (0,n_res_max+1):
-        FC = wf.FC(j,res_a,res_Req,res_de,red_mass,
+        FC = FCfunc(j,res_a,res_Req,res_de,red_mass,
                    i,gs_a,gs_Req,gs_de,R_min,R_max)
         tmp.append(FC)
         outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
@@ -341,11 +345,11 @@ for i in range (0,n_gs_max+1):
 if (fin_pot_type == 'morse'):
     for m in range(0,n_fin_max+1):
         for k in range(0,n_gs_max+1):
-            FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
+            FC = FCfunc(m,fin_a,fin_Req,fin_de,red_mass,
                        k,gs_a,gs_Req,gs_de,R_min,R_max)
             gs_fin[k].append(FC)
         for l in range(0,n_res_max+1):
-            FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
+            FC = FCfunc(m,fin_a,fin_Req,fin_de,red_mass,
                        l,res_a,res_Req,res_de,R_min,R_max)
             res_fin[l].append(FC)
 
@@ -359,7 +363,10 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
             R_start = R_start + R_hyp_step
         norm_factor = 1. 
     else:
-        FCfunc = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
+        if Gamma_factor == "const":
+            FCfunc = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
+        elif Gamma_factor == "R6":
+            FCfunc = wf.FCmor_hyp_R6 if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp_R6
         R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
         thresh_flag = -1                # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
         while (thresh_flag < 3):        # Stop FC calc if all |FC| < threshold for 3 consecutive mu

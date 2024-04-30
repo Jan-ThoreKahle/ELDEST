@@ -157,6 +157,16 @@ def FCmor_freehyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwar
     return FC
 
 
+def FCmor_freehyp_R6(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
+    lim = kwargs.get("limit", 50)
+    phi = kwargs.get("phase", 0)
+    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
+                            * psi_freehyp(R,V2a,V2b,red_mass,R_start,phi) * R**(-3) )
+    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    FC = tmp[0]
+    return FC
+
+
 def FCfreehyp_freehyp(V1a,V1b,R_start1,red_mass,V2a,V2b,R_start2,R_min,R_max,**kwargs):
     lim = kwargs.get("limit", 50)
     phi1 = kwargs.get("phase1", 0)
@@ -210,9 +220,18 @@ def FCmor_hyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
     return FC
 
 
-def FCR6(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
+def FCmor_hyp_R6(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
+    lim = kwargs.get("limit", 50)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
-                            * psi_n(R,n2,alpha2,Req2,red_mass,De2) * (1/R**3))
+                            * psi_hyp(R,V2a,V2b,red_mass,R_start) * R**(-3) )
+    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    FC = tmp[0]
+    return FC
+
+
+def FCmor_mor_R6(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
+    func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
+                            * psi_n(R,n2,alpha2,Req2,red_mass,De2) * R**(-3) )
     tmp = integrate.quad(func, R_min, R_max)
     FC = tmp[0]
     return FC
