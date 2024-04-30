@@ -170,7 +170,7 @@ cdg_au_V = rdg_au / ( q * np.pi * VEr_au)
 #if Gamma_type == 'const':
 
 if Gamma_type =='R6':
-    VEr_au = VEr_au*res_Req**3                            #adjusts VEr_au by the R dependent factor
+    VEr_au = VEr_au*res_Req**3                            # adjusts VEr_au by the R dependent factor
     print('VEr_au_adjusted = ', VEr_au)
     outfile.write('VEr_au_adjusted = ' + str(VEr_au) + '\n')
 
@@ -255,25 +255,25 @@ if (fin_pot_type == 'morse'):
 gs_res =  []    # collects sub-lists of FC overlaps: [<l0|k0>, <l1|k0>, ...], [<l0|k1, <l1|k1>, ...], ...
 gs_fin =  []
 res_fin = []
-R_min = sciconv.angstrom_to_bohr(1.5)
+R_min = sciconv.angstrom_to_bohr(1.5)+0.01
 R_max = sciconv.angstrom_to_bohr(30.0)
 
 
-# Numeric Integration failsafe check
+# Numerical integration failsafe check: calculate test FC overlap integral
 
 tmp=np.array((0,0))
 
 
-while tmp[0] <= (1000*tmp[1]):                                                                   # checks if the int. is three OoMs larger than the est. error
+while tmp[0] <= (1000*tmp[1]):                                                                   # checks if the test integral is at least three orders of magnitude larger than the estimated error
 
-    R_min -= 0.01                                                                                # lowers lower bound by 0.01 Bohr
+    R_min -= 0.01                                                                                # if so: lower the lower integration bound by 0.01 bohr
     if Gamma_type == 'const':
         func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
                                     * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de))
     elif Gamma_type == 'R6':
         func = lambda R: (np.conj(wf.psi_n(R,0,fin_a,fin_Req,red_mass,fin_de))
                                     * wf.psi_n(R,0,res_a,res_Req,red_mass,res_de) * (1/R**3) )
-    tmp = integrate.quad(func, R_min, R_max)
+    tmp = integrate.quad(func, R_min, R_max, limit=500)
 
 print('-----------------------------------------------------------------')
 print()
