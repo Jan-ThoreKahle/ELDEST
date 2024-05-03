@@ -331,7 +331,8 @@ for i in range (0,n_gs_max+1):
     tmp = []
     for j in range (0,n_res_max+1):
         FC = wf.FC(j,res_a,res_Req,res_de,red_mass,
-                   i,gs_a,gs_Req,gs_de,R_min,R_max)
+                   i,gs_a,gs_Req,gs_de,R_min,R_max,
+                   epsabs=1e-10)
         tmp.append(FC)
         outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
         print(('{:4d}  {:5d}  {:14.10E}'.format(i,j,FC)))
@@ -346,11 +347,13 @@ if (fin_pot_type == 'morse'):
     for m in range(0,n_fin_max+1):
         for k in range(0,n_gs_max+1):
             FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
-                       k,gs_a,gs_Req,gs_de,R_min,R_max)
+                       k,gs_a,gs_Req,gs_de,R_min,R_max,
+                       epsabs=1e-10)
             gs_fin[k].append(FC)
         for l in range(0,n_res_max+1):
             FC = FCfunc_res(m,fin_a,fin_Req,fin_de,red_mass,
-                       l,res_a,res_Req,res_de,R_min,R_max)
+                            l,res_a,res_Req,res_de,R_min,R_max,
+                            epsabs=1e-10)
             res_fin[l].append(FC)
 
 elif (fin_pot_type in ('hyperbel','hypfree')):
@@ -375,17 +378,19 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
     #        print(f'--- R = {sciconv.bohr_to_angstrom(R_start):7.4f} A')                       #?
             E_mu = fin_hyp_a / R_start
             E_mus.insert(0,E_mu)        # Present loop starts at high energies, but these shall get high mu numbers = stand at the end of the lists -> fill lists from right to left
-            print(f'--- R_start = {R_start:7.4f} au = {sciconv.bohr_to_angstrom(R_start):7.4f} A   ###   E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV   ###   steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
+            print(f'--- R_start = {R_start:7.4f} au = {sciconv.bohr_to_angstrom(R_start):7.4f} A   ###   E_mu = {E_mu:7.5f} au = {sciconv.hartree_to_ev(E_mu):7.4f} eV   ###   steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
     #        outfile.write(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}\n')  #?
             for k in range(0,n_gs_max+1):
                 FC = FCfunc_gs(k,gs_a,gs_Req,gs_de,red_mass,
-                                      fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+                               fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,
+                               epsabs=1e-10,limit=500)
                 gs_fin[k].insert(0,FC)
                 print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
             for l in range(0,n_res_max+1):
                 FC = FCfunc_res(l,res_a,res_Req,res_de,red_mass,
-                                      fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+                                fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,
+                                epsabs=1e-10,limit=500)
                 res_fin[l].insert(0,FC)
                 print(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?

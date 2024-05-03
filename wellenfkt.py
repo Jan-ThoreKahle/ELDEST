@@ -150,9 +150,10 @@ def psi_freehyp(R,a,b,red_mass,R_start,phase=0):    # model: free particle with 
 def FCmor_freehyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
     lim = kwargs.get("limit", 50)
     phi = kwargs.get("phase", 0)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                             * psi_freehyp(R,V2a,V2b,red_mass,R_start,phi) )
-    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    tmp = ci.complex_quadrature(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
@@ -160,9 +161,10 @@ def FCmor_freehyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwar
 def FCmor_freehyp_R6(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
     lim = kwargs.get("limit", 50)
     phi = kwargs.get("phase", 0)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                             * psi_freehyp(R,V2a,V2b,red_mass,R_start,phi) * R**(-3) )
-    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    tmp = ci.complex_quadrature(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
@@ -171,9 +173,10 @@ def FCfreehyp_freehyp(V1a,V1b,R_start1,red_mass,V2a,V2b,R_start2,R_min,R_max,**k
     lim = kwargs.get("limit", 50)
     phi1 = kwargs.get("phase1", 0)
     phi2 = kwargs.get("phase2", 0)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_freehyp(R,V1a,V1b,red_mass,R_start1,phi1))
                             * psi_freehyp(R,V2a,V2b,red_mass,R_start2,phi2) )
-    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    tmp = ci.complex_quadrature(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
@@ -190,9 +193,10 @@ def psi_free(R,a,b,red_mass,R_start,phase=0):    # model: free particle with ene
 def norm_free(R,a,b,red_mass,R_start,**kwargs):
     lim = kwargs.get("limit", 50)
     phi = kwargs.get("phase", 0)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_free(R,a,b,red_mass,R_start,phi))
                             * psi_free(R,a,b,red_mass,R_start,phi) )
-    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    tmp = ci.complex_quadrature(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
@@ -213,18 +217,20 @@ def psi_hyp(R,a,b,red_mass,R_start):        # model: particle in a hyperbolic po
 
 def FCmor_hyp(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
     lim = kwargs.get("limit", 50)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                             * psi_hyp(R,V2a,V2b,red_mass,R_start) )
-    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    tmp = ci.complex_quadrature(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
 
 def FCmor_hyp_R6(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwargs):
     lim = kwargs.get("limit", 50)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                             * psi_hyp(R,V2a,V2b,red_mass,R_start) * R**(-3) )
-    tmp = ci.complex_quadrature(func, R_min, R_max, limit=lim)
+    tmp = ci.complex_quadrature(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
