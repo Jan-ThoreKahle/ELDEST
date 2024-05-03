@@ -126,10 +126,12 @@ def psi_n(R,n,alpha,Req,red_mass,De):
     return psi
     
 
-def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
+def FC(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max,**kwargs):
+    lim = kwargs.get("limit", 50)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                             * psi_n(R,n2,alpha2,Req2,red_mass,De2) )
-    tmp = integrate.quad(func, R_min, R_max)
+    tmp = integrate.quad(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
@@ -235,10 +237,12 @@ def FCmor_hyp_R6(n1,alpha1,Req1,De1,red_mass,V2a,V2b,R_start,R_min,R_max,**kwarg
     return FC
 
 
-def FCmor_mor_R6(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max):
+def FCmor_mor_R6(n1,alpha1,Req1,De1,red_mass,n2,alpha2,Req2,De2,R_min,R_max,**kwargs):
+    lim = kwargs.get("limit", 50)
+    eps = kwargs.get("epsabs", 1.49e-8)
     func = lambda R: (np.conj(psi_n(R,n1,alpha1,Req1,red_mass,De1))
                             * psi_n(R,n2,alpha2,Req2,red_mass,De2) * R**(-3) )
-    tmp = integrate.quad(func, R_min, R_max)
+    tmp = integrate.quad(func, R_min, R_max, epsabs=eps, limit=lim)
     FC = tmp[0]
     return FC
 
