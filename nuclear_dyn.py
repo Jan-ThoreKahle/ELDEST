@@ -327,14 +327,10 @@ print('n_gs  ' + 'n_res  ' + '<res|gs>')
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
 outfile.write("Franck-Condon overlaps between ground and resonant state" + '\n')
 outfile.write('n_gs  ' + 'n_res  ' + '<res|gs>' + '\n')
-if Gamma_type == "const":
-    FCfunc = wf.FC
-elif Gamma_type == "R6":
-    FCfunc = wf.FCmor_mor_R6
 for i in range (0,n_gs_max+1):
     tmp = []
     for j in range (0,n_res_max+1):
-        FC = FCfunc(j,res_a,res_Req,res_de,red_mass,
+        FC = wf.FC(j,res_a,res_Req,res_de,red_mass,
                    i,gs_a,gs_Req,gs_de,R_min,R_max)
         tmp.append(FC)
         outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
@@ -343,13 +339,17 @@ for i in range (0,n_gs_max+1):
     
 # ground state - final state <mu|kappa>   and   resonant state - final state <mu|lambda>
 if (fin_pot_type == 'morse'):
+    if Gamma_type == "const":       # Gamma(R) dependence only influences res-fin FC integrals (interaction mediated by V)
+        FCfunc_res = wf.FC
+    elif Gamma_type == "R6":
+        FCfunc_res = wf.FCmor_mor_R6
     for m in range(0,n_fin_max+1):
         for k in range(0,n_gs_max+1):
-            FC = FCfunc(m,fin_a,fin_Req,fin_de,red_mass,
+            FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
                        k,gs_a,gs_Req,gs_de,R_min,R_max)
             gs_fin[k].append(FC)
         for l in range(0,n_res_max+1):
-            FC = FCfunc(m,fin_a,fin_Req,fin_de,red_mass,
+            FC = FCfunc_res(m,fin_a,fin_Req,fin_de,red_mass,
                        l,res_a,res_Req,res_de,R_min,R_max)
             res_fin[l].append(FC)
 
@@ -363,10 +363,11 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
             R_start = R_start + R_hyp_step
         norm_factor = 1. 
     else:
+        FCfunc_gs = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
         if Gamma_type == "const":
-            FCfunc = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
+            FCfunc_res = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
         elif Gamma_type == "R6":
-            FCfunc = wf.FCmor_hyp_R6 if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp_R6
+            FCfunc_res = wf.FCmor_hyp_R6 if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp_R6
         Req_max = max(gs_Req, res_Req)
         R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
         thresh_flag = -1                # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
@@ -374,19 +375,19 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
     #        print(f'--- R = {sciconv.bohr_to_angstrom(R_start):7.4f} A')                       #?
             E_mu = fin_hyp_a / R_start
             E_mus.insert(0,E_mu)        # Present loop starts at high energies, but these shall get high mu numbers = stand at the end of the lists -> fill lists from right to left
-            print(f'--- R_start = {R_start:7.4f} au = {sciconv.bohr_to_angstrom(R_start):7.4f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
+            print(f'--- R_start = {R_start:7.4f} au = {sciconv.bohr_to_angstrom(R_start):7.4f} A   ###   E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV   ###   steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
     #        outfile.write(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}\n')  #?
             for k in range(0,n_gs_max+1):
-                FC = FCfunc(k,gs_a,gs_Req,gs_de,red_mass,
+                FC = FCfunc_gs(k,gs_a,gs_Req,gs_de,red_mass,
                                       fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
                 gs_fin[k].insert(0,FC)
-                print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
+                print(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
             for l in range(0,n_res_max+1):
-                FC = FCfunc(l,res_a,res_Req,res_de,red_mass,
+                FC = FCfunc_res(l,res_a,res_Req,res_de,red_mass,
                                       fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
                 res_fin[l].insert(0,FC)
-                print(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?
+                print(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?
             if (R_start > Req_max):         # Do not stop FC calc as long as R_start has not surpassed all Req
                 if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
