@@ -123,7 +123,7 @@ elif(X_gauss):
     outfile.write('sigma [s] = ' + str(sciconv.atu_to_second(sigma)) + '\n')
     outfile.write('FWHM [s] = ' + str(sciconv.atu_to_second(FWHM)) + '\n')
 print('end of the first pulse [s] = ', sciconv.atu_to_second(TX_au/2))
-outfile.write('end of the first pulse [s] = ' + str(sciconv.atu_to_second(TX_au)) + '\n')
+outfile.write('end of the first pulse [s] = ' + str(sciconv.atu_to_second(TX_au/2)) + '\n')
 I_X_au        = sciconv.Wcm2_to_aiu(I_X)
 print('I_X [W/cm^2] = ', I_X)
 print('I_X_au = ', I_X_au)
@@ -137,11 +137,15 @@ sigma_L_au    = FWHM_L_au / np.sqrt(8 * np.log(2))      # assume Gaussian envelo
 a             = 5./2 * sigma_L_au       # half duration of IR pulse (delta_t - a, delta_t + a); in PRA 2020: small-delta t
 print("FWHM_L [s] = ", FWHM_L)
 print("sigma_L [s] = ", sciconv.atu_to_second(sigma_L_au))
-TL_au         = n_L * 2 * np.pi / omega_au
-print('start of IR pulse [s] = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
-print('end of IR pulse [s] = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
-outfile.write('start of IR pulse [s] = ' + str(delta_t_s - sciconv.atu_to_second(TL_au/2)) + '\n')
-outfile.write('end of IR pulse [s] = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2)) + '\n')
+TL_au         = n_L * 2 * np.pi / omega_au      # How can n_L and omega (and thereby TL) be chosen independently from FWHM_L? Is not FWHM_L = 2 sqrt(2) pi N_L / omega? And why is not TL = 5 sigma_L = (n_L * 2 pi / omega) * 5/ln(4) ? Luckily, TL is eventually never used, but printed nevertheless!
+print('start of IR pulse [s] = ', delta_t_s - sciconv.atu_to_second(a))
+print('end of IR pulse [s] = ', delta_t_s + sciconv.atu_to_second(a))
+outfile.write('start of IR pulse [s] = ' + str(delta_t_s - sciconv.atu_to_second(a)) + '\n')
+outfile.write('end of IR pulse [s] = ' + str(delta_t_s + sciconv.atu_to_second(a)) + '\n')
+#print('start of IR pulse [s] = ', delta_t_s - sciconv.atu_to_second(TL_au/2))
+#print('end of IR pulse [s] = ', delta_t_s + sciconv.atu_to_second(TL_au/2))
+#outfile.write('start of IR pulse [s] = ' + str(delta_t_s - sciconv.atu_to_second(TL_au/2)) + '\n')
+#outfile.write('end of IR pulse [s] = ' + str(delta_t_s + sciconv.atu_to_second(TL_au/2)) + '\n')
 I_L_au        = sciconv.Wcm2_to_aiu(I_L)
 print('I_L [W/cm^2] = ', I_L)
 print('I_L_au = ', I_L_au)
@@ -216,12 +220,12 @@ elif (Xshape == 'infinite'):
 
 # IR pulse
 A_IR = lambda t3: A0L * np.sin(np.pi * (t3 - delta_t_au + TL_au/2) / TL_au)**2 \
-                      * np.cos(omega_au * t3 + phi)
-integ_IR = lambda t3: (p_au + A_IR(t3))**2      # Hamiltonian for one electron in EM field
+                      * np.cos(omega_au * t3 + phi) # Evtly never used (only in integ_IR) ?
+integ_IR = lambda t3: (p_au + A_IR(t3))**2      # Hamiltonian for one electron in EM field      # Evtly never used (only in dress_I and dress_I_after) ?
 
 IR_during = lambda t2:  np.exp(-1j * (E_kin_au + E_fin_au) * (t_au - t2))
 
-IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2))
+IR_after = lambda t2:  np.exp(-1j * E_kin_au * (t_au - t2)) # Never used?
 
 # population of the ICD initial state - this is never used ?
 Mr = lambda t1: N0 * (1
@@ -237,17 +241,17 @@ fun_t_dir_1 = lambda t1: FX_t1(t1)   * np.exp(1j * E_fin_au * (t1-t_au)) \
 fun_TX2_dir_1 = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * (t1-t_au)) \
                                      * np.exp(1j * E_kin_au * (t1-t_au))        # Same as fun_t_dir_1 - why keep ?
 
-dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]
-dress = lambda t1: np.exp(-1j/2 * dress_I(t1))
+dress_I = lambda t1: integrate.quad(integ_IR,t1,t_au)[0]    # Evtly never used (only in dress) ?
+dress = lambda t1: np.exp(-1j/2 * dress_I(t1))  # Evtly never used (only in fun_IR_dir) ?
 
-dress_I_after = lambda t1: integrate.quad(integ_IR,t1,(delta_t_au + TL_au/2))[0]
-dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))
+dress_I_after = lambda t1: integrate.quad(integ_IR,t1,(delta_t_au + TL_au/2))[0]    # Evtly never used (only in dress_after) ?
+dress_after = lambda t1: np.exp(-1j/2 * dress_I_after(t1))  # Evtly never used (only in fun_dress_after) ?
 fun_dress_after = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
                               * np.exp(1j * E_kin_au * ((delta_t_au + TL_au/2)-t_au)) \
-                              * dress_after(t1)
+                              * dress_after(t1)     # Never used ?
 
 fun_IR_dir = lambda t1: FX_t1(t1) * np.exp(1j * E_fin_au * t1) \
-                                  * dress(t1)
+                                  * dress(t1)   # Never used ?
 
 
 

@@ -157,6 +157,7 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
+outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 
 #VEr_au_1      = VEr_au      # (same as for Er)
 
@@ -182,9 +183,9 @@ outfile.write("Energies of vibrational states of the ground state" + '\n')
 lambda_param_gs = np.sqrt(2*red_mass*gs_de) / gs_a
 n_gs_max = int(lambda_param_gs - 0.5)
 print("n_gs_max = ", n_gs_max)
-E_kappas = []   # collects vibr energies of GS
 print('n_gs  ' + 'E [au]            ' + 'E [eV]')
 outfile.write('n_gs  ' + 'E [au]            ' + 'E [eV]' + '\n')
+E_kappas = []   # collects vibr energies of GS
 for n in range (0,n_gs_max+1):
     ev = wf.eigenvalue(n,gs_de,gs_a,red_mass)   # ev stands for eigenvalue, not for electronvolt (it is, in fact, in au!)
     E_kappas.append(ev)
@@ -274,7 +275,6 @@ for l in range(0,n_res_max+1):
     res_fin.append(list())
 
 # ground state - resonant state <lambda|kappa>
-print()
 print('-----------------------------------------------------------------')
 print("Franck-Condon overlaps between ground and resonant state")
 print('n_gs  ' + 'n_res  ' + '<res|gs>')
@@ -285,7 +285,8 @@ for i in range (0,n_gs_max+1):
     tmp = []
     for j in range (0,n_res_max+1):
         FC = wf.FC(j,res_a,res_Req,res_de,red_mass,
-                   i,gs_a,gs_Req,gs_de,R_min,R_max)
+                   i,gs_a,gs_Req,gs_de,R_min,R_max,
+                   epsabs=1e-10)
         tmp.append(FC)
         outfile.write('{:4d}  {:5d}  {:14.10E}\n'.format(i,j,FC))
         print(('{:4d}  {:5d}  {:14.10E}'.format(i,j,FC)))
@@ -296,11 +297,13 @@ if (fin_pot_type == 'morse'):
     for m in range(0,n_fin_max+1):
         for k in range(0,n_gs_max+1):
             FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
-                       k,gs_a,gs_Req,gs_de,R_min,R_max)
+                       k,gs_a,gs_Req,gs_de,R_min,R_max,
+                       epsabs=1e-10)
             gs_fin[k].append(FC)
         for l in range(0,n_res_max+1):
             FC = wf.FC(m,fin_a,fin_Req,fin_de,red_mass,
-                       l,res_a,res_Req,res_de,R_min,R_max)
+                       l,res_a,res_Req,res_de,R_min,R_max,
+                       epsabs=1e-10)
             res_fin[l].append(FC)
 
 elif (fin_pot_type in ('hyperbel','hypfree')):
@@ -320,26 +323,29 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
             print(f'--- R = {sciconv.bohr_to_angstrom(R_start):7.4f} A') 
             E_mu = fin_hyp_a / R_start
             E_mus.insert(0,E_mu)        # Present loop starts at high energies, but these shall get high mu numbers = stand at the end of the lists -> fill lists from right to left
-    #        print(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
-    #        outfile.write(f'R_start = {R_start:5.5f} au = {sciconv.bohr_to_angstrom(R_start):5.5f} A, E_mu = {E_mu:5.5f} au = {sciconv.hartree_to_ev(E_mu):5.5f} eV, steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}\n')  #?
+    #        print(f'--- R_start = {R_start:7.4f} au = {sciconv.bohr_to_angstrom(R_start):7.4f} A   ###   E_mu = {E_mu:7.5f} au = {sciconv.hartree_to_ev(E_mu):7.4f} eV   ###   steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}')    #?
+    #        outfile.write(f'--- R_start = {R_start:7.4f} au = {sciconv.bohr_to_angstrom(R_start):7.4f} A   ###   E_mu = {E_mu:7.5f} au = {sciconv.hartree_to_ev(E_mu):7.4f} eV   ###   steps: {int((R_start - R_start_EX_max) / R_hyp_step  + 0.1)}\n')    #?
             for k in range(0,n_gs_max+1):
                 FC = FCfunc(k,gs_a,gs_Req,gs_de,red_mass,
-                                      fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+                            fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,
+                            epsabs=1e-10,limit=500)
                 gs_fin[k].insert(0,FC)
                 print(f'k = {k}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
             for l in range(0,n_res_max+1):
                 FC = FCfunc(l,res_a,res_Req,res_de,red_mass,
-                                      fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,limit=500)
+                            fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,
+                            epsabs=1e-10,limit=500)
                 res_fin[l].insert(0,FC)
                 print(f'l = {l}, |res_fin| = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?
-            if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
-                all(np.abs(res_fin[l][0]) < threshold for l in range(0,n_res_max+1)) ):
-                if (thresh_flag != -1):     # -1 can only occur at lowest R_start values (once any FC > threshold: flag is set to 0, then stays >= 0) -> dont stop calc right at start just bc FC are small there
-                    thresh_flag = thresh_flag + 1
-            else:
-                thresh_flag = 0         # If any FC overlap > threshold, reset flag -> only (mu-)consecutive threshold check passes shall stop calc
+            if (R_start > Req_max):         # Do not stop FC calc as long as R_start has not surpassed all Req
+                if (all(np.abs( gs_fin[k][0]) < threshold for k in range(0, n_gs_max+1)) and
+                    all(np.abs(res_fin[l][0]) < threshold for l in range(0,n_res_max+1)) ):
+                    if (thresh_flag != -1):     # -1 can only occur at lowest R_start values (once any FC > threshold: flag is set to 0, then stays >= 0) -> dont stop calc right at start just bc FC are small there
+                        thresh_flag = thresh_flag + 1
+                else:
+                    thresh_flag = 0         # If any FC overlap > threshold, reset flag -> only (mu-)consecutive threshold check passes shall stop calc
     #        print(f'thresh_flag = {thresh_flag}')                                                                               #?
     #        outfile.write(f'thresh_flag = {thresh_flag}\n')                                                                               #?
             R_start = R_start + R_hyp_step
@@ -606,7 +612,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
             if (integ_outer == "quadrature"):
                 I1 = ci.complex_quadrature(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1[0] * gs_fin[0][nmu]        # [0] of quad integ result = integral (rest is est error & info); FC = <mu_n|kappa_0>
-    
+
             elif (integ_outer == "romberg"):
                 I1 = ci.complex_romberg(fun_t_dir_1, (-TX_au/2), t_au)
                 dir_J1 = prefac_dir1 * I1 * gs_fin[0][nmu]           # romberg returns only the integral, so no [0] necessary
@@ -625,7 +631,7 @@ while ((t_au <= TX_au/2) and (t_au <= tmax_au)):
                               * gs_res[0][nlambda] * res_fin[nlambda][nmu])
                     indir_J1 = (prefac_indir1 * res_I[0]
                                 * indir_FCsums[nlambda] * res_fin[nlambda][nmu])
-    
+
                 elif (integ_outer == "romberg"):
                     res_I = ci.complex_romberg(res_outer_fun, (-TX_au/2), t_au)
                 
