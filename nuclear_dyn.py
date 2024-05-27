@@ -435,12 +435,15 @@ if (fin_pot_type in ('hyperbel','hypfree')):
 indir_FCsums = []
 for l in range (0,n_res_max+1):
     indir_FCsum = 0
+    factor = 1
     if (fin_pot_type in ('hyperbel','hypfree')):
         n_fin_max = n_fin_max_list[l]
     for m in range (0, n_fin_max + 1):
-        tmp = np.conj(res_fin[l][m]) * gs_fin[0][m]     # <mu|lambda>* <mu|kappa=0> = <lambda|mu><mu|kappa=0> = <l|m><m|k=0>
-        indir_FCsum = indir_FCsum + tmp                 # sum_m <l|m><m|k=0>
-    indir_FCsums.append(indir_FCsum)                    # [sum_m <l=0|m><m|k=0>, sum_m <l=1|m><m|k=0>, ...]
+        if (fin_pot_type in ('hyperbel','hypfree')):            # R-DOS for 'integration' over R_mu instead of [E_]mu
+            factor = R_hyp_step * E_mus[m]**2 / fin_hyp_a
+        tmp = np.conj(res_fin[l][m]) * gs_fin[0][m] * factor    # <mu|lambda>* <mu|kappa=0> = <lambda|mu><mu|kappa=0> = <l|m><m|k=0>
+        indir_FCsum = indir_FCsum + tmp                         # sum_m <l|m><m|k=0>
+    indir_FCsums.append(indir_FCsum)                            # [sum_m <l=0|m><m|k=0>, sum_m <l=1|m><m|k=0>, ...]
 print()
 print('-----------------------------------------------------------------')
 outfile.write('\n' + '-----------------------------------------------------------------' + '\n')
