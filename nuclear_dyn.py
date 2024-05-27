@@ -317,6 +317,7 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
         norm_factor = 1. 
     else:
         FCfunc = wf.FCmor_hyp if (fin_pot_type == 'hyperbel') else wf.FCmor_freehyp
+        Req_max = max(gs_Req, res_Req)
         R_start = R_start_EX_max        # Initialize R_start at the lowest considered value (then increase R_start by a constant R_hyp_step)
         thresh_flag = -1                # Initialize flag for FC-calc stop. Counts how often in a (mu) row all FC fall below threshold
         while (thresh_flag < 3):        # Stop FC calc if all |FC| < threshold for 3 consecutive mu
