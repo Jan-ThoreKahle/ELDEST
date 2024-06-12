@@ -19,8 +19,8 @@ import scipy.integrate as integrate
 def complex_quadrature(func, a, b, **kwargs):
     def real_func(x, **kwargs):
         return numpy.real(func(x, **kwargs))
-    def imag_func(x):
-        return numpy.imag(func(x))
+    def imag_func(x, **kwargs):
+        return numpy.imag(func(x, **kwargs))
     real_integral = integrate.quad(real_func, a, b, **kwargs)
     imag_integral = integrate.quad(imag_func, a, b, **kwargs)
     return (real_integral[0] + 1j*imag_integral[0], real_integral[1:],
