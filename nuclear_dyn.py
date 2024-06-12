@@ -329,14 +329,14 @@ elif (fin_pot_type in ('hyperbel','hypfree')):
             for k in range(0,n_gs_max+1):
                 FC = FCfunc(k,gs_a,gs_Req,gs_de,red_mass,
                             fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,
-                            epsabs=1e-10,limit=500)
+                            epsabs=1e-14,limit=500)
                 gs_fin[k].insert(0,FC)
                 print(f'k = {k}, |gs_fin|  = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'k = {k}, gs_fin  = {FC: 10.10E}, |gs_fin|  = {np.abs(FC):10.10E}\n')   #?
             for l in range(0,n_res_max+1):
                 FC = FCfunc(l,res_a,res_Req,res_de,red_mass,
                             fin_hyp_a,fin_hyp_b,R_start,R_min,R_max,
-                            epsabs=1e-10,limit=500)
+                            epsabs=1e-14,limit=500)
                 res_fin[l].insert(0,FC)
                 print(f'l = {l}, |res_fin| = {np.abs(FC):10.10E}')   #?
     #            outfile.write(f'l = {l}, res_fin = {FC: 10.10E}, |res_fin| = {np.abs(FC):10.10E}\n')   #?
