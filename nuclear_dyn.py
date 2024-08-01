@@ -158,6 +158,7 @@ E_max_au = sciconv.ev_to_hartree(E_max_eV)
 
 VEr_au        = np.sqrt(Gamma_au/ (2*np.pi))
 print('VEr_au = ', VEr_au)
+outfile.write('VEr_au = ' + str(VEr_au) + '\n')
 
 #VEr_au_1      = VEr_au      # (same as for Er)
 
@@ -428,8 +429,8 @@ while (E_kin_au <= E_max_au):
 
 #-------------------------------------------------------------------------
 # constants / prefactors
-prefac_res1 = VEr_au * rdg_au
-prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V
+prefac_res1 = VEr_au * rdg_au / (n_res_max + 1)
+prefac_indir1 = -1j * np.pi * VEr_au**2 * cdg_au_V / (n_res_max + 1)
 prefac_dir1 = 1j * cdg_au_V
 
 
